@@ -250,23 +250,13 @@
       tasks.push(async () => {
         const q = el.getAttribute('data-dc-img');
         const fbUrl = pickCurated(q, used);
-        const isPerson = PEOPLE.test(q) || /(korean|asian|한국|의사|원장|의료진|모델|대표)/i.test(q);
-        let finalUrl = fbUrl;
-        if (has('pexels')) {
-          try {
-            const found = await findPhoto(q, { orientation: orientOf(el, 'img'), used, signal });
-            if (found?.url) finalUrl = found.url;
-          } catch { finalUrl = fbUrl; }
-        } else if (/^ai\s*:/i.test(q) || isPerson) {
-          try {
-            const clean = q.replace(/^ai\s*:/i, '').trim();
-            const orient = orientOf(el, 'img');
-            const dims = orient === 'portrait' ? { width: 896, height: 1152 } : { width: 1440, height: 900 };
-            const a = await aiPhoto(clean, { width: dims.width, height: dims.height, signal });
-            finalUrl = a.url || a.dataUrl || fbUrl;
-            stats.ai++;
-          } catch { finalUrl = fbUrl; }
-        }
+        const clean = q.replace(/^ai\s*:/i, '').trim();
+        const orient = orientOf(el, 'img');
+        const dims = orient === 'portrait' ? { width: 896, height: 1152 } : { width: 1440, height: 900 };
+        const seed = Math.floor((Date.now() / 1000) % 90000) + idx * 41;
+        const promptEn = photorealPrompt(koreanize(toEnglishVisualPrompt(clean)));
+        const finalUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptEn)}?width=${dims.width}&height=${dims.height}&enhance=true&nologo=true&seed=${seed}`;
+        stats.ai++;
         el.setAttribute('src', finalUrl);
         el.setAttribute('onerror', `this.onerror=null;this.src='${fbUrl}';`);
         if (!el.getAttribute('alt')) el.setAttribute('alt', q);

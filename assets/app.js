@@ -28,24 +28,24 @@ const FIREBASE = {
   sdk: '13.4.0',
 };
 const FREE_DAILY_CAP = Infinity; // 평생 무제한 무료
-const DEFAULT_OPTS = { ttl: 86400, compressAt: 16000, keepRecent: 4, firstByteTimeout: 30000, idleTimeout: 45000, cooldown429: 60, gateA: true, gateC: true, claudeMonthlyCap: 0, claudeMaxOut: 6000, localAuto: true, azureRegion: 'koreacentral' };
+const DEFAULT_OPTS = { ttl: 86400, compressAt: 16000, keepRecent: 4, firstByteTimeout: 10000, idleTimeout: 18000, cooldown429: 60, gateA: false, gateC: false, claudeMonthlyCap: 0, claudeMaxOut: 6000, localAuto: true, azureRegion: 'koreacentral' };
 
 const PROVIDER_DEFS = [
-  { id: 'gemini-free', name: 'Gemini Free', short: 'GEM·FREE', kind: 'firebase', model: 'gemini-3.5-flash-lite', weight: 6, roles: ['general', 'multimodal', 'long', 'plan', 'code', 'verify', 'summary', 'synth', 'fast'], builtin: true, note: '내장 평생 무료 (Firebase AI Logic) · 키 불필요' },
-  { id: 'pollinations', name: 'Pollinations AI (내장 평생 무료)', short: 'POL·FREE', kind: 'openai', base: 'https://text.pollinations.ai/v1', model: 'openai-fast', prefer: ['openai-fast', 'mistral', 'qwen-coder'], weight: 5, roles: ['general', 'plan', 'code', 'verify', 'summary', 'synth', 'fast'], builtin: true, note: '내장 평생 무료 (키 불필요 · 오픈모델 무제한 풀)' },
-  { id: 'gemini', name: 'Gemini (내 키 · 무료 등급)', short: 'GEMINI', kind: 'gemini', model: 'gemini-3.8-flash', prefer: ['gemini-3.8-flash', 'gemini-4-hydrogen', 'gemini-3.5-flash-lite'], weight: 6, roles: ['multimodal', 'long', 'general', 'plan', 'synth', 'code', 'verify'], needs: ['key'], note: 'AI Studio 무료 키 · 긴 컨텍스트 · 홍보영상 나레이션(TTS)도 이 키 사용' },
-  { id: 'groq', name: 'Groq', short: 'GROQ', kind: 'openai', base: 'https://api.groq.com/openai/v1', model: 'openai/gpt-oss-120b', prefer: ['openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b'], weight: 4, roles: ['fast', 'plan', 'summary', 'general', 'code'], needs: ['key'], note: '무료 30회/분 · 1천회/일 · 초고속' },
-  { id: 'openrouter', name: 'OpenRouter :free', short: 'OR·FREE', kind: 'openai', base: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-ultra-550b-a55b:free', prefer: ['nvidia/nemotron-3-ultra-550b-a55b:free', 'google/gemma-4-31b-it:free', 'nvidia/nemotron-3.5-super-vl:free', 'google/gemma-4-26b-a4b-it:free'], weight: 3, roles: ['verify', 'general', 'code'], needs: ['key'], note: ':free 모델 20회/분 · 50회/일' },
-  { id: 'cerebras', name: 'Cerebras', short: 'CEREBRAS', kind: 'openai', base: 'https://api.cerebras.ai/v1', model: 'gpt-oss-120b', prefer: ['gpt-oss-120b', 'qwen-3.8-27b'], weight: 3, roles: ['fast', 'code', 'general'], needs: ['key'], note: '체험 크레딧 (카드 등록 필요) · 초고속' },
-  { id: 'cohere', name: 'Cohere (체험 키)', short: 'COHERE', kind: 'openai', base: 'https://api.cohere.ai/compatibility/v1', model: 'command-a-plus-05-2026', weight: 1, roles: ['summary', 'verify', 'general'], needs: ['key'], note: '체험 키 월 1천회 · 상업용 사용 불가' },
-  { id: 'cloudflare', name: 'Cloudflare Workers AI', short: 'CF·AI', kind: 'openai', base: 'https://api.cloudflare.com/client/v4/accounts/{account}/ai/v1', model: '@cf/openai/gpt-oss-120b', corsBlocked: true, weight: 2, roles: ['fast', 'general'], needs: ['key', 'account'], note: '무료 1만 뉴런/일 · 브라우저 직접 호출 차단 → Base URL 에 프록시 주소 필요' },
-  { id: 'nvidia', name: 'NVIDIA NIM', short: 'NIM', kind: 'openai', base: 'https://integrate.api.nvidia.com/v1', model: 'deepseek-ai/deepseek-v4-pro', corsBlocked: true, weight: 2, roles: ['code', 'verify', 'general'], needs: ['key'], note: '무료 프로토타입 40회/분 · 브라우저 직접 호출 차단 → 프록시 Base URL 필요' },
-  { id: 'sambanova', name: 'SambaNova', short: 'SAMBA', kind: 'openai', base: 'https://api.sambanova.ai/v1', model: 'gpt-oss-120b', corsBlocked: true, weight: 1, roles: ['general', 'code'], needs: ['key'], note: '무료 20회/일 · 브라우저 직접 호출 차단 → 프록시 Base URL 필요' },
-  { id: 'mistral', name: 'Mistral (유료)', short: 'MISTRAL', kind: 'openai', base: 'https://api.mistral.ai/v1', model: 'mistral-small-latest', paid: true, weight: 0, roles: ['code', 'general', 'summary'], needs: ['key'], note: '무료 API 없음 · 가중치 0 = 자동 사용 안 함' },
-  { id: 'deepseek', name: 'DeepSeek (유료 · 저가)', short: 'DEEPSEEK', kind: 'openai', base: 'https://api.deepseek.com', model: 'deepseek-flash', paid: true, weight: 0, roles: ['code', 'general', 'plan'], needs: ['key'], note: '유료 저가 · 가중치 0 = 자동 사용 안 함 (올리면 풀 참여)' },
-  { id: 'openai', name: 'OpenAI GPT-6.2 (유료)', short: 'OPENAI', kind: 'openai', base: 'https://api.openai.com/v1', model: 'gpt-6.2-sol', prefer: ['gpt-6.2-sol', 'gpt-6.2-astra', 'gpt-6-luna'], paid: true, weight: 0, roles: ['code', 'synth', 'plan', 'verify'], needs: ['key'], note: '유료 · Astra 입력 $8 / 출력 $40 (100만 토큰) · 가중치 0 = 자동 사용 안 함' },
-  { id: 'ollama', name: 'Ollama (로컬 무제한)', short: 'OLLAMA', kind: 'openai', base: 'http://localhost:11434/v1', model: 'qwen3:8b', fastModel: 'qwen3:8b', embedModel: 'nomic-embed-text', weight: 6, roles: ['local', 'general', 'code', 'synth', 'verify', 'plan'], local: true, note: '무제한 평생 무료 · 내 PC 연동 (설치 시 자동 우선 연결)' },
-  { id: 'claude', name: 'Claude (주력 브레인)', short: 'CLAUDE', kind: 'anthropic', model: 'claude-sonnet-5-5', weight: 0, roles: ['synth'], needs: ['key'], primary: true, note: '최종 통합 · 품질 검증 (옵션)' },
+  { id: 'pollinations', name: '클라우드 고속 엔진 A (기본)', short: 'NODE·A', kind: 'openai', base: 'https://text.pollinations.ai/v1', model: 'openai-fast', prefer: ['openai-fast', 'mistral', 'qwen-coder'], weight: 9, roles: ['general', 'plan', 'code', 'verify', 'summary', 'synth', 'fast'], builtin: true, note: '기본 내장 엔진 · 키 불필요 · 고속 스트리밍' },
+  { id: 'gemini-free', name: '클라우드 기본 엔진 B', short: 'NODE·B', kind: 'firebase', model: 'gemini-3.5-flash-lite', weight: 2, roles: ['general', 'multimodal', 'long', 'plan', 'code', 'verify', 'summary', 'synth', 'fast'], builtin: true, note: '내장 보조 엔진 · 키 불필요' },
+  { id: 'gemini', name: '외부 엔진 1 (개인 키)', short: 'EXT·1', kind: 'gemini', model: 'gemini-3.8-flash', prefer: ['gemini-3.8-flash', 'gemini-4-hydrogen', 'gemini-3.5-flash-lite'], weight: 6, roles: ['multimodal', 'long', 'general', 'plan', 'synth', 'code', 'verify'], needs: ['key'], note: '긴 컨텍스트 · 음성 나레이션 지원' },
+  { id: 'groq', name: '외부 엔진 2 (초고속)', short: 'EXT·2', kind: 'openai', base: 'https://api.groq.com/openai/v1', model: 'openai/gpt-oss-120b', prefer: ['openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b'], weight: 5, roles: ['fast', 'plan', 'summary', 'general', 'code'], needs: ['key'], note: '고속 추론 노드' },
+  { id: 'openrouter', name: '외부 엔진 3 (통합 풀)', short: 'EXT·3', kind: 'openai', base: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-ultra-550b-a55b:free', prefer: ['nvidia/nemotron-3-ultra-550b-a55b:free', 'google/gemma-4-31b-it:free'], weight: 3, roles: ['verify', 'general', 'code'], needs: ['key'], note: '오픈 모델 라우팅' },
+  { id: 'cerebras', name: '외부 엔진 4 (초고속)', short: 'EXT·4', kind: 'openai', base: 'https://api.cerebras.ai/v1', model: 'gpt-oss-120b', prefer: ['gpt-oss-120b', 'qwen-3.8-27b'], weight: 3, roles: ['fast', 'code', 'general'], needs: ['key'], note: '고속 코드 생성' },
+  { id: 'cohere', name: '외부 엔진 5', short: 'EXT·5', kind: 'openai', base: 'https://api.cohere.ai/compatibility/v1', model: 'command-a-plus-05-2026', weight: 1, roles: ['summary', 'verify', 'general'], needs: ['key'], note: '문서 요약 · 검증' },
+  { id: 'cloudflare', name: '외부 엔진 6 (프록시)', short: 'EXT·6', kind: 'openai', base: 'https://api.cloudflare.com/client/v4/accounts/{account}/ai/v1', model: '@cf/openai/gpt-oss-120b', corsBlocked: true, weight: 2, roles: ['fast', 'general'], needs: ['key', 'account'], note: '프록시 주소 설정 필요' },
+  { id: 'nvidia', name: '외부 엔진 7 (프록시)', short: 'EXT·7', kind: 'openai', base: 'https://integrate.api.nvidia.com/v1', model: 'deepseek-ai/deepseek-v4-pro', corsBlocked: true, weight: 2, roles: ['code', 'verify', 'general'], needs: ['key'], note: '프록시 주소 설정 필요' },
+  { id: 'sambanova', name: '외부 엔진 8 (프록시)', short: 'EXT·8', kind: 'openai', base: 'https://api.sambanova.ai/v1', model: 'gpt-oss-120b', corsBlocked: true, weight: 1, roles: ['general', 'code'], needs: ['key'], note: '프록시 주소 설정 필요' },
+  { id: 'mistral', name: '외부 엔진 9 (고급)', short: 'EXT·9', kind: 'openai', base: 'https://api.mistral.ai/v1', model: 'mistral-small-latest', paid: true, weight: 0, roles: ['code', 'general', 'summary'], needs: ['key'], note: '가중치 0 = 수동 선택 시 사용' },
+  { id: 'deepseek', name: '외부 엔진 10 (고급)', short: 'EXT·10', kind: 'openai', base: 'https://api.deepseek.com', model: 'deepseek-flash', paid: true, weight: 0, roles: ['code', 'general', 'plan'], needs: ['key'], note: '가중치 0 = 수동 선택 시 사용' },
+  { id: 'openai', name: '외부 엔진 11 (프로)', short: 'EXT·11', kind: 'openai', base: 'https://api.openai.com/v1', model: 'gpt-6.2-sol', prefer: ['gpt-6.2-sol', 'gpt-6.2-astra', 'gpt-6-luna'], paid: true, weight: 0, roles: ['code', 'synth', 'plan', 'verify'], needs: ['key'], note: '가중치 0 = 수동 선택 시 사용' },
+  { id: 'ollama', name: '로컬 PC 엔진 (무제한)', short: 'LOCAL', kind: 'openai', base: 'http://localhost:11434/v1', model: 'qwen3:8b', fastModel: 'qwen3:8b', embedModel: 'nomic-embed-text', weight: 6, roles: ['local', 'general', 'code', 'synth', 'verify', 'plan'], local: true, note: '내 PC 로컬 엔진 자동 연동' },
+  { id: 'claude', name: '고정밀 통합 엔진 (옵션)', short: 'PRO', kind: 'anthropic', model: 'claude-sonnet-5-5', weight: 0, roles: ['synth'], needs: ['key'], primary: true, note: '최종 통합 · 정밀 검증 (옵션)' },
 ];
 
 /* ================= STATE ================= */
@@ -451,8 +451,9 @@ async function routeCall({ role, system, messages, onToken, signal, log, avoid =
     catch (e) {
       if (e.kind === 'abort') throw e;
       markFail(p, e);
+      if (e.status === 401 || e.status === 403) p.cooldownUntil = Date.now() + 3600000;
       const cd = cooling(p) ? ` · cooldown ${Math.round((p.cooldownUntil - Date.now()) / 1000)}s` : '';
-      log(`fail   ${p.short} ${e.status || e.kind} ${e.message}${cd} → 다음 프로바이더`, 'warn');
+      log(`fail   ${p.short} ${e.status || e.kind} → 다음 노드로 전환${cd}`, 'warn');
     }
   }
   // local Ollama fallback
@@ -503,59 +504,52 @@ function cachePut(key, value) {
 function cacheClear() { for (const k of LS.get('cidx', [])) { LS.del('c:' + k); LS.del('c2:' + k); } LS.set('cidx', []); }
 
 /* ================= PROMPTS ================= */
-const SYSTEM_CORE = `당신은 Claude Artifacts / Google Stitch 수준의 최상급 풀스택 웹 디자이너이자 프론트엔드 아키텍트입니다.
-사용자의 요청을 받으면 즉시 실제 상용 서비스로 출시할 수 있는 완벽한 단일 HTML 완성본(<!doctype html>)을 제작합니다.
+const SYSTEM_CORE = `당신은 최상급 풀스택 웹 디자이너이자 프론트엔드 아키텍트입니다.
+사용자의 요청을 받으면 즉시 상용 서비스로 출시할 수 있는 간결하고 완성도 높은 단일 HTML 완성본(<!doctype html>)을 빠르게 제작합니다.
 
-[절대 타협 불가 품질 원칙 — 위반 시 실패로 간주]
-1. 외부 CSS 프레임워크 절대 금지 (100% 자체 완결형 CSS):
-   - Tailwind CDN(\`cdn.tailwindcss.com\`), Bootstrap, 외부 CSS 링크를 절대 사용하지 마십시오. (외부 CDN 로드 실패 시 스타일이 완전히 깨집니다.)
-   - 반드시 \`<head>\` 안의 \`<style>\` 태그에 완전한 디자인 시스템(\`:root\` CSS 변수, \`*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }\`, Pretendard Variable 폰트, 반응형 Flexbox/Grid, 여백, 그림자, 호버 트랜지션, 모달 스타일)을 처음부터 끝까지 직접 작성하십시오.
-2. 업종별 에디토리얼 디자인 & 고품격 컬러 시스템:
-   - 병원·치과·클리닉·의료·기업·교육: 반드시 신뢰감 있고 쾌적한 **프리미엄 화이트 에디토리얼 라이트 테마**(\`--bg: #ffffff\`, \`--surface: #f8fafc\`, \`--primary: #0f2942\`, \`--accent: #0d9488\` 또는 \`#2563eb\`, \`--text: #0f172a\`, \`--muted: #64748b\`)를 사용하십시오. (별도 요청 없이 어두운 해커풍 다크모드로 만들지 마십시오.)
-   - 뷰티·호텔·카페·레스토랑: 따뜻한 아이보리(\`#faf8f5\`) + 에스프레소(\`#1c1917\`) + 골드(\`#b4834c\`).
-   - 테크·AI·SaaS·스튜디오: 모던 다크 슬레이트(\`#09090b\`) 또는 화이트 미니멀.
-3. 5개 핵심 화면 섹션 구조 (\`data-stitch-screen\` 속성 필수):
-   - 상단 고정 글래스 헤더(\`<header>\`): 브랜드 로고, 메뉴 4개, 강조 예약/문의 CTA 버튼.
-   - \`<section id="hero" data-stitch-screen="메인 페이지">\`: 2단 분할 히어로(왼쪽: 신뢰 배지 + 굵은 메인 타이틀 + 서브 설명 + 주요 CTA 2개 + 핵심 지표 3개 / 오른쪽: 고화질 실사 사진 프레임) + 하단 핵심 강점 3열 카드.
-   - \`<section id="services" data-stitch-screen="진료 안내">\`: 카테고리 필터 탭이 작동하는 4~6개 전문 서비스 카드(각 카드마다 고화질 이미지 + 제목 + 설명 + 예상 소요/특징).
-   - \`<section id="team" data-stitch-screen="의료진 소개">\`: 대표 원장/리더 대형 프로필 카드(약력·전문 분야) + 3~4인 팀원 카드 그리드.
-   - \`<section id="reviews" data-stitch-screen="후기 · FAQ">\`: 인터랙티브 견적/비용 계산기 또는 실제 아코디언 FAQ + 고객 후기 카드.
-   - \`<section id="contact" data-stitch-screen="오시는 길 · 예약">\`: 진료시간/운영시간 표 + 깔끔한 오시는 길 카드 + 실시간 예약/상담 폼(제출 시 예약 번호 발급 및 \`localStorage\` 저장 + 확인 토스트) + 정돈된 \`<footer>\`.
-4. 이미지 규칙 (깨진 이미지·무관 영상 원천 차단):
-   - \`<video>\` 태그는 절대 넣지 마십시오. 대신 모든 사진에 \`<img data-dc-img="영문 구체적 묘사" alt="한글 설명">\`을 사용하십시오. (예: \`data-dc-img="bright luxury modern dental clinic reception lobby architecture"\`, 인물: \`data-dc-img="ai:korean male chief doctor in late 30s white coat warm trustworthy smile modern bright clinic"\`).
-   - 모든 \`<img>\`에는 명확한 \`width: 100%; aspect-ratio: ...; object-fit: cover; border-radius: ...\` 스타일을 지정해 레이아웃이 절대 깨지지 않게 하십시오.
-5. 생략("...", "이하 동일") 절대 금지. 모든 버튼·탭·FAQ 아코디언·예약 모달이 JS로 100% 실제 동작하게 완성하십시오.
+[필수 품질·속도 원칙]
+1. 100% 자체 완결형 CSS (외부 CSS 프레임워크 절대 금지):
+   - 외부 CSS CDN을 절대 쓰지 말고, \`<head>\` 안의 \`<style>\`에 깔끔한 \`:root\` 변수, 리셋(\`*{box-sizing:border-box;margin:0;padding:0}\`), 반응형 Grid/Flexbox, 여백, 그림자를 직접 작성하십시오.
+2. 업종별 에디토리얼 디자인:
+   - 병원·치과·클리닉·기업·교육: 신뢰감 있는 화이트 라이트 테마(\`#ffffff\`, \`#f8fafc\`, 딥 네이비 \`#0f2942\`, 틸/블루 포인트 \`#0d9488\`).
+   - 뷰티·호텔·카페: 따뜻한 아이보리(\`#faf8f5\`) + 에스프레소(\`#1c1917\`) + 골드(\`#b4834c\`).
+   - 테크·AI·스튜디오: 다크 슬레이트(\`#09090b\`) 또는 화이트 미니멀.
+3. 4~5개 명확한 화면 섹션(\`data-stitch-screen\` 속성 포함, 전체 220~340줄 내로 군더더기 없이 빠르게 완성):
+   - 상단 고정 헤더(로고, 메뉴 4개, 예약/문의 CTA 버튼)
+   - \`<section id="hero" data-stitch-screen="메인 페이지">\`: 2단 히어로 + 핵심 강점 3열 카드
+   - \`<section id="services" data-stitch-screen="주요 안내">\`: 탭 필터가 동작하는 4개 카드
+   - \`<section id="team" data-stitch-screen="소개">\`: 대표 프로필 + 팀원 그리드
+   - \`<section id="contact" data-stitch-screen="예약 · 오시는 길">\`: 운영시간·위치 + 실시간 예약 폼(제출 시 접수 완료 알림) + 푸터
+4. 이미지 규칙: \`<video>\` 태그 금지. 모든 사진은 \`<img data-dc-img="영문 묘사" alt="한글 설명">\`으로 넣고 \`width:100%;object-fit:cover\` 지정.
+5. 생략("...") 없이 한 번에 닫히는 완벽한 \`</html>\`까지 출력하십시오.
 
-응답 형식 — 반드시 아래 세 제목을 이 순서 그대로 사용:
+응답 형식:
 ## 합의 요약
-- 브랜드 아이덴티티, 컬러·타이포그래피, 핵심 페이지 구성 3~4줄 요약
+- 핵심 디자인 및 기능 2~3줄
 ## 자율 실행 산출물
-(단일 \`\`\`html ... \`\`\` 코드 블록에 완전한 <!doctype html> 문서)
+\`\`\`html
+<!doctype html>
+...
+</html>
+\`\`\`
 ## 세션 상태 스냅샷
 \`\`\`yaml
 user_goal: "..."
 completed_steps: ["..."]
-active_artifacts: ["..."]
-pending_tasks: ["..."]
-constraints: ["..."]
+active_artifacts: ["index.html"]
 \`\`\``;
 
 const ROLE_PROMPTS = {
-  strategist: `당신은 [UI/UX 아키텍트]입니다. 사용자 요청에 맞는 브랜드 컨셉, 업종별 컬러 팔레트(HEX), 타이포그래피, 5개 화면 섹션(메인/서비스/소개·의료진/후기·FAQ/예약·오시는길)과 인터랙션 설계를 한국어 bullet 8줄 이내로 제시하십시오. 외부 CSS 프레임워크(Tailwind CDN 등) 금지 및 100% 자체 CSS 원칙을 명시하십시오.`,
-  implementer: `당신은 [시니어 풀스택 웹 디자이너]입니다. 주어진 설계에 따라 Claude Artifacts 수준의 완벽한 단일 html 완성본(<!doctype html>)을 작성하십시오. Tailwind CDN 등 외부 CSS 프레임워크를 절대 쓰지 말고 <style> 안에 완전한 반응형 CSS(:root 변수, 리셋, 그리드, 여백, 그림자)를 직접 작성하십시오. <video> 태그는 쓰지 말고 data-dc-img 속성으로 고화질 사진을 배치하십시오. 생략 없이 완성 코드만 출력하십시오.`,
-  critic: `당신은 [디자인·코드 QA 검수자]입니다. 초안에서 (1) 외부 CSS 프레임워크(Tailwind CDN 등) 의존 여부, (2) CSS 누락/레이아웃 깨짐, (3) 누락된 섹션/인터랙션, (4) <video> 사용이나 이미지 비율 깨짐을 최대 6개 bullet로 지적하고 수정안을 제시하십시오.`,
-  verifier: `당신은 [교차 검증자]입니다. 최종안을 사용자 요청과 대조해 치명적 오류(실행 불가, 문법 오류, 잘린 HTML, 외부 CSS 의존으로 스타일 깨짐, 필수 기능 누락)만 판정하십시오.
-첫 줄에 정확히 "VERDICT: PASS" 또는 "VERDICT: FAIL" 을 쓰고, FAIL이면 문제 위치와 함께 최대 5개 bullet로 쓰십시오.`,
-  summarizer: `다음 대화 기록을 아래 4개 섹션으로 압축하십시오. 600 토큰 이내.
-[완료된 단계]
-[현재 산출물]
-[다음 실행 작업]
-[제약조건]`,
+  strategist: `당신은 [UI/UX 아키텍트]입니다. 브랜드 컨셉, 컬러 팔레트(HEX), 4~5개 섹션과 핵심 인터랙션을 한국어 bullet 6줄 이내로 제시하십시오.`,
+  implementer: `당신은 [시니어 웹 디자이너]입니다. 외부 CSS 프레임워크 없이 <style> 내 자체 반응형 CSS로 240~340줄 분량의 완벽한 단일 html 완성본(<!doctype html>~</html>)을 빠르게 작성하십시오. <video> 금지, 사진은 data-dc-img 사용.`,
+  critic: `당신은 [품질 검수자]입니다. CSS 누락·레이아웃 깨짐·인터랙션 오류만 최대 4개 bullet로 지적하십시오.`,
+  verifier: `치명적 오류(문법 오류, 잘린 HTML)만 판정하십시오. 첫 줄에 "VERDICT: PASS" 또는 "VERDICT: FAIL".`,
+  summarizer: `대화 기록을 4개 섹션([완료된 단계]/[현재 산출물]/[다음 실행 작업]/[제약조건])으로 400 토큰 이내 압축하십시오.`,
 };
 
 /* ================= THREADS ================= */
 let threads = [];
-const state = { cur: null, mode: 'council', route: 'auto', running: null, rightTab: 'doc', activeFile: 0 };
+const state = { cur: null, mode: 'fast', route: 'auto', running: null, rightTab: 'preview', activeFile: 0 };
 const tkey = () => `threads:${user?.id || 'guest'}`;
 function loadThreads() { threads = LS.get(tkey(), []); }
 function saveThreads() {
@@ -723,45 +717,33 @@ function routeSummary(run) {
   if (run.compressed) path.push('컨텍스트 압축');
   if (run.core) path.push(`CORE 게이트웨이 (${run.calls.map((c) => c.short).join(' → ')})`);
   if (run.local6) path.push(`로컬 6-에이전트 (${run.calls.map((c) => c.short).join(' → ')})`);
-  if (run.exec) path.push(`EXEC 내 PC 실행 검증 (${run.calls.map((c) => c.short).join(' → ') || '실행 없음'})`);
-  const mediaCalls = run.calls.filter((c) => c.pid === 'media'); if (mediaCalls.length) path.push(`미디어 (${mediaCalls.map((c) => c.provider).join(' → ')})`);
+  if (run.exec) path.push('실행 검증 엔진');
+  const mediaCalls = run.calls.filter((c) => c.pid === 'media'); if (mediaCalls.length) path.push('미디어 엔진');
   const free = run.calls.filter((c) => !['claude', 'ollama', 'local6', 'core', 'exec', 'media'].includes(c.pid));
-  if (free.length) path.push(`무료 풀 순환 (${[...new Set(free.map((c) => c.short))].join(' → ')})`);
-  if (run.calls.some((c) => c.pid === 'ollama')) path.push('로컬 Ollama 폴백');
-  const synth = run.calls.find((c) => c.label === 'synth');
-  if (synth) path.push(`최종 통합 ${synth.short}`);
-  const escn = run.escalation;
-  if (escn?.used) { const u = escn.usage || {}; path.push(`Claude 승격 (${escn.reason}) · in ${u.in || 0} (cache read ${u.cr || 0}) / out ${u.out || 0} tok`); }
-  else if (escn) path.push(`승격 조건 (${escn.reason}) 충족했으나 Claude 미사용 → Zero-Claude`);
-  else if (!run.cacheHit) path.push('Zero-Claude (Claude 0 tok)');
-  if (run.failovers) path.push(`failover ${run.failovers}회`);
-  return { path: path.join(' → '), used };
+  if (free.length) path.push('클라우드 고속 엔진');
+  if (run.calls.some((c) => c.pid === 'ollama')) path.push('로컬 엔진');
+  if (run.failovers) path.push(`자동 전환 ${run.failovers}회`);
+  return { path: path.join(' → ') || 'DARK CODE 엔진', used };
 }
 
 function composeAnswer(run, sec, snapshotYaml) {
-  const logLines = run.lines.filter((l) => /route|done|fail|fallback|cache|ctx|stage|image|gate|verify|repair|claude|media/.test(l)).slice(-22);
-  const rs = routeSummary(run);
-  let md = `## [실시간 실행 로그 / 코드 스트림 요약]\n\`\`\`log\n${logLines.join('\n')}\n\`\`\`\n\n`;
-  md += `## [라우팅 및 합의 요약]\n- **실행 경로**: ${rs.path}\n`;
-  if (rs.used.length) md += `- **호출**: ${rs.used.join(' · ')}\n`;
-  md += `- **소요**: ${(run.ms / 1000).toFixed(1)}s · 모드 ${({ council: '멀티 AI 상의', claude: 'Claude Final Pass', image: '이미지 파이프라인', fast: '빠른 실행', local6: '로컬 6-에이전트 (Ollama)', core: 'CORE 게이트웨이', exec: 'EXEC 내 PC 실행 검증' })[run.mode]}\n`;
-  if (sec.consensus) md += `\n${sec.consensus}\n`;
-  if (window.DCWebTaskBridge && window.DCWebTaskBridge.isTaskRequest(run.prompt || '')) {
-    const titleMatch = (sec.deliverable || '').match(/^#\s+(.+)$/m);
-    const title = titleMatch ? titleMatch[1].trim() : '자율 작성 블로그 포스팅';
-    const tagsMatch = (sec.deliverable || '').match(/#([a-zA-Z0-9가-힣_]+)/g);
-    const tags = tagsMatch ? tagsMatch.slice(0, 5) : ['다크코드', 'AI자동화', '블로그'];
-    const summary = sec.consensus ? sec.consensus.replace(/^#+.*$/gm, '').trim().slice(0, 160) : '본문이 성공적으로 작성되었습니다.';
-    const widgetHtml = window.DCWebTaskBridge.renderBlogWidget({ title, content: sec.deliverable, tags, summary });
-    md += `\n${widgetHtml}\n\n`;
+  const secStr = (run.ms / 1000).toFixed(1);
+  const modeName = ({ council: '정밀 협업', claude: '고정밀 통합', image: '이미지 생성', fast: '자동 모드', local6: '로컬 에이전트', core: '코어 엔진', exec: '실행 검증' })[run.mode] || '자동 모드';
+  const hasHtml = /```html/i.test(sec.deliverable || '') || /<!doctype html>/i.test(sec.deliverable || '');
+  let md = '';
+  if (sec.consensus) md += `${sec.consensus}\n\n`;
+  if (hasHtml) {
+    md += `우측 **멀티 보드 캔버스**에 디자인 시스템과 페이지별 화면을 생성했습니다. 각 보드의 **열기 ↗** 버튼으로 전체 미리보기를 확인하거나, 수정할 부분을 말씀해 주세요.\n\n`;
+    md += `> 완료 **${secStr}s** · ${modeName}`;
+    return md;
   }
-  md += `\n## [자율 실행 산출물]\n${sec.deliverable || '(산출물 없음)'}\n\n`;
-  md += `## [세션 상태 스냅샷 (State Snapshot)]\n\`\`\`yaml\n${snapshotYaml}\n\`\`\`\n`;
+  md += `${sec.deliverable || '(결과가 생성되었습니다.)'}\n\n`;
+  md += `> 완료 **${secStr}s** · ${modeName}`;
   return md;
 }
 
-/* ---------- 실사 미디어 자동 삽입: data-dc-img / data-dc-bg / data-dc-video 표식 → 실제 사진·영상 ---------- */
-const MEDIA_RULE = '\n\n[미디어 규칙] 사진·영상 자리는 외부 URL 대신 표식만 쓰세요: 사진 <img data-dc-img="영문 검색어" alt="한국어 설명">, 배경 사진은 요소에 data-dc-bg="영문 검색어", 영상 <video data-dc-video="영문 검색어" autoplay muted loop playsinline></video>. 플랫폼이 실사 사진·영상으로 바꿔 넣습니다. 인물은 국적 지정이 없으면 korean 을 검색어에 넣고, 장면마다 다른 검색어를 쓰세요.';
+/* ---------- 실사 미디어 자동 삽입: data-dc-img / data-dc-bg → 고화질 사진 ---------- */
+const MEDIA_RULE = '\n\n[미디어 규칙] 사진 자리는 외부 URL 대신 <img data-dc-img="영문 검색어" alt="한국어 설명"> 표식을 쓰세요. <video> 태그는 넣지 마세요. 인물은 국적 지정이 없으면 korean 을 포함하고 장면마다 다른 영문 검색어를 쓰세요.';
 const WEB_RE = /(홈페이지|웹사이트|사이트|랜딩|웹페이지|쇼핑몰|포트폴리오|website|landing|homepage|web\s?page|\bhtml\b)/i;
 const withMediaRule = (prompt) => (WEB_RE.test(prompt) ? prompt + MEDIA_RULE : prompt);
 async function resolveMedia(modelText, run) {
@@ -887,7 +869,7 @@ async function execute(prompt, { noCache = false } = {}) {
     snap = parseSnapshot(sec.snapshot, prompt);
     run.ms = performance.now() - run.t0;
     const answer = composeAnswer(run, sec, snap);
-    const msg = { role: 'assistant', content: answer, modelText, snapshot: snap, t: Date.now(), meta: { ms: run.ms, route: routeSummary(run).path, lines: run.lines, mode, cached: !!run.cacheHit, local6State: run.local6State || null, coreState: run.coreState || null, execState: run.execState || null } };
+    const msg = { role: 'assistant', content: answer, modelText, snapshot: snap, t: Date.now(), meta: { ms: run.ms, route: 'DARK CODE AI', lines: run.lines, mode, cached: !!run.cacheHit, local6State: run.local6State || null, coreState: run.coreState || null, execState: run.execState || null } };
     thread = curThread() || thread;
     thread.messages.push(msg);
     thread.artifacts = buildArtifacts(sec, snap, thread, run);
@@ -1078,10 +1060,10 @@ const STITCH_STAGE_KO = {
   GATE: '품질 게이트 판정',
   SYNTH: '최종 결과물 통합',
   SYNTHESIS: '최종 결과물 통합',
-  RENDER: 'Stitch 캔버스 렌더링',
-  IMAGE: 'AI 이미지 생성',
-  EXEC: '로컬 실행기 실측 검증',
-  CORE: 'CORE 게이트웨이 파이프라인 실행',
+  RENDER: '캔버스 렌더링 완료',
+  IMAGE: '이미지 생성',
+  EXEC: '로컬 실행 검증',
+  CORE: '코어 파이프라인 실행',
 };
 function stitchLabel(code) { return STITCH_STAGE_KO[code] || code; }
 function previewOverlay() {
@@ -1089,7 +1071,7 @@ function previewOverlay() {
   if (!ov) {
     ov = document.createElement('div'); ov.id = 'pvGen'; ov.className = 'pv-gen';
     ov.innerHTML = `<div class="stitch-skel-board">
-      <div class="sk-head"><span class="sk-spin"></span><b class="pg-title">Stitch 캔버스 설계 중</b><span class="pg-stage">준비 중</span></div>
+      <div class="sk-head"><span class="sk-spin"></span><b class="pg-title">비주얼 캔버스 설계 중</b><span class="pg-stage">준비 중</span></div>
       <div class="sk-body">
         <p class="pg-q"></p>
         <div class="sk-wire">
@@ -1117,17 +1099,17 @@ function previewLoading(run, prompt, mode) {
   const ov = previewOverlay();
   ov.hidden = false; ov.classList.remove('err');
   $('.pg-title', ov).textContent = ({
-    core: 'CORE 게이트웨이 · 캔버스 생성 중',
-    exec: 'EXEC · 코드 생성 및 로컬 실측 검증 중',
-    local6: '로컬 6-에이전트 · 협업 설계 중',
-    image: 'AI 이미지 캔버스 렌더링 중',
-    fast: '빠른 실행 · 캔버스 구성 중',
-    claude: 'Claude Final · 고정밀 통합 중',
-  })[mode] || 'Stitch 워크플로우 · 화면 설계 중';
+    core: '코어 엔진 · 캔버스 생성 중',
+    exec: '실행 검증 · 코드 빌드 중',
+    local6: '로컬 에이전트 · 협업 설계 중',
+    image: '이미지 생성 중',
+    fast: '고속 설계 · 캔버스 구성 중',
+    claude: '고정밀 통합 · 캔버스 생성 중',
+  })[mode] || '실시간 화면 설계 중';
   $('.pg-q', ov).textContent = prompt;
   $('.pg-stage', ov).textContent = '요청 분석 중…';
   $('.pg-tail', ov).textContent = '';
-  $('#pvUrl').textContent = 'stitch://generating';
+  $('#pvUrl').textContent = 'canvas://generating';
   switchTab('preview'); showRight(true);
   if (mode !== 'image' && stitchCanvas) {
     setStitchMode('boards');
@@ -1194,16 +1176,12 @@ async function runTurboRevise(prompt, history, run, thread) {
 
 async function runFast(prompt, history, run, thread) {
   run.stage('ROUTE');
-  run.log('stage  Zero-Claude · 캐시 → 무료 풀(WRR) → 로컬 Ollama 순서', 'k');
+  run.log('stage  고속 단일 패스 엔진 시작', 'k');
   run.stage('GENERATE');
-  const r = await callTracked(run, { role: 'general', label: 'generate', system: SYSTEM_CORE, messages: [...history, { role: 'user', content: prompt }], maxTokens: 16384 });
+  const r = await callTracked(run, { role: 'general', label: 'generate', system: SYSTEM_CORE, messages: [...history.slice(-4), { role: 'user', content: prompt }], maxTokens: 8192, temperature: 0.45 });
   run.stage('VERIFY');
   const v = await verifyLoop(run, prompt, r.text, { llm: false, avoid: [r.provider.id] });
   run.stage('GATE');
-  if (v.unresolved && opts.gateA) {
-    const out = await escalateToClaude(run, 'a', prompt, thread, [['문제 구간 (코드)', codeSection(v.text)], ['미해결 문제', v.issues.join('\n')]], '미해결 문제만 고친 최종 결과물을 응답 형식 그대로 작성하십시오. 코드는 생략 없이 완성본으로.');
-    if (out) return out;
-  } else run.log(v.unresolved ? 'gate   미해결 문제 있음 · 게이트(a) 꺼짐 → Zero-Claude 유지' : 'gate   승격 조건 없음 → Zero-Claude 유지 (Claude 0 tok)', 'ok');
   return v.text;
 }
 
@@ -1595,8 +1573,8 @@ function setPreview(doc) {
   } else {
     setStitchMode('live');
   }
-  const targetDoc = doc || `<body style="margin:0;background:#0d0e13;color:#71717a;font:13px 'Pretendard Variable',system-ui,sans-serif;display:grid;place-items:center;height:100vh">명령을 입력하면 Stitch 캔버스에 실시간으로 렌더링됩니다</body>`;
-  $('#pvUrl').textContent = !doc ? 'stitch://canvas' : `stitch://${artifacts?.files.find((f) => f.lang === 'html')?.name || (artifacts?.img ? 'image' : 'document')}${htmlFile && sanitizePreview.last ? ` · 리소스 ${sanitizePreview.last}개 자동 보정` : ''}`;
+  const targetDoc = doc || `<body style="margin:0;background:#0d0e13;color:#71717a;font:13px 'Pretendard Variable',system-ui,sans-serif;display:grid;place-items:center;height:100vh">명령을 입력하면 캔버스에 실시간으로 렌더링됩니다</body>`;
+  $('#pvUrl').textContent = !doc ? 'canvas://preview' : `canvas://${artifacts?.files.find((f) => f.lang === 'html')?.name || (artifacts?.img ? 'image' : 'document')}${htmlFile && sanitizePreview.last ? ` · 리소스 ${sanitizePreview.last}개 자동 보정` : ''}`;
   requestAnimationFrame(() => {
     const cur = $('#pvFrame');
     if (!cur) return;
@@ -1657,12 +1635,12 @@ let centerRain;
 function createRunUI(mode) {
   const stages = mode === 'council' || mode === 'claude' ? STAGES_COUNCIL : mode === 'image' ? STAGES_IMAGE : mode === 'local6' ? STAGES_LOCAL6 : mode === 'core' ? STAGES_CORE : mode === 'exec' ? STAGES_EXEC : STAGES_FAST;
   const el = document.createElement('div'); el.className = 'msg ai';
-  el.innerHTML = `<div class="who"><i>AI</i>DARK CODE · Stitch <span class="meta">· 실행 중</span></div>
+  el.innerHTML = `<div class="who"><i>DC</i>DARK CODE <span class="meta">· 생성 중</span></div>
   <div class="run stitch-run">
     <div class="run-head"><span class="spin"></span><span class="ttl">요청을 단계별로 처리하고 있습니다</span><span class="tm">0.0s</span></div>
     <div class="stitch-steps">${stages.map((s) => `<div class="stg" data-s="${s}"><i class="stg-dot"></i><span>${esc(stitchLabel(s))}</span><span class="stg-sub">${s}</span></div>`).join('')}</div>
-    <div class="stitch-live-line" data-tail>파이프라인 초기화 중…</div>
-    <details class="stitch-raw"><summary>상세 라우팅 · 실행 로그 보기</summary><div class="logbox"></div></details>
+    <div class="stitch-live-line" data-tail>엔진 초기화 중…</div>
+    <details class="stitch-raw"><summary>상세 처리 로그 보기</summary><div class="logbox"></div></details>
   </div>`;
   $('#stream').append(el);
   $('#center').classList.add('running');
@@ -1696,7 +1674,7 @@ function createRunUI(mode) {
       $$('.stg.act', el).forEach((s) => { s.classList.remove('act'); s.classList.add('done'); });
       el.querySelector('.run').classList.add('done');
       $('.spin', el)?.remove();
-      $('.ttl', el).textContent = ok ? 'Stitch 워크플로우 완료 · 캔버스 반영됨' : '실행이 중단되었습니다';
+      $('.ttl', el).textContent = ok ? '작업 완료 · 캔버스 반영됨' : '실행이 중단되었습니다';
       $('#center').classList.remove('running');
       syncHomeState();
     },
@@ -1741,7 +1719,7 @@ function renderStream() {
     } else {
       const d = document.createElement('div'); d.className = 'msg ai';
       const meta = m.meta ? `· ${(m.meta.ms / 1000).toFixed(1)}s${m.meta.cached ? ' · CACHE' : ''}` : '';
-      d.innerHTML = `<div class="who"><i>AI</i>CORE ORCHESTRATOR <span class="meta">${meta}</span></div>`;
+      d.innerHTML = `<div class="who"><i>DC</i>DARK CODE AI <span class="meta">${meta}</span></div>`;
       if (m.meta?.lines?.length) {
         const det = document.createElement('details'); det.className = 'runlog';
         det.innerHTML = `<summary>실행 로그 · ${m.meta.lines.length} lines · ${esc(m.meta.route || '')}</summary><div class="logbox">${m.meta.lines.map((l) => `<div class="${/fail|error/.test(l) ? 'warn' : /done|HIT/.test(l) ? 'ok' : /route/.test(l) ? 'route' : ''}">${esc(l)}</div>`).join('')}</div>`;
@@ -1797,12 +1775,10 @@ function renderRouteSel() {
   sel.innerHTML = opt.map(([v, l]) => `<option value="${v}"${v === state.route ? ' selected' : ''}>${esc(l)}</option>`).join('');
 }
 function renderStatus() {
-  const t = curThread();
-  const tok = t ? t.messages.reduce((a, m) => a + estTok(m.modelText || m.content), 0) : 0;
   const ready = Object.values(prov).filter((p) => !p.primary && !p.local && usable(p)).length;
-  const total = Object.values(prov).filter((p) => !p.primary && !p.local).length;
-  $('#statusLine').innerHTML = `<span>POOL <b>${ready}/${total}</b> ready</span><span>LOCAL <b>${prov.ollama.enabled ? 'ollama on · 무제한 백업' : 'off'}</b></span><span>CLAUDE <b>${(() => { const c = claudeUse(); return `ZERO-DEFAULT · ${(c.in + c.out).toLocaleString()} tok · 승격 ${c.calls}회`; })()}</b>${usable(prov.claude) ? '' : ' (키 없음)'}</span><span>CTX <b>~${tok.toLocaleString()}</b> tok · 무제한${t?.summary ? ' · 자동 압축됨' : ''}</span><span>CACHE <b>${LS.get('cidx', []).length}</b> · TTL ${opts.ttl}s</span>`;
-  $('#modeBadge').textContent = ({ council: 'COUNCIL · ZERO-CLAUDE', fast: 'FAST · ZERO-CLAUDE', claude: 'CLAUDE FINAL PASS', local6: 'LOCAL 6-AGENT · OLLAMA', core: 'CORE · GATEWAY', exec: 'EXEC · LOCAL RUN VERIFY' })[state.mode];
+  const cached = LS.get('cidx', []).length;
+  $('#statusLine').innerHTML = `<span>엔진 준비됨</span><span>활성 노드 <b>${ready}</b></span>${prov.ollama.enabled ? '<span>로컬 백업 <b>ON</b></span>' : ''}<span>캐시 <b>${cached}</b></span>`;
+  $('#modeBadge').textContent = ({ council: '정밀 협업', fast: '자동 모드', claude: '고정밀 통합', local6: '로컬 에이전트', core: '코어 엔진', exec: '실행 검증' })[state.mode] || '자동 모드';
 }
 
 /* ================= SETTINGS ================= */
@@ -2167,7 +2143,7 @@ function autoGrow(force = false) {
   const ta = $('#prompt');
   if (!ta) return;
   if (force || !ta.value) {
-    ta.style.height = '36px';
+    ta.style.height = '28px';
     if (!ta.value) return;
   }
   if (autoGrowRaf) cancelAnimationFrame(autoGrowRaf);
@@ -2176,7 +2152,7 @@ function autoGrow(force = false) {
     const curH = ta.offsetHeight;
     const scH = ta.scrollHeight;
     if (scH > curH || force) {
-      const h = Math.min(180, Math.max(36, scH));
+      const h = Math.min(160, Math.max(28, scH));
       const px = h + 'px';
       if (ta.style.height !== px) ta.style.height = px;
     }
@@ -2217,7 +2193,7 @@ async function openPhotoTemplate() {
     const res = await fetch('templates/photo-studio.html?v=20261122m'); if (!res.ok) throw new Error(res.status);
     const code = await res.text();
     const url = location.origin + location.pathname.replace(/[^/]*$/, '') + 'templates/photo-studio.html';
-    applyArtifacts({ title: 'NOIR LUMEN STUDIO · 완성형 사진 웹사이트', doc: `## NOIR LUMEN STUDIO 템플릿\n- 외부 이미지 0개 · 사진은 Canvas로 직접 그린 그래픽 + 내 사진 업로드(드래그앤드롭)\n- 필터(전체/인물·야간/스튜디오/아카이브) · 라이트박스 촬영 스펙 · 예약(검증·번호·상태 변경·삭제)\n- 승인 기반 원격 세션 상태 머신 PENDING → ACCEPTED → CONNECTED / TERMINATED\n- 단독 페이지(로컬 저장 완전 작동): ${url}`, files: [{ name: 'index.html', lang: 'html', code }], img: null, snapshot: 'user_goal: "완성형 사진 웹사이트 템플릿"\nactive_artifacts: ["templates/photo-studio.html"]' }, true);
+    applyArtifacts({ title: '포토 스튜디오 샘플 웹사이트', doc: `## 포토 스튜디오 샘플\n- 캔버스 기반 고화질 그래픽 + 사진 업로드(드래그앤드롭)\n- 카테고리 필터 · 라이트박스 · 예약 관리\n- 단독 페이지: ${url}`, files: [{ name: 'index.html', lang: 'html', code }], img: null, snapshot: 'user_goal: "포토 스튜디오 샘플 웹사이트"\nactive_artifacts: ["templates/photo-studio.html"]' }, true);
     toast('템플릿을 미리보기에 열었습니다');
   } catch (e) { toast('템플릿 로드 실패: ' + e.message); }
 }
@@ -2323,17 +2299,17 @@ function wire() {
     $$('#modeSeg button').forEach((x) => x.classList.toggle('on', x.dataset.mode === m));
     const dd = $('#modeDropdown'); if (dd && dd.value !== m) dd.value = m;
     renderStatus();
-    if (state.mode === 'local6' && window.DCLocal6) DCLocal6.check().then((s) => { if (!s.ok) DCLocal6.open(); else toast('로컬 6-에이전트 · Ollama 모델 6/6 연결됨'); });
-    if (state.mode === 'core' && window.DCCore) DCCore.check().then((s) => { if (!s.ok) DCCore.open(); else toast(`CORE 게이트웨이 연결됨 · ${s.profile} 프로필`); });
-    if (state.mode === 'exec' && window.DCAstra) DCAstra.check().then((s) => toast(s.runner.ok ? `EXEC · 실행기 연결됨 (승인 ${s.runner.info.approval === 'ask' ? '콘솔 y/N' : s.runner.info.approval})${s.models.ok ? ` · 모델 ${s.model || '없음'}` : ' · Ollama 꺼짐'}` : 'EXEC · 실행기(8797) 꺼짐 → darkcode-core 폴더의 start-runner.bat 실행'));
+    if (state.mode === 'local6' && window.DCLocal6) DCLocal6.check().then((s) => { if (!s.ok) DCLocal6.open(); else toast('로컬 에이전트 연결됨'); });
+    if (state.mode === 'core' && window.DCCore) DCCore.check().then((s) => { if (!s.ok) DCCore.open(); else toast(`코어 엔진 연결됨 · ${s.profile} 프로필`); });
+    if (state.mode === 'exec' && window.DCAstra) DCAstra.check().then((s) => toast(s.runner.ok ? '실행 검증 엔진 연결됨' : '로컬 실행기(8797)가 꺼져 있습니다'));
   };
   $$('#modeSeg button').forEach((b) => (b.onclick = () => setMode(b.dataset.mode)));
   const md = $('#modeDropdown');
   if (md) md.onchange = (e) => setMode(e.target.value);
   $$('#homePills button').forEach((b) => (b.onclick = () => {
     $$('#homePills button').forEach((x) => x.classList.toggle('on', x === b));
-    if (b.dataset.intent === 'chat') { setMode('fast'); $('#prompt').placeholder = 'DARK CODE AI에게 물어보기'; }
-    else { setMode('council'); $('#prompt').placeholder = 'Stitch 캔버스로 만들 웹·앱·작업을 설명해 주세요'; }
+    if (b.dataset.intent === 'chat') { setMode('fast'); $('#prompt').placeholder = '무엇이든 물어보세요'; }
+    else { setMode('fast'); $('#prompt').placeholder = '만들고 싶은 웹·앱을 설명해 주세요'; }
   }));
 
   const goHome = () => {
@@ -2462,7 +2438,7 @@ function setupAsideOperator() {
 async function executeSelfHealing(errInfo) {
   const active = artifacts?.files?.[state.activeFile];
   if (!active || active.lang !== 'html') return;
-  toast(`⚡ Aside 자율 치유 작동: 런타임 오류 자동 수정 중...`);
+  toast('⚡ 자동 검증 복구: 런타임 오류를 자동으로 수정 중입니다…');
   try {
     const prompt = `[자율 치유 요청] 미리보기 렌더링 중 브라우저 런타임 오류가 발생했습니다:
 오류: ${errInfo.message} (${errInfo.lineno}번째 줄)
@@ -2487,7 +2463,7 @@ ${active.code.slice(0, 24000)}
       active.code = newHtml.code;
       renderFiles();
       setPreview(buildPreviewDoc(artifacts));
-      toast('✓ Aside 자율 치유 완료 (오류 0개)');
+      toast('✓ 자동 검증 복구 완료 (오류 0개)');
     }
   } catch (err) {
     console.warn('self-healing failed', err);

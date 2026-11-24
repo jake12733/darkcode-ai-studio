@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>DARK CODE AI</title>
-<meta name="description" content="DARK CODE AI — Gemini 스타일의 간결한 멀티 AI 워크스페이스와 Google Stitch 스타일 실시간 캔버스 빌더">
+<meta name="description" content="DARK CODE AI — 고속 멀티 AI 워크스페이스 및 실시간 비주얼 캔버스 빌더">
 <meta name="theme-color" content="#0b0c10">
 <link rel="icon" href="assets/logo-clean.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/dc-logo-160.png">
@@ -12,11 +12,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<link rel="stylesheet" href="assets/style.css?v=20261124stitch2">
+<link rel="stylesheet" href="assets/style.css?v=20261124clean3">
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="assets/aside-operator.js?v=20261124stitch1"></script>
+<script src="assets/aside-operator.js?v=20261124clean3"></script>
 </head>
 <body>
 
@@ -44,7 +44,7 @@
     <div class="login-logo">DARK CODE <b>AI</b></div>
     <div class="login-sub">계정으로 로그인하여 작업 히스토리와 연동 키를 동기화하세요</div>
     <div class="login-term" id="loginTerm">
-      <div><span class="g">●</span> 무료 API 풀 · 로컬 Ollama · Claude 최종 통합 지원</div>
+      <div><span class="g">●</span> 클라우드 고속 엔진 · 로컬 백업 · 멀티 보드 캔버스 지원</div>
     </div>
     <div class="auth-tabs" id="authTabs" role="tablist">
       <button type="button" data-m="login" class="on">로그인</button>
@@ -75,7 +75,7 @@
       <button type="button" class="oauth" id="oauthGithub"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.4 1.1 3 .8.1-.6.4-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-5a3.9 3.9 0 0 1 1-2.7c-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.8 1a9.6 9.6 0 0 1 5 0c1.9-1.3 2.8-1 2.8-1 .5 1.4.2 2.4.1 2.7a3.9 3.9 0 0 1 1 2.7c0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 1.9V21c0 .3.2.6.7.5A10 10 0 0 0 12 2z"/></svg>GitHub</button>
     </div>
     <button class="btn-ghost" type="button" id="guestBtn">게스트로 계속하기 (로컬 전용)</button>
-    <p class="login-note" id="loginNote">Firebase Authentication으로 안전하게 인증되며 비밀번호는 저장되지 않습니다.</p>
+    <p class="login-note" id="loginNote">계정 인증은 암호화된 보안 서버로 처리되며 비밀번호는 저장되지 않습니다.</p>
   </form>
 </section>
 
@@ -110,7 +110,7 @@
       <a class="rail-btn" id="studioBtn" href="studio.html" target="_blank" title="AI 스튜디오 (작곡 · 영상 · 홍보영상)">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
       </a>
-      <a class="rail-btn" id="astraBtn" href="astra.html" target="_blank" rel="noopener" title="Astra EXEC 실행 콘솔">
+      <a class="rail-btn" id="astraBtn" href="astra.html" target="_blank" rel="noopener" title="코드 실행 검증 콘솔">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M12 15h5"/></svg>
       </a>
       <button class="rail-btn" id="remoteBtn" title="원격 지원 콘솔">
@@ -166,7 +166,7 @@
       </div>
       <div class="top-right">
         <span class="pill g" id="freeUse" title="무료 API 풀 · 클릭해서 설정">FREE ∞</span>
-        <button class="top-pill" id="panelToggle" title="Stitch 캔버스 열기/닫기 (Ctrl+J)">
+        <button class="top-pill" id="panelToggle" title="비주얼 캔버스 열기/닫기 (Ctrl+J)">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/></svg>
           <span>캔버스</span>
         </button>
@@ -229,46 +229,46 @@
                 <button type="button" class="plus-btn" id="plusBtn" title="빠른 작업 · 템플릿 · 도구">+</button>
                 <div class="plus-menu" id="plusMenu" hidden>
                   <div class="pm-label">빠른 시작</div>
-                  <button type="button" data-quick-tpl="photo-studio"><span>✦</span> NOIR LUMEN 완성형 웹사이트 바로 열기</button>
+                  <button type="button" data-quick-tpl="photo-studio"><span>✦</span> 포토 스튜디오 샘플 웹사이트 열기</button>
                   <button type="button" data-quick-prompt="치과 병원 랜딩페이지 만들어줘. 예약 CTA, 의료진 소개, 진료 시간 포함"><span>⌘</span> 병원 랜딩페이지 제작</button>
-                  <button type="button" data-quick-prompt="SaaS 메모 앱 만들어줘. Firebase Firestore 연동, 로그인, CRUD까지 완성 코드로"><span>◫</span> SaaS 웹 앱 + DB 설계</button>
-                  <button type="button" data-quick-prompt="/image 미니멀한 다크 블루 글래스 AI 스튜디오, 시네마틱"><span>◈</span> /image AI 이미지 생성</button>
-                  <button type="button" data-quick-prompt="/music 새벽 코딩할 때 듣는 몽환적인 로파이 비트"><span>♫</span> /music AI 음악 작곡</button>
+                  <button type="button" data-quick-prompt="SaaS 메모 앱 만들어줘. 로그인, CRUD, 다크모드까지 완성 코드로"><span>◫</span> 웹 앱 대시보드 설계</button>
+                  <button type="button" data-quick-prompt="/image 미니멀한 다크 블루 글래스 스튜디오, 시네마틱"><span>◈</span> /image 이미지 생성</button>
+                  <button type="button" data-quick-prompt="/music 새벽 작업할 때 듣는 잔잔한 로파이 비트"><span>♫</span> /music 음악 작곡</button>
                   <div class="pm-sep"></div>
-                  <div class="pm-label">라우팅 프로바이더</div>
+                  <div class="pm-label">엔진 라우팅</div>
                   <div class="pm-route-wrap">
-                    <select id="routeSel" title="모델 라우팅"></select>
+                    <select id="routeSel" title="엔진 라우팅"></select>
                   </div>
                 </div>
               </div>
 
-              <textarea id="prompt" rows="1" placeholder="DARK CODE AI에게 물어보기" spellcheck="false"></textarea>
+              <textarea id="prompt" rows="1" placeholder="무엇이든 물어보세요" spellcheck="false"></textarea>
 
               <div class="composer-right">
                 <div class="mode-picker">
                   <select id="modeDropdown" aria-label="실행 모드">
-                    <option value="council" selected>자동 모드</option>
-                    <option value="fast">빠른 실행</option>
-                    <option value="claude">Claude Final</option>
-                    <option value="core">CORE 게이트웨이</option>
-                    <option value="local6">로컬 6-에이전트</option>
-                    <option value="exec">EXEC 실측 검증</option>
+                    <option value="fast" selected>자동 모드</option>
+                    <option value="council">정밀 협업</option>
+                    <option value="claude">고정밀 통합</option>
+                    <option value="core">코어 엔진</option>
+                    <option value="local6">로컬 에이전트</option>
+                    <option value="exec">실행 검증</option>
                   </select>
                 </div>
                 <button class="send" id="sendBtn" type="submit" title="실행" disabled>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
                 </button>
               </div>
             </div>
 
-            <!-- Hidden-in-home compatibility mode segment for app.js -->
+            <!-- Compatibility mode segment for app.js -->
             <div class="seg sr-seg" id="modeSeg" role="radiogroup">
-              <button type="button" data-mode="council" class="on">멀티 AI 상의</button>
-              <button type="button" data-mode="fast">빠른 실행</button>
-              <button type="button" data-mode="claude">Claude Final</button>
-              <button type="button" data-mode="core">CORE</button>
-              <button type="button" data-mode="local6">로컬 6-에이전트</button>
-              <button type="button" data-mode="exec">EXEC</button>
+              <button type="button" data-mode="fast" class="on">자동 모드</button>
+              <button type="button" data-mode="council">정밀 협업</button>
+              <button type="button" data-mode="claude">고정밀 통합</button>
+              <button type="button" data-mode="core">코어 엔진</button>
+              <button type="button" data-mode="local6">로컬 에이전트</button>
+              <button type="button" data-mode="exec">실행 검증</button>
             </div>
           </form>
 
@@ -314,17 +314,17 @@
             <div class="pv-bar">
               <div class="seg sm" id="stitchModeSeg">
                 <button type="button" data-sm="boards" class="on">멀티 보드</button>
-                <button type="button" data-sm="live">인터랙티브</button>
+                <button type="button" data-sm="live">전체 미리보기</button>
               </div>
-              <span id="pvUrl">stitch://canvas</span>
-              <button class="btn-sm accent-btn" id="asideAuditBtn">⚡ Aside 검증</button>
+              <span id="pvUrl">canvas://preview</span>
+              <button class="btn-sm accent-btn" id="asideAuditBtn">⚡ 자동 검증</button>
               <button class="btn-sm" id="pvReload">새로고침</button>
               <button class="btn-sm" id="pvMobile">모바일</button>
             </div>
             <div class="stitch-board-mount" id="stitchBoardMount"></div>
             <div class="pv-stage stitch-dotgrid" id="pvStage" hidden>
               <div class="artboard-frame" id="artboardFrame">
-                <iframe id="pvFrame" title="Stitch 캔버스 미리보기" sandbox="allow-scripts allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox" allow="display-capture"></iframe>
+                <iframe id="pvFrame" title="실시간 캔버스 미리보기" sandbox="allow-scripts allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox" allow="display-capture"></iframe>
               </div>
             </div>
           </div>
@@ -336,7 +336,7 @@
             <div class="wf-stage"><canvas id="wfCanvas"></canvas><div class="wf-scan"></div></div>
           </div>
         </div>
-        <div class="right-foot" id="rightFoot">Stitch Canvas Ready</div>
+        <div class="right-foot" id="rightFoot">캔버스 준비됨</div>
       </section>
     </div>
   </div>
@@ -360,7 +360,7 @@
   <div class="set-inner">
     <div class="set-head"><b>외부 서비스 원클릭 연동</b><button class="icon-btn sm" id="integClose">&#10005;</button></div>
     <div class="set-body">
-      <p class="modal-note">계정·워크스페이스 요약만 표시합니다. OAuth 토큰은 Firebase(서버)가 보관하고, API 키는 이 기기의 암호화 볼트(AES-GCM)에만 저장됩니다.</p>
+      <p class="modal-note">계정·워크스페이스 요약만 표시합니다. 인증 토큰은 보안 서버가 보관하고, API 키는 이 기기의 암호화 볼트(AES-GCM)에만 저장됩니다.</p>
       <div class="integ-grid" id="integGrid"></div>
     </div>
   </div>
@@ -372,14 +372,14 @@
   </div>
 </dialog>
 <div class="toast" id="toast"></div>
-<script src="assets/stream.js?v=20261124stitch1"></script>
-<script src="assets/fx.js?v=20261124stitch1"></script>
-<script src="assets/orchestrator.js?v=20261124stitch1"></script>
-<script src="assets/core-connect.js?v=20261124stitch1"></script>
-<script src="assets/local6-connect.js?v=20261124stitch1"></script>
-<script src="assets/media.js?v=20261124stitch2"></script>
-<script src="assets/stitch-canvas.js?v=20261124stitch2"></script>
-<script type="module" src="assets/astra-mode.js?v=20261124stitch2"></script>
-<script type="module" src="assets/app.js?v=20261124stitch2"></script>
+<script src="assets/stream.js?v=20261124clean3"></script>
+<script src="assets/fx.js?v=20261124clean3"></script>
+<script src="assets/orchestrator.js?v=20261124clean3"></script>
+<script src="assets/core-connect.js?v=20261124clean3"></script>
+<script src="assets/local6-connect.js?v=20261124clean3"></script>
+<script src="assets/media.js?v=20261124clean3"></script>
+<script src="assets/stitch-canvas.js?v=20261124clean3"></script>
+<script type="module" src="assets/astra-mode.js?v=20261124clean3"></script>
+<script type="module" src="assets/app.js?v=20261124clean3"></script>
 </body>
 </html>

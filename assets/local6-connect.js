@@ -87,7 +87,7 @@
     b.type = 'button';
     b.id = 'l6Pill';
     b.className = 'pill l6-pill';
-    b.title = '로컬 6-에이전트 (Ollama) 연결';
+    b.title = '로컬 에이전트 연결 상태';
     b.innerHTML = '<i></i><span>LOCAL6</span>';
     b.addEventListener('click', function () { open(); });
     right.insertBefore(b, right.firstChild);

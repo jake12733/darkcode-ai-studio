@@ -198,7 +198,7 @@
           </div>
           <div class="sc-empty" id="scEmpty">
             <div class="sc-empty-ico">✦</div>
-            <b>Stitch 멀티 보드 캔버스</b>
+            <b>멀티 보드 비주얼 캔버스</b>
             <p>명령을 입력하면 디자인 시스템과 페이지별 화면이 이곳에 그래픽으로 실시간 생성됩니다.</p>
           </div>
           <div class="sc-dock" aria-label="캔버스 도구">
@@ -211,7 +211,7 @@
           </div>
           <div class="sc-live-hud" id="scLiveHud" hidden>
             <span class="sc-hud-dot"></span>
-            <b id="scHudTitle">Stitch 생성 중</b>
+            <b id="scHudTitle">실시간 캔버스 생성 중</b>
             <span id="scHudSub">디자인 토큰 및 레이아웃 설계 중…</span>
           </div>
         </div>
@@ -287,7 +287,7 @@
           <header class="sc-bhead">
             <span class="sc-bico">✦</span>
             <b>${esc(brand)}</b>
-            <span class="sc-bstat">${building ? '토큰 추출 중' : 'Design System'}</span>
+            <span class="sc-bstat">${building ? '토큰 추출 중' : '디자인 시스템'}</span>
           </header>
           <div class="sc-ds-body">
             <div class="sc-ds-sec">
@@ -322,7 +322,7 @@
       this.fullHtml = '';
       this.empty.hidden = true;
       this.hud.hidden = false;
-      this.hudTitle.textContent = 'Stitch 그래픽 캔버스 설계 중';
+      this.hudTitle.textContent = '실시간 그래픽 캔버스 설계 중';
       this.hudSub.textContent = `"${String(prompt || '').slice(0, 36)}" · 디자인 시스템 생성`;
 
       const dsHtml = this.renderDesignSystemBoard(this.preset.brand, this.preset.palette, true);

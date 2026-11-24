@@ -433,7 +433,7 @@ const sections=String(S.lyrics||'').split(/\\n(?=\\[)/).filter(Boolean);
 sections.forEach((blk,i)=>{
   const lines=blk.split('\\n'); const head=lines[0].startsWith('[')?lines.shift():'[Section '+(i+1)+']';
   const d=document.createElement('div'); d.className='lyr-sec'+(i===0?' on':'');
-  d.innerHTML='<div class="lyr-tag">'+head.replace(/</g,'&lt;')+'</div><div>'+lines.join('<br>').replace(/</g,'&lt;')+'</div>';
+  d.innerHTML='<div class="lyr-tag">'+head.replace(/</g,'&lt;')+'</div><div>'+lines.map(function(l){return l.replace(/</g,'&lt;');}).join('<br>')+'</div>';
   lyrBox.append(d);
 });
 

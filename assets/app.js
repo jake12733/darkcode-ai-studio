@@ -1065,12 +1065,44 @@ async function completeHtml(run, prompt, text) {
   return cur;
 }
 
-/* ---------- 미리보기: 생성 중 화면 · 답변 카드 ---------- */
+/* ---------- Google Stitch 스타일 실시간 캔버스 스켈레톤 ---------- */
+const STITCH_STAGE_KO = {
+  CACHE: '캐시 조회 및 컨텍스트 확인',
+  CONTEXT: '대화 컨텍스트 압축 및 분석',
+  ROUTE: '요청 의도 분석 및 모델 라우팅',
+  PLAN: '화면 아키텍처 및 컴포넌트 설계',
+  STRATEGIST: 'AI 전략가 구조 설계',
+  DRAFT: '멀티 AI 초안 및 코드 생성',
+  IMPLEMENTER: 'UI · 코드 구현 중',
+  GENERATE: 'UI 컴포넌트 및 인터랙션 생성',
+  BUILD: '실행 코드 빌드 중',
+  VERIFY: '정적 검증 및 품질 보정',
+  CRITIC: 'AI 크리틱 검수 및 자동 수정',
+  GATE: '품질 게이트 판정',
+  SYNTH: '최종 결과물 통합',
+  SYNTHESIS: '최종 결과물 통합',
+  RENDER: 'Stitch 캔버스 렌더링',
+  IMAGE: 'AI 이미지 생성',
+  EXEC: '로컬 실행기 실측 검증',
+  CORE: 'CORE 게이트웨이 파이프라인 실행',
+};
+function stitchLabel(code) { return STITCH_STAGE_KO[code] || code; }
 function previewOverlay() {
   let ov = $('#pvGen');
   if (!ov) {
     ov = document.createElement('div'); ov.id = 'pvGen'; ov.className = 'pv-gen';
-    ov.innerHTML = '<div class="pg-box"><div class="pg-spin"></div><b class="pg-title">생성 중</b><p class="pg-q"></p><div class="pg-stage"></div><pre class="pg-tail"></pre></div>';
+    ov.innerHTML = `<div class="stitch-skel-board">
+      <div class="sk-head"><span class="sk-spin"></span><b class="pg-title">Stitch 캔버스 설계 중</b><span class="pg-stage">준비 중</span></div>
+      <div class="sk-body">
+        <p class="pg-q"></p>
+        <div class="sk-wire">
+          <div class="sk-nav shimmer"></div>
+          <div class="sk-hero shimmer"></div>
+          <div class="sk-cards"><div class="sk-card shimmer"></div><div class="sk-card shimmer"></div><div class="sk-card shimmer"></div></div>
+        </div>
+        <pre class="pg-tail"></pre>
+      </div>
+    </div>`;
     $('#pvStage').append(ov);
   }
   return ov;
@@ -1078,15 +1110,22 @@ function previewOverlay() {
 function previewLoading(run, prompt, mode) {
   const ov = previewOverlay();
   ov.hidden = false; ov.classList.remove('err');
-  $('.pg-title', ov).textContent = ({ core: 'CORE 게이트웨이가 만드는 중', exec: 'EXEC · 코드 생성 → 내 PC에서 실행 검증 중', local6: '로컬 6-에이전트가 만드는 중', image: '이미지 생성 중', fast: '빠르게 만드는 중', claude: 'Claude Final Pass 진행 중' })[mode] || '멀티 AI가 만드는 중';
+  $('.pg-title', ov).textContent = ({
+    core: 'CORE 게이트웨이 · 캔버스 생성 중',
+    exec: 'EXEC · 코드 생성 및 로컬 실측 검증 중',
+    local6: '로컬 6-에이전트 · 협업 설계 중',
+    image: 'AI 이미지 캔버스 렌더링 중',
+    fast: '빠른 실행 · 캔버스 구성 중',
+    claude: 'Claude Final · 고정밀 통합 중',
+  })[mode] || 'Stitch 워크플로우 · 화면 설계 중';
   $('.pg-q', ov).textContent = prompt;
-  $('.pg-stage', ov).textContent = '준비 중...';
+  $('.pg-stage', ov).textContent = '요청 분석 중…';
   $('.pg-tail', ov).textContent = '';
-  $('#pvUrl').textContent = 'preview://generating';
+  $('#pvUrl').textContent = 'stitch://generating';
   switchTab('preview'); showRight(true);
   const origStage = run.stage, origRain = run.rain;
   let buf = '';
-  run.stage = function (name) { origStage.call(run, name); $('.pg-stage', ov).textContent = '단계: ' + name; };
+  run.stage = function (name) { origStage.call(run, name); $('.pg-stage', ov).textContent = stitchLabel(name); };
   run.rain = function (text) { origRain.call(run, text); buf = (buf + text).slice(-1400); $('.pg-tail', ov).textContent = buf; };
 }
 function previewDone() { const ov = $('#pvGen'); if (ov) ov.hidden = true; }
@@ -1506,15 +1545,18 @@ function buildPreviewDoc(a) {
 }
 function setPreview(doc) {
   const fr = $('#pvFrame');
+  const ab = $('#artboardFrame');
   let pi = $('#pvImg');
-  if (!pi) { pi = document.createElement('img'); pi.id = 'pvImg'; pi.alt = 'generated'; pi.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;display:none'; $('#pvStage').append(pi); }
+  if (!pi) { pi = document.createElement('img'); pi.id = 'pvImg'; pi.alt = 'generated'; pi.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.55);display:none'; $('#pvStage').append(pi); }
   const htmlFile = artifacts?.files.some((f) => f.lang === 'html');
   if (artifacts?.img && !htmlFile) {
-    fr.style.display = 'none'; pi.style.display = 'block'; pi.src = IMG_BLOBS[artifacts.img] || artifacts.img; $('#pvUrl').textContent = 'preview://image'; return;
+    if (ab) ab.style.display = 'none';
+    fr.style.display = 'none'; pi.style.display = 'block'; pi.src = IMG_BLOBS[artifacts.img] || artifacts.img; $('#pvUrl').textContent = 'stitch://image'; return;
   }
+  if (ab) ab.style.display = '';
   fr.style.display = ''; pi.style.display = 'none';
-  const targetDoc = doc || `<body style="margin:0;background:#0c0c10;color:#71717a;font:13px 'Pretendard Variable',system-ui,sans-serif;display:grid;place-items:center;height:100vh">미리보기할 산출물이 없습니다</body>`;
-  $('#pvUrl').textContent = !doc ? 'preview://empty' : `preview://${artifacts?.files.find((f) => f.lang === 'html')?.name || (artifacts?.img ? 'image' : 'document')}${htmlFile && sanitizePreview.last ? ` · 외부 리소스 ${sanitizePreview.last}개 내장 대체` : ''}`;
+  const targetDoc = doc || `<body style="margin:0;background:#0d0e13;color:#71717a;font:13px 'Pretendard Variable',system-ui,sans-serif;display:grid;place-items:center;height:100vh">명령을 입력하면 Stitch 캔버스에 실시간으로 렌더링됩니다</body>`;
+  $('#pvUrl').textContent = !doc ? 'stitch://canvas' : `stitch://${artifacts?.files.find((f) => f.lang === 'html')?.name || (artifacts?.img ? 'image' : 'document')}${htmlFile && sanitizePreview.last ? ` · 리소스 ${sanitizePreview.last}개 자동 보정` : ''}`;
   requestAnimationFrame(() => {
     const cur = $('#pvFrame');
     if (!cur) return;
@@ -1550,29 +1592,42 @@ function switchTab(tab) {
 }
 function rightVisible() { const app = $('#app'); return !app.hidden && (innerWidth <= 1180 ? app.classList.contains('show-right') : !app.classList.contains('no-right')); }
 function syncWaterfall() { if (!waterfall) return; if (state.rightTab === 'stream' && rightVisible()) waterfall.start(); else waterfall.stop(); }
+function syncHomeState() {
+  const app = $('#app');
+  if (!app) return;
+  const t = curThread();
+  const hasMsgs = Boolean(t && t.messages.length) || Boolean(state.running);
+  const isHome = state.centerView !== 'dash' && !hasMsgs && !rightVisible();
+  app.classList.toggle('is-home', isHome);
+  document.body.classList.toggle('in-work', !isHome);
+  const dashBtn = $('#railDash');
+  if (dashBtn) dashBtn.classList.toggle('active', state.centerView === 'dash');
+}
 function setCenterView(v) {
   state.centerView = v;
   $$('#cvTabs button').forEach((b) => b.classList.toggle('on', b.dataset.cv === v));
   $('#dash').hidden = v !== 'dash'; $('#stream').hidden = v === 'dash';
   if (dashboard) { if (v === 'dash' && !$('#app').hidden) dashboard.start(); else dashboard.stop(); }
+  syncHomeState();
 }
 function persistArtifacts() { const t = curThread(); if (t && artifacts) { t.artifacts = artifacts; saveThreads(); } }
 
-/* ================= RUN UI ================= */
+/* ================= GOOGLE STITCH RUN UI ================= */
 let centerRain;
 function createRunUI(mode) {
   const stages = mode === 'council' || mode === 'claude' ? STAGES_COUNCIL : mode === 'image' ? STAGES_IMAGE : mode === 'local6' ? STAGES_LOCAL6 : mode === 'core' ? STAGES_CORE : mode === 'exec' ? STAGES_EXEC : STAGES_FAST;
   const el = document.createElement('div'); el.className = 'msg ai';
-  el.innerHTML = `<div class="who"><i>AI</i>CORE ORCHESTRATOR <span class="meta">· executing</span></div>
-  <div class="run"><div class="run-head"><span class="spin"></span><span class="ttl">LIVE CODE STREAM</span><span class="tm">0.0s</span></div>
-  <div class="stages">${stages.map((s) => `<span class="stg" data-s="${s}">${s}</span>`).join('')}</div>
-  <div class="rain-box"><canvas></canvas><div class="tail">&gt; booting orchestrator…</div></div>
-  <div class="logbox"></div></div>`;
+  el.innerHTML = `<div class="who"><i>AI</i>DARK CODE · Stitch <span class="meta">· 실행 중</span></div>
+  <div class="run stitch-run">
+    <div class="run-head"><span class="spin"></span><span class="ttl">요청을 단계별로 처리하고 있습니다</span><span class="tm">0.0s</span></div>
+    <div class="stitch-steps">${stages.map((s) => `<div class="stg" data-s="${s}"><i class="stg-dot"></i><span>${esc(stitchLabel(s))}</span><span class="stg-sub">${s}</span></div>`).join('')}</div>
+    <div class="stitch-live-line" data-tail>파이프라인 초기화 중…</div>
+    <details class="stitch-raw"><summary>상세 라우팅 · 실행 로그 보기</summary><div class="logbox"></div></details>
+  </div>`;
   $('#stream').append(el);
-  const rain = new CodeRain($('canvas', el), { size: 14, speed: 1.1 });
-  rain.start();
-  centerRain.start(); $('#center').classList.add('running');
-  const logbox = $('.logbox', el), tail = $('.tail', el), tm = $('.tm', el);
+  $('#center').classList.add('running');
+  syncHomeState();
+  const logbox = $('.logbox', el), tail = $('[data-tail]', el), tm = $('.tm', el);
   const ctl = new AbortController();
   const t0 = performance.now();
   let tailBuf = '';
@@ -1585,11 +1640,11 @@ function createRunUI(mode) {
       const d = document.createElement('div'); d.className = cls;
       d.innerHTML = `<span class="t">+${ts}s</span> ${esc(msg)}`;
       logbox.append(d); logbox.scrollTop = logbox.scrollHeight;
-      rain.feed(msg + ' '); centerRain.feed(msg + ' ');
+      if (tail) tail.textContent = msg;
       if (/route|done|fail|gate|cache|verify|fallback|claude/.test(msg)) TEL()?.log(msg, cls);
       if (stick) scrollStream();
     },
-    rain(text) { rain.feed(text); centerRain.feed(text); tailBuf = (tailBuf + text).slice(-220); tail.textContent = '> ' + tailBuf.replace(/\s+/g, ' '); },
+    rain(text) { tailBuf = (tailBuf + text).slice(-160); if (tail) tail.textContent = tailBuf.replace(/\s+/g, ' ').trim() || '생성 중…'; },
     stage(name) {
       $$('.stg', el).forEach((s) => { if (s.classList.contains('act')) { s.classList.remove('act'); s.classList.add('done'); } });
       const s = $(`.stg[data-s="${name}"]`, el); if (s) s.classList.add('act');
@@ -1601,9 +1656,9 @@ function createRunUI(mode) {
       $$('.stg.act', el).forEach((s) => { s.classList.remove('act'); s.classList.add('done'); });
       el.querySelector('.run').classList.add('done');
       $('.spin', el)?.remove();
-      $('.ttl', el).textContent = ok ? 'STREAM COMPLETE · 결과 반영' : 'STREAM HALTED';
-      setTimeout(() => { rain.stop(); }, 600);
-      centerRain.stop(); $('#center').classList.remove('running');
+      $('.ttl', el).textContent = ok ? 'Stitch 워크플로우 완료 · 캔버스 반영됨' : '실행이 중단되었습니다';
+      $('#center').classList.remove('running');
+      syncHomeState();
     },
   };
   let stick = true;
@@ -1636,14 +1691,8 @@ function renderStream() {
   s.innerHTML = '';
   $('#threadTitle').textContent = t?.title || '새 작업';
   if (!t || !t.messages.length) {
-    s.innerHTML = `<div class="welcome">
-      <img class="welcome-logo" src="assets/logo-clean.svg" alt="DARK CODE AI">
-      <div class="welcome-badge"><i></i>멀티 AI 오케스트레이터 · 준비 완료</div>
-      <h1>무엇을 <b>만들어</b> 드릴까요?</h1>
-      <p>웹·앱·SaaS 개발부터 DB 연동, 이미지·영상·음악 기획까지. 명령 한 줄로 여러 AI가 협업해 바로 실행 가능한 결과물을 완성합니다.</p>
-      <div class="chips">${WELCOME_CHIPS.map(([k, v]) => `<button class="chip" data-p="${esc(v)}"><small>${k}</small>${esc(v)}</button>`).join('')}</div></div>`;
-    $$('.chip', s).forEach((c) => (c.onclick = () => { $('#prompt').value = c.dataset.p; autoGrow(); $('#prompt').focus(); $('#sendBtn').disabled = false; }));
     if (live) s.append(live);
+    syncHomeState();
     return;
   }
   for (const m of t.messages) {
@@ -1671,6 +1720,7 @@ function renderStream() {
     }
   }
   if (live) s.append(live);
+  syncHomeState();
   scrollStream();
 }
 function renderThreads() {
@@ -2077,7 +2127,7 @@ function autoGrow(force = false) {
   const ta = $('#prompt');
   if (!ta) return;
   if (force || !ta.value) {
-    ta.style.height = '54px';
+    ta.style.height = '36px';
     if (!ta.value) return;
   }
   if (autoGrowRaf) cancelAnimationFrame(autoGrowRaf);
@@ -2086,7 +2136,7 @@ function autoGrow(force = false) {
     const curH = ta.offsetHeight;
     const scH = ta.scrollHeight;
     if (scH > curH || force) {
-      const h = Math.min(220, Math.max(54, scH));
+      const h = Math.min(180, Math.max(36, scH));
       const px = h + 'px';
       if (ta.style.height !== px) ta.style.height = px;
     }
@@ -2097,19 +2147,27 @@ function showRight(on) {
   if (innerWidth <= 1180) app.classList.toggle('show-right', on);
   else app.classList.toggle('no-right', !on);
   syncWaterfall();
+  syncHomeState();
 }
 function enterWorkspace() {
   const gv = $('#gateVideo');
   if (gv) { gv.pause(); gv.removeAttribute('src'); gv.load(); }
   $('#userName').textContent = user.guest ? 'guest' : user.name;
   $('#userAvatar').textContent = (user.guest ? 'G' : user.name[0] || 'O').toUpperCase();
+  const authLbl = $('#authBtnLabel');
+  if (authLbl) authLbl.textContent = user.guest ? '로그인' : user.name;
+  const lo = $('#logoutBtn');
+  if (lo) lo.hidden = !!user.guest;
   loadThreads();
-  state.cur = threads[0]?.id || null;
+  state.cur = null; // Always land on the clean Gemini-style home screen
   renderThreads(); renderStream(); renderPool(); renderRouteSel(); renderStatus(); renderFree();
-  applyArtifacts(curThread()?.artifacts || null);
-  if (innerWidth <= 1180) $('#app').classList.remove('show-right');
-  setCenterView(curThread()?.messages.length ? 'work' : 'dash');
+  applyArtifacts(null);
+  showRight(false);
+  setCenterView('work');
   syncWaterfall();
+  syncHomeState();
+  const bgv = $('#bgHeroVideo');
+  if (bgv) bgv.play().catch(() => {});
   $('#prompt').focus();
 }
 
@@ -2220,25 +2278,69 @@ function wire() {
     ta.value = ''; autoGrow(true); $('#sendBtn').disabled = true;
     execute(v);
   });
-  $$('#modeSeg button').forEach((b) => (b.onclick = () => {
-    state.mode = b.dataset.mode; $$('#modeSeg button').forEach((x) => x.classList.toggle('on', x === b)); renderStatus();
+  const setMode = (m) => {
+    state.mode = m;
+    $$('#modeSeg button').forEach((x) => x.classList.toggle('on', x.dataset.mode === m));
+    const dd = $('#modeDropdown'); if (dd && dd.value !== m) dd.value = m;
+    renderStatus();
     if (state.mode === 'local6' && window.DCLocal6) DCLocal6.check().then((s) => { if (!s.ok) DCLocal6.open(); else toast('로컬 6-에이전트 · Ollama 모델 6/6 연결됨'); });
     if (state.mode === 'core' && window.DCCore) DCCore.check().then((s) => { if (!s.ok) DCCore.open(); else toast(`CORE 게이트웨이 연결됨 · ${s.profile} 프로필`); });
     if (state.mode === 'exec' && window.DCAstra) DCAstra.check().then((s) => toast(s.runner.ok ? `EXEC · 실행기 연결됨 (승인 ${s.runner.info.approval === 'ask' ? '콘솔 y/N' : s.runner.info.approval})${s.models.ok ? ` · 모델 ${s.model || '없음'}` : ' · Ollama 꺼짐'}` : 'EXEC · 실행기(8797) 꺼짐 → darkcode-core 폴더의 start-runner.bat 실행'));
+  };
+  $$('#modeSeg button').forEach((b) => (b.onclick = () => setMode(b.dataset.mode)));
+  const md = $('#modeDropdown');
+  if (md) md.onchange = (e) => setMode(e.target.value);
+  $$('#homePills button').forEach((b) => (b.onclick = () => {
+    $$('#homePills button').forEach((x) => x.classList.toggle('on', x === b));
+    if (b.dataset.intent === 'chat') { setMode('fast'); $('#prompt').placeholder = 'DARK CODE AI에게 물어보기'; }
+    else { setMode('council'); $('#prompt').placeholder = 'Stitch 캔버스로 만들 웹·앱·작업을 설명해 주세요'; }
   }));
+
+  const goHome = () => {
+    if (state.running) return toast('실행 중입니다');
+    state.cur = null;
+    renderThreads(); renderStream(); applyArtifacts(null); renderStatus();
+    showRight(false); setCenterView('work');
+    $('#app').classList.remove('show-side');
+    syncHomeState();
+    ta.focus();
+  };
   $('#routeSel').onchange = (e) => { state.route = e.target.value; toast(state.route === 'auto' ? 'AUTO 라운드로빈' : `${prov[state.route].name} 고정 (실패 시 로컬/Claude 폴백)`); };
-  $('#newBtn').onclick = () => { if (state.running) return toast('실행 중입니다'); state.cur = null; renderThreads(); renderStream(); applyArtifacts(null); renderStatus(); setCenterView('dash'); $('#app').classList.remove('show-side'); ta.focus(); };
+  $('#newBtn').onclick = goHome;
+  if ($('#railNew')) $('#railNew').onclick = goHome;
+  if ($('#railHome')) $('#railHome').onclick = goHome;
+  if ($('#railDash')) $('#railDash').onclick = () => { setCenterView(state.centerView === 'dash' ? 'work' : 'dash'); $('#app').classList.remove('show-side'); };
+  if ($('#backToWork')) $('#backToWork').onclick = () => setCenterView('work');
   $('#threadSearch').oninput = renderThreads;
 
-  // header
+  // plus menu popover
+  const plusBtn = $('#plusBtn'), plusMenu = $('#plusMenu');
+  if (plusBtn && plusMenu) {
+    plusBtn.onclick = (e) => { e.stopPropagation(); plusMenu.hidden = !plusMenu.hidden; };
+    document.addEventListener('click', (e) => { if (!plusMenu.hidden && !e.target.closest('.plus-wrap')) plusMenu.hidden = true; });
+    $$('[data-quick-prompt]', plusMenu).forEach((b) => (b.onclick = () => {
+      plusMenu.hidden = true; ta.value = b.dataset.quickPrompt; autoGrow(); ta.focus(); $('#sendBtn').disabled = false;
+    }));
+    $$('[data-quick-tpl]', plusMenu).forEach((b) => (b.onclick = () => { plusMenu.hidden = true; openPhotoTemplate(); }));
+  }
+
+  // header & drawers & login modal
   $('#sideToggle').onclick = () => $('#app').classList.toggle('show-side');
-  $('#panelToggle').onclick = () => { const app = $('#app'); if (innerWidth <= 1180) app.classList.toggle('show-right'); else app.classList.toggle('no-right'); syncWaterfall(); };
-  $('#rClose').onclick = () => { $('#app').classList.remove('show-right'); syncWaterfall(); };
+  if ($('#mobileMenuBtn')) $('#mobileMenuBtn').onclick = () => $('#app').classList.toggle('show-side');
+  if ($('#sideClose')) $('#sideClose').onclick = () => $('#app').classList.remove('show-side');
+  if ($('#sideBackdrop')) $('#sideBackdrop').onclick = () => $('#app').classList.remove('show-side');
+  $('#panelToggle').onclick = () => { showRight(!rightVisible()); };
+  $('#rClose').onclick = () => { showRight(false); };
   $('#rExpand').onclick = () => $('#app').classList.toggle('wide-right');
+  const openLoginModal = () => { $('#gate').hidden = false; setAuthMode('login'); setTimeout(() => $('#loginId')?.focus(), 120); };
+  if ($('#authOpenBtn')) $('#authOpenBtn').onclick = () => { if (!user?.guest) toast(`로그인됨: ${user.email || user.name}`); else openLoginModal(); };
+  if ($('#userChip')) $('#userChip').onclick = openLoginModal;
+  if ($('#gateClose')) $('#gateClose').onclick = () => { $('#gate').hidden = true; };
   document.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'j' && !$('#app').hidden) { e.preventDefault(); $('#panelToggle').click(); } });
   const dlg = $('#settings');
   const openSettings = () => { renderSettings(); dlg.showModal(); };
   $('#settingsBtn').onclick = openSettings; $('#poolStrip').onclick = openSettings;
+  if ($('#freeUse')) $('#freeUse').onclick = openSettings;
   $('#saveSettings').onclick = (e) => { e.preventDefault(); collectSettings(); dlg.close(); toast('설정 저장됨'); };
   $('#clearCache').onclick = () => { cacheClear(); renderStatus(); toast('캐시 비움'); };
   $('#resetHealth').onclick = () => { Object.values(prov).forEach((p) => { p.health = 1; p.cooldownUntil = 0; p.lastErr = ''; }); saveHealth(); renderPool(); renderStatus(); renderSettings(); toast('헬스 스코어 초기화'); };
@@ -2351,15 +2453,17 @@ wire();
   const g = getSession();
   loadVaultKeys().then(async () => { renderPool(); renderRouteSel(); renderStatus(); await loadMediaKeys(); refreshModels(); });
   autoLocal();
-  if (g?.guest) { user = g; $('#gate').hidden = true; $('#app').hidden = false; enterWorkspace(); return; }
-  showGate();
+  // Immediately enter the Gemini-style home workspace (guest by default, Firebase upgrades silently if logged in)
+  user = g || { id: 'guest', name: 'guest', guest: true };
+  if (!g) setSession(user);
+  $('#gate').hidden = true; $('#app').hidden = false;
+  enterWorkspace();
   try {
     await loadCloud();
     let first = true;
     await cloud.onUser(async (u) => {
-      if (!first) return; first = false; // restore an existing Firebase session once
+      if (!first) return; first = false;
       if (u && cloud.isTrusted(u)) await bootTo(userFromFirebase(u), true);
-      else if (u) showVerify(u);
     });
-  } catch (e) { console.warn('cloud init', e); termLine('<span style="color:#ff4d6d">✖ auth server unreachable · 게스트 모드는 사용 가능</span>'); }
+  } catch (e) { console.warn('cloud init', e); }
 })();

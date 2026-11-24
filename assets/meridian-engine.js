@@ -258,31 +258,62 @@
     },
 
     hospital: {
-      re: /(병원|클리닉|의원|정형외과|한의원|내과|안과|산부인과|건강검진|메디컬|재활|통증|hospital|medical|clinic)/i,
+      re: /(병원|클리닉|의원|정형외과|소아과|소아청소년과|정신과|정신건강|화상|한의원|내과|안과|산부인과|건강검진|메디컬|재활|통증|hospital|medical|clinic)/i,
+      archetype: 'meridian',
       label: '프리미엄 메디컬 센터 · 전문 클리닉',
-      palette: { paper: '#f3f4f1', paper2: '#e6e8e3', ink: '#101417', ink2: '#374149', mute: '#7c858c', brand: '#17343a', brand2: '#214850', accent: '#c9e58c', dark: '#0e1315' },
-      benchmarks: ['상위 1% 프리미엄 종합·특화 메디컬 센터의 차분한 신뢰 에디토리얼 톤', '대학병원급 정밀 장비·전문의 협진·원스톱 검사 시스템을 수치와 프로세스로 시각화', '센터별 플로팅 프리뷰 아코디언 + 임상 성과 가로 쇼케이스 + 실시간 진료예약'],
-      fallback: null, // uses structured LLM output or adapts derma/meridian
+      palette: { paper: '#f5f1ea', paper2: '#e8e2d7', ink: '#141413', ink2: '#3f3d39', mute: '#807b72', brand: '#17343a', brand2: '#214850', accent: '#d6e59a', dark: '#0e1315' },
+      benchmarks: ['상위 1% 전문 클리닉(Elpis·GDWEB 수상작)의 웜 클리니컬 파치먼트 + 신뢰 에디토리얼 톤', '실시간 진료 상태·전문의 협진·단계별 치료 패스웨이를 수치와 프로세스로 시각화', '센터별 플로팅 프리뷰 아코디언 + 임상 성과 가로 쇼케이스 + 실시간 예약·CRM'],
+      fallback: null,
+    },
+
+    fashion: {
+      re: /(패션|의류|옷|브랜드\s*룩북|룩북|아틀리에|뷰티\s*브랜드|코스메틱|화장품|향수|주얼리|악세서리|웨딩|드레스|가방|fashion|atelier|lookbook|cosmetic|beauty\s*brand|jewelry)/i,
+      archetype: 'atelier',
+      label: '하이엔드 패션 · 뷰티 아틀리에 룩북',
+      palette: { paper: '#FAF7F1', paper2: '#F1ECE3', ink: '#1E1B18', ink2: '#4D463F', mute: '#867C72', brand: '#6A4330', brand2: '#523223', accent: '#E3EAF0', dark: '#1E1B18' },
+      benchmarks: ['아틀리에 룩북 레퍼런스(TWO FOLD)의 코튼 페이퍼(#F1ECE3) + 혼 브라운(#6A4330) + 초크 블루 하이라이트', 'Bodoni Moda 초대형 세리프 + 좌측 점선 재봉선 스크롤 프로그레스 + 기울어진 듀얼 폴드 룩북 카드', '소재·원단 라이브러리 + 카테고리 필터 컬렉션 프리뷰 + 프라이빗 런칭 알림 예약'],
+      fallback: null,
+    },
+
+    architecture: {
+      re: /(인테리어|건축|건설|리모델링|주택|시공|설계\s*사무소|공간\s*대관|갤러리\s*대관|스튜디오\s*대관|부동산|타운하우스|interior|architecture|construction|remodeling)/i,
+      archetype: 'architecture',
+      label: '하이엔드 건축 · 인테리어 스튜디오',
+      palette: { paper: '#fbfaf7', paper2: '#eee8dd', ink: '#22211f', ink2: '#4e4b45', mute: '#77726a', brand: '#24221e', brand2: '#3a352e', accent: '#c8a77c', dark: '#161513' },
+      benchmarks: ['상위 1% 건축·인테리어 스튜디오(결·명진건설)의 라임워시 스톤(#fbfaf7) + 오크 브론즈(#8a6f4d) 에디토리얼 톤', '풀블리드 다크 틴트 아키텍처 모션 히어로 + 4:5 필터 포트폴리오 그리드(주거·상업·오피스)', '평수·공간유형·마감등급 실시간 예상 공사비 자동 견적 계산기 + 우측 플로팅 퀵 독'],
+      fallback: null,
+    },
+
+    luxury: {
+      re: /(호텔|리조트|펜션|풀빌라|호캉스|파인다이닝|오마카세|한우|정육|숙성육|와인바|위스키|라운지|명품|시계|hotel|resort|fine\s*dining|butcher|luxury\s*brand)/i,
+      archetype: 'luxury',
+      label: '녹터널 럭셔리 호스피탈리티 · 크래프트',
+      palette: { paper: '#0b1019', paper2: '#101826', ink: '#ece6da', ink2: '#c9c1b2', mute: '#9aa3b2', brand: '#141e30', brand2: '#1d2b44', accent: '#c9a45c', dark: '#070a0f' },
+      benchmarks: ['하이엔드 호텔·장인 브랜드(BELLUCE·광)의 딥 옵시디언/네이비(#0b1019) + 샴페인 골드(#c9a45c) 톤', 'Noto Serif KR + Cormorant Garamond 이탤릭 페어링 + 풀블리드 시네마틱 모션 히어로', '등급·박수/세트·인원 선택에 따라 실시간 예상 금액이 계산되는 프라이빗 예약 엔진'],
+      fallback: null,
     },
 
     cafe: {
-      re: /(카페|커피|베이커리|디저트|레스토랑|다이닝|바|와인|호텔|리조트|브런치|cafe|coffee|bakery|restaurant|dining|hotel)/i,
-      label: '하이엔드 호스피탈리티 · F&B 브랜드',
-      palette: { paper: '#f4eee4', paper2: '#e8dfd1', ink: '#1a1512', ink2: '#473c35', mute: '#8b7d72', brand: '#2b2019', brand2: '#3e2f25', accent: '#dfc084', dark: '#120e0c' },
-      benchmarks: ['성수·한남 상위 1% 로스터리/파인다이닝/부티크 호텔의 웜 에디토리얼 톤', '공간·원재료·장인정신을 대형 타이포그래피와 스크롤 클립패스 비주얼로 연출', '시그니처 메뉴 플로팅 프리뷰 아코디언 + 시즌 컬렉션 가로 스크롤 + 프라이빗 예약'],
+      re: /(카페|커피|로스터리|베이커리|빵집|디저트|브런치|케이크|티하우스|식당|음식점|맛집|cafe|coffee|bakery|dessert|brunch)/i,
+      archetype: 'cafe',
+      label: '오가닉 감성 카페 · 베이커리 다이닝',
+      palette: { paper: '#fbf8f3', paper2: '#f3ece0', ink: '#1f2a22', ink2: '#465249', mute: '#66705f', brand: '#3f6b45', brand2: '#2f5234', accent: '#f2661c', dark: '#1d241f' },
+      benchmarks: ['성수 인기 카페 레퍼런스(오렌지 다이닝)의 웜 오프화이트(#fbf8f3) + 올리브 잉크 + 탠저린 오렌지(#f2661c)', '아날로그 필름 프레임 히어로 + 오늘의 원두/신선도 실시간 배지 + 비대칭 원형 포토 콜라주', 'BEST 배지와 가격표·카테고리 필터가 동작하는 시그니처 메뉴 보드 + 테이블 예약'],
       fallback: null,
     },
 
     tech: {
-      re: /(테크|ai|스타트업|saas|앱|소프트웨어|플랫폼|스튜디오|에이전시|개발|보안|핀테크|tech|startup|software|agency|studio)/i,
-      label: '하이엔드 테크 · 크리에이티브 스튜디오',
-      palette: { paper: '#efeff3', paper2: '#e2e3ea', ink: '#0e0f14', ink2: '#393b47', mute: '#7c8091', brand: '#181c36', brand2: '#242a52', accent: '#c8f065', dark: '#0a0b10' },
-      benchmarks: ['글로벌 Awwwards 1티어 테크/디자인 스튜디오의 스위스 그리드 + 네오 에디토리얼 톤', '제품 아키텍처·성능 지표·도입 사례를 정밀 타이포그래피와 인터랙션으로 증명', '솔루션 아코디언 + 고객 성과 가로 스크롤 + 실시간 데모 예약 및 CRM'],
+      re: /(테크|ai|인공지능|클라우드|스타트업|saas|앱\s*랜딩|소프트웨어|플랫폼|devops|개발|보안|핀테크|데이터|api|tech|startup|software|cloud|platform)/i,
+      archetype: 'saas',
+      label: '다크 테크니컬 SaaS · 클라우드 플랫폼',
+      palette: { paper: '#070b14', paper2: '#0c1220', ink: '#e9eef8', ink2: '#b8c7e0', mute: '#93a0b8', brand: '#111a2d', brand2: '#1a2742', accent: '#3d7eff', dark: '#05080f' },
+      benchmarks: ['글로벌 1티어 개발자 SaaS(STRATA)의 딥 스페이스 네이비(#070b14) + 일렉트릭 블루(#3d7eff) + 네온 라이브(#45f0a1)', '비트맵 사진 없이 100% UI·벡터로 구현한 실시간 프로덕션 콘솔(req/s·p95·로그 스트림) 히어로', '글래스 벤토 기능 + 4탭 산업 솔루션 + 복사 가능한 TypeScript SDK + 월간/연간 20% 할인 요금제 토글'],
       fallback: null,
     },
 
     default: {
       re: /.*/,
+      archetype: 'meridian',
       label: '하이엔드 에디토리얼 브랜드 · 컨설팅',
       palette: { paper: '#f1ede4', paper2: '#e8e2d5', ink: '#111111', ink2: '#3a3a36', mute: '#85827a', brand: '#1d3a2c', brand2: '#25493a', accent: '#d8e86c', dark: '#111111' },
       benchmarks: ['Meridian급 스위스 에디토리얼 레이아웃(Warm Paper + Deep Forest Ink + Acid Lime)', '스크롤 연동 클립패스 확장·단어별 리빌·호버 플로팅 프리뷰·가로 스크롤 케이스', '실제 작동하는 예약 모달 + 로컬 CRM 관리자 드로어 완비'],
@@ -291,7 +322,7 @@
   };
 
   function detectSpecialty(prompt) {
-    for (const key of ['plastic', 'derma', 'dental', 'hospital', 'cafe', 'tech']) {
+    for (const key of ['plastic', 'derma', 'dental', 'hospital', 'fashion', 'architecture', 'luxury', 'cafe', 'tech']) {
       if (SPECIALTIES[key].re.test(prompt)) return { key, ...SPECIALTIES[key] };
     }
     return { key: 'default', ...SPECIALTIES.default };
@@ -1483,20 +1514,37 @@ crmDrawer.onclick=e=>{if(e.target===crmDrawer)crmDrawer.classList.remove('open')
     }
 
     const bp = mergeBlueprint(spec, parsed, prompt);
+    const arch = spec.archetype || 'meridian';
+    const archNames = {
+      atelier: '아틀리에 룩북 (코튼 페이퍼 · 듀얼 폴드 · 재봉선 스크롤)',
+      architecture: '아키텍처 스톤 (라임워시 · 필터 포트폴리오 · 자동 견적 계산기)',
+      luxury: '녹터널 럭셔리 (옵시디언 골드 · 시네마틱 히어로 · 실시간 요금 예약)',
+      cafe: '오가닉 다이닝 (필름 프레임 · 신선도 배지 · 가격표 메뉴 보드)',
+      saas: '테크니컬 SaaS (다크 네이비 · 라이브 프로덕션 콘솔 · SDK · 요금 토글)',
+      meridian: '스위스 에디토리얼 모션 (13-밴드 스크롤 코레오그래피 · 실시간 CRM)',
+    };
     run.stage('VISUALS');
-    run.log(`visual AI 맞춤 비주얼 18종 직접 생성 매핑 (공간·전문의·시술·사례·칼럼 + 60fps 히어로 모션 캔버스)`, 'ok');
+    run.log(`visual 아키타입 [${archNames[arch]}] 전용 비주얼·60fps 모션 캔버스 직접 합성`, 'ok');
 
     run.stage('MOTION');
-    run.log('motion Lenis 스무스 스크롤 · 클립패스 확장 · 단어별 리빌 · 호버 플로팅 · 가로 스크롤 케이스 · 실시간 CRM 조립', 'ok');
-    const html = renderMeridianSite(bp, spec.key);
-    run.calls.push({ label: 'editorial-engine', provider: 'ILL Editorial Motion Engine', short: 'MERIDIAN', pid: 'media', model: 'v2' });
+    run.log(`motion 업종 특화 인터랙션 모듈 및 반응형 완성본 조립`, 'ok');
+    const A = window.ILLArchetypes || {};
+    let html;
+    if (arch === 'atelier' && A.renderAtelier) html = A.renderAtelier(bp);
+    else if (arch === 'architecture' && A.renderArchitecture) html = A.renderArchitecture(bp);
+    else if (arch === 'luxury' && A.renderLuxury) html = A.renderLuxury(bp);
+    else if (arch === 'cafe' && A.renderCafe) html = A.renderCafe(bp);
+    else if (arch === 'saas' && A.renderSaaS) html = A.renderSaaS(bp);
+    else html = renderMeridianSite(bp, spec.key);
+    run.calls.push({ label: 'editorial-engine', provider: 'ILL Multi-Archetype Engine', short: arch.toUpperCase(), pid: 'media', model: 'v3' });
 
     const benchMd = bp.benchmarkNotes.map((b) => `- ${b}`).join('\n');
     return `## 합의 요약
-- **업종 벤치마크 분석 (${bp.specialtyLabel})**:
+- **업종 벤치마크 & 아키타입 선정 (${bp.specialtyLabel})**:
+  - 적용 아키타입: **${archNames[arch]}**
 ${benchMd}
-- **브랜드 & 디자인 시스템**: **${bp.brand} (${bp.brandSub})** · 업종 전용 에디토리얼 팔레트(\`${bp.palette.paper}\` / \`${bp.palette.brand}\` / \`${bp.palette.accent}\`) 적용
-- **AI 맞춤 비주얼 & 모션**: 각 섹션 카피에 맞춰 **AI가 직접 생성한 맞춤 이미지 18종** + **60fps 제너레이티브 히어로 모션 캔버스**, 클립패스 스크롤 확장, 단어별 리빌, 호버 플로팅 프리뷰, 가로 스크롤 사례집, 실시간 예약 모달·CRM까지 통합 구현했습니다.
+- **브랜드 & 디자인 시스템**: **${bp.brand} (${bp.brandSub})** · 업종 전용 팔레트(\`${bp.palette.paper}\` / \`${bp.palette.brand}\` / \`${bp.palette.accent}\`) 적용
+- **직접 생성 비주얼 & 인터랙션**: 외부 스톡·한도 배너 없이 업종과 카피에 맞춰 직접 합성한 비주얼·60fps 모션 캔버스와 실전 인터랙션(견적 계산기·요금 엔진·라이브 콘솔·메뉴/컬렉션 필터·CRM 예약)을 통합 구현했습니다.
 
 ## 자율 실행 산출물
 \`\`\`html
@@ -1507,8 +1555,9 @@ ${html}
 \`\`\`yaml
 user_goal: "${String(prompt).slice(0, 70).replace(/"/g, "'")}"
 specialty: "${bp.specialtyLabel}"
+archetype: "${arch}"
 brand: "${bp.brand}"
-completed_steps: ["상위 1% 업종 벤치마크 분석", "13-밴드 에디토리얼 UI 및 맞춤 카피 설계", "섹션별 AI 맞춤 이미지·60fps 히어로 모션 생성", "스크롤 코레오그래피·실시간 예약 CRM 빌드"]
+completed_steps: ["상위 1% 업종 벤치마크 및 아키타입 선정", "업종 전용 레이아웃·맞춤 카피 설계", "직접 생성 비주얼·60fps 모션 합성", "업종 특화 인터랙션·예약/견적 모듈 빌드"]
 active_artifacts: ["index.html"]
 \`\`\``;
   }

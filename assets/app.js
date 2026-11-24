@@ -488,52 +488,49 @@ async function routeCall({ role, system, messages, onToken, signal, log, avoid =
 /* ================= CACHE ================= */
 function cacheGet(key) {
   const idx = LS.get('cidx', []);
-  const e = LS.get('c:' + key, null);
+  const e = LS.get('c2:' + key, null);
   if (!e) return null;
-  if (Date.now() - e.t > (e.ttl || opts.ttl) * 1000) { LS.del('c:' + key); LS.set('cidx', idx.filter((k) => k !== key)); return null; }
+  if (Date.now() - e.t > (e.ttl || opts.ttl) * 1000) { LS.del('c2:' + key); LS.set('cidx', idx.filter((k) => k !== key)); return null; }
   return e;
 }
 function cachePut(key, value) {
   let idx = LS.get('cidx', []).filter((k) => k !== key);
   idx.push(key);
-  while (idx.length > 60) LS.del('c:' + idx.shift());
+  while (idx.length > 60) LS.del('c2:' + idx.shift());
   LS.set('cidx', idx);
-  LS.set('c:' + key, { t: Date.now(), ttl: opts.ttl, ...value });
+  LS.set('c2:' + key, { t: Date.now(), ttl: opts.ttl, ...value });
 }
-function cacheClear() { for (const k of LS.get('cidx', [])) LS.del('c:' + k); LS.set('cidx', []); }
+function cacheClear() { for (const k of LS.get('cidx', [])) { LS.del('c:' + k); LS.del('c2:' + k); } LS.set('cidx', []); }
 
 /* ================= PROMPTS ================= */
-const SYSTEM_CORE = `당신은 DARK CODE의 코어 오케스트레이터이자 초고성능 자율 실행 에이전트입니다.
-- "방법" 안내나 단순 틀(와이어프레임)에 그치지 말고, 즉시 상용 서비스로 배포 가능한 Awwwards/Apple 수준의 초고완성도 풀스택 웹 애플리케이션을 완성합니다.
-- 한국어로, 군더더기 없이 결론부터. 코드는 생략("...", "나머지 동일") 없이 바로 실행 가능한 완성본을 단일 \`html\` 코드 블록(완전한 <!doctype html> 문서)에 담습니다.
-- 웹 페이지/UI 요청 시 필수 준수 사항 (타협 불가 원칙):
-  1) 단순한 텍스트/카드 나열 틀 제작을 엄격히 금지합니다. 실제 운영 중인 최상위 브랜드 사이트처럼 깊이 있는 세부 섹션과 복합 기능 컴포넌트들을 완벽히 구현하십시오:
-     - [히어로 앰비언트 비디오 & 모션 헤더]: 메인 상단에 반드시 실제 동작하는 고화질 비디오 <video data-dc-video="medical dental surgery clinic motion video" autoplay muted loop playsinline></video> 와 글래스모피즘 헤더, 실시간 예약/상담 바로가기 CTA를 완벽히 탑재하십시오.
-     - [3단계 인터랙티브 스마트 예약/상담 마법사 모달]: 진료/서비스 선택 -> 실시간 달력/시간 슬롯 선택 -> 고객 정보 입력 -> 완료 티켓 발급 및 localStorage 저장 연동.
-     - [실시간 탭 필터 & 라이브 검색]: 치료 과목별, 의료진별, 서비스 카테고리별 실시간 탭 전환과 검색 필터링.
-     - [치료 비용 / 견적 계산기 (Interactive Estimator)]: 선택 옵션에 따라 예상 금액과 할인율이 실시간 합산되는 위젯.
-     - [Before & After 인터랙티브 비교 슬라이더] 또는 [부드러운 인터랙티브 FAQ 아코디언].
-     - [실시간 고객 후기 별점 캐러셀 / 인증 배지 그리드].
-     - [우측/하단 플로팅 퀵 액션 바]: 스크롤과 무관하게 언제든 1클릭 예약/전화상담/위치안내 팝업 연결.
-  2) 모션 효과 (Motion & Micro-interactions) 기본 내장:
-     - 모든 인터랙티브 요소는 60fps 하드웨어 가속 트랜지션 (cubic-bezier) 적용.
-     - 카드는 호버 시 3D 입체 틸트 및 은은한 글로우 (transform: translateY(-6px); box-shadow: 0 16px 36px rgba(...)).
-     - 부드러운 스크롤 인-뷰 페이드업 애니메이션, 키프레임 앰비언트 펄스 (@keyframes pulseGlow, @keyframes floatSlow) 기본 내장.
-  3) 실사 사진·영상 자동 연동:
-     - 모든 인물 사진: 100% 한국인 실사 AI 사진으로 생성되도록 반드시 data-dc-img="ai:korean [역할] [상황], photorealistic, 8k" 를 명시하십시오 (예: <img data-dc-img="ai:korean male dentist director in late 30s, warm professional smile, white dental coat, 8k photo" alt="대표원장 소개">).
-     - 배경 영상: 메인 히어로에 <video data-dc-video="영문 구체적 검색어" autoplay muted loop playsinline></video> 를 기본 배치하십시오.
-  4) 업종별 프리미엄 테마 & 타이포그래피:
-     - 병원/치과/의료: 신뢰감 있는 럭셔리 다크 네이비(#060c18, #0a1428) 또는 프리미엄 클린 메디컬 + 틸/민트(#00d2a0, #00b4d8) 포인트.
-     - 뷰티/에스테틱: 럭셔리 누드 골드, 샴페인 로즈.
-     - 테크/SaaS: 사이버 네온 그린, 일렉트릭 블루.
-     - 일반 기업/비즈니스: 모던 슬레이트 그레이, 딥 블루.
-  5) 모든 버튼·탭·필터·모달·폼은 실제 상태 변화와 시각 피드백을 가지며, 주요 데이터는 localStorage에 저장·복원합니다.
+const SYSTEM_CORE = `당신은 Claude Artifacts / Google Stitch 수준의 최상급 풀스택 웹 디자이너이자 프론트엔드 아키텍트입니다.
+사용자의 요청을 받으면 즉시 실제 상용 서비스로 출시할 수 있는 완벽한 단일 HTML 완성본(<!doctype html>)을 제작합니다.
+
+[절대 타협 불가 품질 원칙 — 위반 시 실패로 간주]
+1. 외부 CSS 프레임워크 절대 금지 (100% 자체 완결형 CSS):
+   - Tailwind CDN(\`cdn.tailwindcss.com\`), Bootstrap, 외부 CSS 링크를 절대 사용하지 마십시오. (외부 CDN 로드 실패 시 스타일이 완전히 깨집니다.)
+   - 반드시 \`<head>\` 안의 \`<style>\` 태그에 완전한 디자인 시스템(\`:root\` CSS 변수, \`*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }\`, Pretendard Variable 폰트, 반응형 Flexbox/Grid, 여백, 그림자, 호버 트랜지션, 모달 스타일)을 처음부터 끝까지 직접 작성하십시오.
+2. 업종별 에디토리얼 디자인 & 고품격 컬러 시스템:
+   - 병원·치과·클리닉·의료·기업·교육: 반드시 신뢰감 있고 쾌적한 **프리미엄 화이트 에디토리얼 라이트 테마**(\`--bg: #ffffff\`, \`--surface: #f8fafc\`, \`--primary: #0f2942\`, \`--accent: #0d9488\` 또는 \`#2563eb\`, \`--text: #0f172a\`, \`--muted: #64748b\`)를 사용하십시오. (별도 요청 없이 어두운 해커풍 다크모드로 만들지 마십시오.)
+   - 뷰티·호텔·카페·레스토랑: 따뜻한 아이보리(\`#faf8f5\`) + 에스프레소(\`#1c1917\`) + 골드(\`#b4834c\`).
+   - 테크·AI·SaaS·스튜디오: 모던 다크 슬레이트(\`#09090b\`) 또는 화이트 미니멀.
+3. 5개 핵심 화면 섹션 구조 (\`data-stitch-screen\` 속성 필수):
+   - 상단 고정 글래스 헤더(\`<header>\`): 브랜드 로고, 메뉴 4개, 강조 예약/문의 CTA 버튼.
+   - \`<section id="hero" data-stitch-screen="메인 페이지">\`: 2단 분할 히어로(왼쪽: 신뢰 배지 + 굵은 메인 타이틀 + 서브 설명 + 주요 CTA 2개 + 핵심 지표 3개 / 오른쪽: 고화질 실사 사진 프레임) + 하단 핵심 강점 3열 카드.
+   - \`<section id="services" data-stitch-screen="진료 안내">\`: 카테고리 필터 탭이 작동하는 4~6개 전문 서비스 카드(각 카드마다 고화질 이미지 + 제목 + 설명 + 예상 소요/특징).
+   - \`<section id="team" data-stitch-screen="의료진 소개">\`: 대표 원장/리더 대형 프로필 카드(약력·전문 분야) + 3~4인 팀원 카드 그리드.
+   - \`<section id="reviews" data-stitch-screen="후기 · FAQ">\`: 인터랙티브 견적/비용 계산기 또는 실제 아코디언 FAQ + 고객 후기 카드.
+   - \`<section id="contact" data-stitch-screen="오시는 길 · 예약">\`: 진료시간/운영시간 표 + 깔끔한 오시는 길 카드 + 실시간 예약/상담 폼(제출 시 예약 번호 발급 및 \`localStorage\` 저장 + 확인 토스트) + 정돈된 \`<footer>\`.
+4. 이미지 규칙 (깨진 이미지·무관 영상 원천 차단):
+   - \`<video>\` 태그는 절대 넣지 마십시오. 대신 모든 사진에 \`<img data-dc-img="영문 구체적 묘사" alt="한글 설명">\`을 사용하십시오. (예: \`data-dc-img="bright luxury modern dental clinic reception lobby architecture"\`, 인물: \`data-dc-img="ai:korean male chief doctor in late 30s white coat warm trustworthy smile modern bright clinic"\`).
+   - 모든 \`<img>\`에는 명확한 \`width: 100%; aspect-ratio: ...; object-fit: cover; border-radius: ...\` 스타일을 지정해 레이아웃이 절대 깨지지 않게 하십시오.
+5. 생략("...", "이하 동일") 절대 금지. 모든 버튼·탭·FAQ 아코디언·예약 모달이 JS로 100% 실제 동작하게 완성하십시오.
 
 응답 형식 — 반드시 아래 세 제목을 이 순서 그대로 사용:
 ## 합의 요약
-- 전략가/구현자/비판가 관점의 최종 결론 2~4줄
+- 브랜드 아이덴티티, 컬러·타이포그래피, 핵심 페이지 구성 3~4줄 요약
 ## 자율 실행 산출물
-(실제 산출물 본문)
+(단일 \`\`\`html ... \`\`\` 코드 블록에 완전한 <!doctype html> 문서)
 ## 세션 상태 스냅샷
 \`\`\`yaml
 user_goal: "..."
@@ -544,12 +541,12 @@ constraints: ["..."]
 \`\`\``;
 
 const ROLE_PROMPTS = {
-  strategist: `당신은 [전략가]입니다. 사용자의 요청을 달성할 최단 경로와 설계를 한국어 bullet 8줄 이내로 제시하십시오: 목표 해석, 산출물 구조(파일/섹션), 기술·디자인 선택, 기본값 가정, 위험 요소. 코드는 쓰지 마십시오.`,
-  implementer: `당신은 [구현자]입니다. 주어진 전략에 따라 실제 산출물 초안을 완성하십시오. 코드는 생략 없이 완성본으로, 웹 UI라면 단일 html 코드 블록(내장 CSS/JS)으로 작성합니다. 설명은 최소화하십시오.`,
-  critic: `당신은 [비판가]입니다. 초안의 오류, 누락, 보안·API 한도·브라우저 호환성·반응형·접근성 함정을 최대 8개 bullet로 지적하고 각각 구체적 수정안을 붙이십시오. 치명적 문제가 없으면 "치명적 문제 없음"과 개선점 2개만 쓰십시오.`,
-  verifier: `당신은 [교차 검증자]입니다. 최종안을 사용자 요청과 대조해 논리적 모순과 치명적 코드 오류(실행 불가, 문법 오류, 잘린 코드, 필수 기능 누락, 존재하지 않는 함수/변수 참조)만 판정하십시오. 스타일·사소한 개선점은 무시합니다.
-첫 줄에 정확히 "VERDICT: PASS" 또는 "VERDICT: FAIL" 을 쓰고, FAIL이면 문제를 위치와 함께 최대 5개 bullet로 쓰십시오.`,
-  summarizer: `다음 대화 기록을 아래 4개 섹션으로 압축하십시오. 코드 전문은 넣지 말고 파일명·핵심 결정만. 600 토큰 이내.
+  strategist: `당신은 [UI/UX 아키텍트]입니다. 사용자 요청에 맞는 브랜드 컨셉, 업종별 컬러 팔레트(HEX), 타이포그래피, 5개 화면 섹션(메인/서비스/소개·의료진/후기·FAQ/예약·오시는길)과 인터랙션 설계를 한국어 bullet 8줄 이내로 제시하십시오. 외부 CSS 프레임워크(Tailwind CDN 등) 금지 및 100% 자체 CSS 원칙을 명시하십시오.`,
+  implementer: `당신은 [시니어 풀스택 웹 디자이너]입니다. 주어진 설계에 따라 Claude Artifacts 수준의 완벽한 단일 html 완성본(<!doctype html>)을 작성하십시오. Tailwind CDN 등 외부 CSS 프레임워크를 절대 쓰지 말고 <style> 안에 완전한 반응형 CSS(:root 변수, 리셋, 그리드, 여백, 그림자)를 직접 작성하십시오. <video> 태그는 쓰지 말고 data-dc-img 속성으로 고화질 사진을 배치하십시오. 생략 없이 완성 코드만 출력하십시오.`,
+  critic: `당신은 [디자인·코드 QA 검수자]입니다. 초안에서 (1) 외부 CSS 프레임워크(Tailwind CDN 등) 의존 여부, (2) CSS 누락/레이아웃 깨짐, (3) 누락된 섹션/인터랙션, (4) <video> 사용이나 이미지 비율 깨짐을 최대 6개 bullet로 지적하고 수정안을 제시하십시오.`,
+  verifier: `당신은 [교차 검증자]입니다. 최종안을 사용자 요청과 대조해 치명적 오류(실행 불가, 문법 오류, 잘린 HTML, 외부 CSS 의존으로 스타일 깨짐, 필수 기능 누락)만 판정하십시오.
+첫 줄에 정확히 "VERDICT: PASS" 또는 "VERDICT: FAIL" 을 쓰고, FAIL이면 문제 위치와 함께 최대 5개 bullet로 쓰십시오.`,
+  summarizer: `다음 대화 기록을 아래 4개 섹션으로 압축하십시오. 600 토큰 이내.
 [완료된 단계]
 [현재 산출물]
 [다음 실행 작업]
@@ -1107,6 +1104,15 @@ function previewOverlay() {
   }
   return ov;
 }
+let stitchCanvas = null;
+function setStitchMode(mode) {
+  const isBoards = mode === 'boards';
+  $$('#stitchModeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.sm === mode));
+  const bm = $('#stitchBoardMount'), ps = $('#pvStage');
+  if (bm) bm.hidden = !isBoards;
+  if (ps) ps.hidden = isBoards;
+  if (isBoards) requestAnimationFrame(() => stitchCanvas?.fitAll());
+}
 function previewLoading(run, prompt, mode) {
   const ov = previewOverlay();
   ov.hidden = false; ov.classList.remove('err');
@@ -1123,10 +1129,25 @@ function previewLoading(run, prompt, mode) {
   $('.pg-tail', ov).textContent = '';
   $('#pvUrl').textContent = 'stitch://generating';
   switchTab('preview'); showRight(true);
+  if (mode !== 'image' && stitchCanvas) {
+    setStitchMode('boards');
+    stitchCanvas.startBuild(prompt);
+  } else {
+    setStitchMode('live');
+  }
   const origStage = run.stage, origRain = run.rain;
   let buf = '';
-  run.stage = function (name) { origStage.call(run, name); $('.pg-stage', ov).textContent = stitchLabel(name); };
-  run.rain = function (text) { origRain.call(run, text); buf = (buf + text).slice(-1400); $('.pg-tail', ov).textContent = buf; };
+  run.stage = function (name) {
+    origStage.call(run, name);
+    $('.pg-stage', ov).textContent = stitchLabel(name);
+    stitchCanvas?.setStage(name);
+  };
+  run.rain = function (text) {
+    origRain.call(run, text);
+    buf = (buf + text).slice(-1400);
+    $('.pg-tail', ov).textContent = buf;
+    stitchCanvas?.onTokenChunk(text);
+  };
 }
 function previewDone() { const ov = $('#pvGen'); if (ov) ov.hidden = true; }
 function previewError(msg) {
@@ -1530,6 +1551,16 @@ function buildPreviewDoc(a) {
     if (css && /<link[^>]+style\.css/i.test(doc)) doc = doc.replace(/<link[^>]+style\.css[^>]*>/i, `<style>${css}</style>`);
     else if (css && !doc.includes(css.slice(0, 40))) doc = doc.replace(/<\/head>/i, `<style>${css}</style></head>`);
     if (js) { doc = doc.replace(/<script[^>]+src=["'][^"']*(app|script|main)\.js["'][^>]*><\/script>/i, ''); if (!doc.includes(js.slice(0, 40))) doc = doc.replace(/<\/body>/i, `<script>${js}<\/script></body>`); }
+    // Failsafe: strip broken Wikimedia Indian clinic video if cached & ensure Pretendard font + Tailwind fallback if model emitted Tailwind classes
+    doc = doc.replace(/<video[^>]*Mediversal[^>]*>[\s\S]*?<\/video>/gi, '');
+    if (!/pretendard/i.test(doc)) {
+      doc = doc.replace(/<\/head>/i, `<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></head>`);
+    }
+    const usesTw = /class=["'][^"']*\b(?:flex|grid-cols-|bg-slate-|bg-gray-|bg-white|text-slate-|px-\d|py-\d|rounded-xl)\b/i.test(doc);
+    const hasCustomStyle = (doc.match(/<style[\s>][\s\S]*?<\/style>/gi) || []).join('').length > 800;
+    if (usesTw && !hasCustomStyle && !/cdn\.tailwindcss\.com/i.test(doc)) {
+      doc = doc.replace(/<\/head>/i, `<script src="https://cdn.tailwindcss.com"><\/script></head>`);
+    }
     // Aside 런타임 옵저버 자동 주입 (오류 포착 & 자율 조작 커서 지원)
     const asideScript = window.DCAsideOperator ? window.DCAsideOperator.getInjectedScript() : '';
     if (asideScript && !doc.includes('__dc_aside_runtime__')) {
@@ -1550,11 +1581,20 @@ function setPreview(doc) {
   if (!pi) { pi = document.createElement('img'); pi.id = 'pvImg'; pi.alt = 'generated'; pi.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.55);display:none'; $('#pvStage').append(pi); }
   const htmlFile = artifacts?.files.some((f) => f.lang === 'html');
   if (artifacts?.img && !htmlFile) {
+    setStitchMode('live');
     if (ab) ab.style.display = 'none';
     fr.style.display = 'none'; pi.style.display = 'block'; pi.src = IMG_BLOBS[artifacts.img] || artifacts.img; $('#pvUrl').textContent = 'stitch://image'; return;
   }
   if (ab) ab.style.display = '';
   fr.style.display = ''; pi.style.display = 'none';
+  if (!doc) {
+    stitchCanvas?.clear();
+  } else if (htmlFile && stitchCanvas) {
+    setStitchMode('boards');
+    stitchCanvas.renderComplete(doc, artifacts?.title);
+  } else {
+    setStitchMode('live');
+  }
   const targetDoc = doc || `<body style="margin:0;background:#0d0e13;color:#71717a;font:13px 'Pretendard Variable',system-ui,sans-serif;display:grid;place-items:center;height:100vh">명령을 입력하면 Stitch 캔버스에 실시간으로 렌더링됩니다</body>`;
   $('#pvUrl').textContent = !doc ? 'stitch://canvas' : `stitch://${artifacts?.files.find((f) => f.lang === 'html')?.name || (artifacts?.img ? 'image' : 'document')}${htmlFile && sanitizePreview.last ? ` · 리소스 ${sanitizePreview.last}개 자동 보정` : ''}`;
   requestAnimationFrame(() => {
@@ -2361,7 +2401,13 @@ function wire() {
   ce.addEventListener('keydown', (e) => { if (e.key === 'Tab') { e.preventDefault(); const s = ce.selectionStart; ce.setRangeText('  ', s, ce.selectionEnd, 'end'); ce.dispatchEvent(new Event('input')); } });
   $('#runPreview').onclick = () => { setPreview(buildPreviewDoc(artifacts)); switchTab('preview'); };
   $('#pvReload').onclick = () => setPreview(buildPreviewDoc(artifacts));
-  $('#pvMobile').onclick = () => $('#pvStage').classList.toggle('mobile');
+  $('#pvMobile').onclick = () => { setStitchMode('live'); $('#pvStage').classList.toggle('mobile'); };
+  $$('#stitchModeSeg button').forEach((b) => (b.onclick = () => setStitchMode(b.dataset.sm)));
+  if (window.StitchCanvas && $('#stitchBoardMount')) {
+    stitchCanvas = new window.StitchCanvas($('#stitchBoardMount'), {
+      onOpenInteractive: () => { setStitchMode('live'); },
+    });
+  }
   const auditBtn = $('#asideAuditBtn');
   if (auditBtn) auditBtn.onclick = () => window.asideOperatorInstance?.runAutonomousAudit();
   $('#rCopy').onclick = () => {

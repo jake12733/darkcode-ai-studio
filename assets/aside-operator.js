@@ -112,8 +112,8 @@
           const alt = img.getAttribute('alt') || '';
           const isDoc = /(의사|치과|원장|환자|진료|병원|doctor|dentist|여의사)/i.test(alt);
           const safeUrl = isDoc 
-            ? 'https://images.unsplash.com/photo-1594824813627-2c9dd7348972?auto=format&fit=crop&w=1200&q=80'
-            : 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80';
+            ? 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=900&q=85'
+            : 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1400&q=85';
           if (img.src !== safeUrl) {
             img.src = safeUrl;
             img.style.objectFit = 'cover';
@@ -126,8 +126,8 @@
         if (!rawSrc || !/^(https?:\\/\\/|data:image\\/|blob:)/i.test(rawSrc) || rawSrc.includes('undefined')) {
           const isDoc = /(의사|치과|원장|환자|진료|병원|doctor|dentist|여의사)/i.test(rawAlt);
           img.src = isDoc 
-            ? 'https://images.unsplash.com/photo-1594824813627-2c9dd7348972?auto=format&fit=crop&w=1200&q=80'
-            : 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80';
+            ? 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=900&q=85'
+            : 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1400&q=85';
           img.style.objectFit = 'cover';
         }
       });
@@ -149,7 +149,7 @@
               : (isFemale ? 'korean female dentist physician in clinic, gentle smile, 8k photo' : 'korean male dentist director in late 30s, warm professional smile, white dental coat, 8k photo');
             const newSrc = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt) + '?width=800&height=1000&nologo=true';
             img.src = newSrc;
-            img.setAttribute('onerror', "this.onerror=null;this.src='https://images.unsplash.com/photo-1594824813627-2c9dd7348972?auto=format&fit=crop&w=1200&q=80';");
+            img.setAttribute('onerror', "this.onerror=null;this.src='https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=900&q=85';");
             window.parent.postMessage({ type: 'DC_OPERATOR_EVENT', msg: 'Aside 비전 검수: 외국인 스톡 사진 감지 → 8K 한국인 실사 AI 사진으로 자동 핫패치 완료', status: 'ok' }, '*');
           }
         });

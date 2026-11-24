@@ -509,6 +509,151 @@ details.runlog .logbox{margin:0 10px 10px;max-height:220px}
   border:8px solid #1e212b;box-shadow:0 30px 80px rgba(0,0,0,.7);
 }
 
+/* ===== GOOGLE STITCH MULTI-BOARD INFINITE VISUAL CANVAS ===== */
+.stitch-board-mount{position:relative;flex:1;min-height:0;overflow:hidden}
+.sc-viewport{
+  position:relative;width:100%;height:100%;overflow:hidden;cursor:grab;user-select:none;
+  background-color:#0b0c10;
+  background-image:radial-gradient(rgba(255,255,255,.11) 1px, transparent 1px);
+  background-size:20px 20px;
+}
+.sc-viewport.grabbing{cursor:grabbing}
+.sc-world{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+.sc-boards{display:flex;align-items:flex-start;gap:28px;padding:12px}
+
+.sc-board{
+  flex:none;border-radius:14px;overflow:hidden;
+  background:#14161e;border:1px solid rgba(255,255,255,.11);
+  box-shadow:0 22px 60px rgba(0,0,0,.55);
+  transition:border-color .25s,box-shadow .25s,opacity .3s,transform .3s;
+}
+.sc-board.is-queued{opacity:.58}
+.sc-board.is-building{
+  border-color:rgba(96,165,250,.65);
+  box-shadow:0 0 0 1px rgba(96,165,250,.22),0 24px 64px rgba(37,99,235,.22);
+}
+.sc-board.is-ready:hover{border-color:rgba(96,165,250,.55);box-shadow:0 26px 70px rgba(0,0,0,.7)}
+
+.sc-bhead{
+  height:36px;display:flex;align-items:center;gap:8px;padding:0 12px;
+  background:#191c26;border-bottom:1px solid rgba(255,255,255,.08);
+  font:600 12px var(--sans);color:#e5e7eb;
+}
+.sc-bico{color:#60a5fa;font-size:12px}
+.sc-bhead b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc-bstat{margin-left:auto;font:500 10.5px var(--mono);color:#9ca3af;white-space:nowrap}
+.sc-board.is-building .sc-bstat{color:#60a5fa}
+.sc-board-act{
+  margin-left:auto;padding:3px 9px;border:1px solid rgba(255,255,255,.15);border-radius:999px;
+  background:rgba(255,255,255,.06);color:#fff;font:600 11px var(--sans);cursor:pointer;transition:.15s;
+}
+.sc-board-act:hover{background:#2563eb;border-color:#3b82f6}
+
+/* Board 1: Design System Graphic Card */
+.sc-ds{width:290px}
+.sc-ds-body{padding:16px;background:#ffffff;color:#0f172a;display:grid;gap:16px}
+.sc-ds-sec small{display:block;font:700 10px var(--mono);letter-spacing:.1em;color:#64748b;margin-bottom:8px}
+.sc-swatches{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.sc-sw{border:1px solid #e2e8f0;border-radius:9px;overflow:hidden;background:#fff}
+.sc-sw i{display:block;height:42px;border-bottom:1px solid rgba(0,0,0,.06)}
+.sc-sw span{display:block;padding:5px 7px;font:600 10.5px var(--mono);color:#334155}
+.sc-typo{display:grid;gap:7px}
+.sc-typo > div{display:flex;align-items:baseline;justify-content:space-between;padding:7px 10px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc}
+.sc-typo span{font:500 11px var(--mono);color:#64748b}
+.sc-comps{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.sc-cbtn{padding:7px 13px;border-radius:8px;font:600 11.5px var(--sans)}
+.sc-cbtn.out{border:1.5px solid;background:#fff}
+.sc-cpill{padding:5px 10px;border-radius:999px;font:600 11px var(--sans)}
+
+/* Screen Artboards (4 side-by-side live rendered screens) */
+.sc-screen{width:410px}
+.sc-frame-wrap{position:relative;width:410px;height:540px;background:#ffffff;overflow:hidden}
+.sc-live-layer{position:absolute;inset:0;overflow:hidden;background:#ffffff}
+.sc-thumb-frame{
+  width:1280px;height:1686px;border:0;display:block;pointer-events:none;
+  transform:scale(0.3203125);transform-origin:0 0;background:#ffffff;
+}
+
+/* Architectural Graphical Wireframes during build */
+.sc-wire-layer{position:absolute;inset:0;background:#f8fafc;padding:18px;display:flex;flex-direction:column;overflow:hidden}
+.sw-page{display:flex;flex-direction:column;gap:14px;height:100%}
+.sw-nav{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid #e2e8f0}
+.sw-logo{width:68px;height:12px;border-radius:4px;background:#0f2942}
+.sw-links{display:flex;gap:8px;margin-left:auto}
+.sw-links i{width:28px;height:6px;border-radius:3px;background:#cbd5e1;display:block}
+.sw-cta-sm{width:46px;height:16px;border-radius:5px;background:#0d9488}
+.sw-hero-split{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:center;padding:12px 0}
+.sw-hero-copy{display:grid;gap:8px}
+.sw-tag{width:76px;height:12px;border-radius:999px;background:#ccfbf1}
+.sw-h1{height:18px;border-radius:5px;background:#0f172a;width:95%}
+.sw-h1.short{width:70%}
+.sw-p{height:10px;border-radius:4px;background:#cbd5e1;width:90%}
+.sw-p.sm{width:60%;margin:0 auto}
+.sw-btn-row{display:flex;gap:8px;margin-top:6px}
+.sw-btn{height:24px;width:74px;border-radius:6px;background:#e2e8f0;display:inline-block}
+.sw-btn.pri{background:#0f2942}
+.sw-btn.full{width:100%;height:28px}
+.sw-hero-img{height:170px;border-radius:12px;background:linear-gradient(135deg,#e2e8f0,#cbd5e1);display:grid;place-items:center}
+.sw-img-ico{width:38px;height:38px;border-radius:10px;border:2px solid #94a3b8;opacity:.6}
+.sw-3cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:auto}
+.sw-3cards > div{height:120px;border-radius:10px;background:#ffffff;border:1px solid #e2e8f0;box-shadow:0 4px 12px rgba(15,23,42,.04)}
+.sw-sec-head{display:grid;gap:8px;text-align:center;padding:6px 0}
+.sw-h2{height:16px;width:48%;margin:0 auto;border-radius:5px;background:#0f172a}
+.sw-2grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sw-img-card{padding:10px;border-radius:10px;background:#fff;border:1px solid #e2e8f0;display:grid;gap:8px}
+.sw-pic{height:110px;border-radius:7px;background:linear-gradient(135deg,#dbeafe,#e2e8f0)}
+.sw-line{height:10px;border-radius:4px;background:#334155;width:82%}
+.sw-line.s{background:#94a3b8;width:62%}
+.sw-line.xs{background:#cbd5e1;width:45%}
+.sw-lead-doc{display:grid;grid-template-columns:92px 1fr;gap:14px;align-items:center;padding:12px;border-radius:12px;background:#fff;border:1px solid #e2e8f0}
+.sw-avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#cbd5e1,#94a3b8);display:block;margin:0 auto 6px}
+.sw-avatar.lg{width:88px;height:88px;border-radius:12px;margin:0}
+.sw-doc-txt{display:grid;gap:8px}
+.sw-4avatars{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px}
+.sw-4avatars > div{padding:10px 6px;border-radius:10px;background:#fff;border:1px solid #e2e8f0;text-align:center}
+.sw-4avatars span{display:block;height:8px;width:70%;margin:0 auto;border-radius:4px;background:#cbd5e1}
+.sw-map-box{height:190px;border-radius:12px;background:linear-gradient(135deg,#e0f2fe,#e2e8f0);display:grid;place-items:center;border:1px solid #cbd5e1}
+.sw-map-box span{width:22px;height:22px;border-radius:50%;background:#2563eb;box-shadow:0 0 0 8px rgba(37,99,235,.18)}
+.sw-form-rows{display:grid;gap:10px;margin-top:6px}
+.sw-form-rows > div:not(.sw-btn){height:34px;border-radius:8px;background:#fff;border:1px solid #cbd5e1}
+
+/* Animated Build Laser Scan on active building boards */
+.sc-laser{display:none;position:absolute;left:0;right:0;height:80px;top:-80px;background:linear-gradient(180deg,transparent,rgba(59,130,246,.22),rgba(96,165,250,.55),transparent);pointer-events:none}
+.sc-board.is-building .sc-laser{display:block;animation:stitchScan 1.7s ease-in-out infinite}
+@keyframes stitchScan{0%{top:-80px}100%{top:100%}}
+
+/* Floating Right Dock & Live HUD */
+.sc-empty{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:24px;color:var(--mut);pointer-events:none;
+}
+.sc-empty-ico{font-size:28px;color:#60a5fa;margin-bottom:10px}
+.sc-empty b{font-size:15px;color:#fff;margin-bottom:6px}
+.sc-empty p{margin:0;font-size:13px;max-width:340px;line-height:1.6}
+.sc-dock{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);z-index:10;
+  display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px;
+  border:1px solid rgba(255,255,255,.12);border-radius:14px;
+  background:rgba(20,22,30,.92);backdrop-filter:blur(14px);box-shadow:0 14px 40px rgba(0,0,0,.55);
+}
+.sc-dock button{
+  width:32px;height:32px;border:0;border-radius:9px;background:transparent;
+  color:#d1d5db;font:600 15px var(--sans);display:grid;place-items:center;transition:.15s;
+}
+.sc-dock button:hover{background:rgba(255,255,255,.1);color:#fff}
+.sc-zval{font:600 10px var(--mono);color:#9ca3af;padding:2px 0}
+.sc-dock-sep{width:20px;height:1px;background:rgba(255,255,255,.1);margin:2px 0}
+.sc-live-hud{
+  position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:10;
+  display:flex;align-items:center;gap:10px;padding:9px 16px;
+  border:1px solid rgba(96,165,250,.4);border-radius:999px;
+  background:rgba(17,20,28,.94);backdrop-filter:blur(16px);
+  box-shadow:0 14px 40px rgba(0,0,0,.6);max-width:calc(100% - 80px);
+}
+.sc-hud-dot{width:8px;height:8px;border-radius:50%;background:#60a5fa;box-shadow:0 0 12px #60a5fa;animation:blink 1s infinite;flex:none}
+.sc-live-hud b{font:600 12.5px var(--sans);color:#fff;white-space:nowrap}
+.sc-live-hud span:last-child{font:500 12px var(--sans);color:#93c5fd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
 /* Google Stitch Live Shimmer Wireframe Overlay (while generating) */
 .pv-gen{
   position:absolute;inset:0;z-index:5;display:grid;place-items:center;padding:24px;

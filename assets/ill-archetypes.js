@@ -82,6 +82,24 @@ function illDrawCoverPhoto(x,im,w,h,t,shadeAlpha){
   x.drawImage(im,-dw/2,-dh/2,dw,dh); x.restore();
   if(shadeAlpha>0){x.fillStyle='rgba(10,10,12,'+shadeAlpha+')'; x.fillRect(0,0,w,h);}
   return true;
+}
+function illRunHeroCanvas(id, drawFn){
+  const cv=document.getElementById(id); if(!cv) return;
+  const x=cv.getContext('2d'), hi=illLoadHeroPhoto();
+  let t=0, vis=true, last=0;
+  if(hi) hi.onload=()=>{drawFn(x,cv.width,cv.height,hi,t);};
+  if(window.__ILL_STATIC_THUMB__){drawFn(x,cv.width,cv.height,hi,0);return;}
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vis)requestAnimationFrame(loop);},{threshold:0.01}).observe(cv);
+  }
+  function loop(ts){
+    if(!vis) return;
+    requestAnimationFrame(loop);
+    if(ts-last<42) return; // smooth 24fps film cadence, never starves scroll compositor
+    last=ts; t+=0.025;
+    drawFn(x,cv.width,cv.height,hi,t);
+  }
+  requestAnimationFrame(loop);
 }`;
 
   /* =========================================================================
@@ -113,9 +131,8 @@ function illDrawCoverPhoto(x,im,w,h,t,shadeAlpha){
 :root{--cotton:#F1ECE3;--paper:#FAF7F1;--ink:#1E1B18;--ink2:#4D463F;--mute:#867C72;--horn:#6A4330;--chalk:#E3EAF0;--chalk-b:#BCCBDA;--line:rgba(30,27,24,.14);--ease:cubic-bezier(.16,1,.3,1);--serif:'Noto Serif KR',serif;--disp:'Bodoni Moda',serif;--mono:'DM Mono',monospace;--sans:'Pretendard Variable',sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
 a{color:inherit;text-decoration:none}
-html{scroll-behavior:smooth;background:var(--cotton);color:var(--ink)}
+html{scroll-behavior:auto;background:var(--cotton);color:var(--ink)}
 body{font-family:var(--sans);background:var(--cotton);color:var(--ink);overflow-x:hidden;word-break:keep-all;line-height:1.6}
-.grain{position:fixed;inset:0;pointer-events:none;z-index:900;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 /* Left vertical sewing-thread scroll progress */
 .thread{position:fixed;left:18px;top:92px;bottom:32px;width:2px;border-left:1.5px dashed rgba(106,67,48,.35);z-index:850;pointer-events:none}
 .thread i{position:absolute;left:-7px;top:0;width:13px;height:13px;border-radius:50%;border:2px solid var(--horn);background:var(--paper);box-shadow:0 0 0 3px var(--cotton)}
@@ -195,7 +212,6 @@ footer{padding:44px 0 56px;border-top:1px solid var(--line);display:flex;justify
 </style>
 </head>
 <body>
-<div class="grain"></div>
 <div class="thread"><i id="needle"></i></div>
 <header>
   <a href="#top" class="brand">${esc(bp.brand)} <small>${esc(bp.brandSub)}</small></a>
@@ -281,24 +297,17 @@ footer{padding:44px 0 56px;border-top:1px solid var(--line);display:flex;justify
 const CFG=${cfg};
 ${ART_SYNTH_JS}
 illAttachPhotos('atelier');
-/* 60fps Atelier Editorial Photo & Silk Light Motion */
-(function(){
-  const cv=document.getElementById('atelierCanvas'),x=cv.getContext('2d'),hi=illLoadHeroPhoto(); let t=0;
-  function draw(){
-    requestAnimationFrame(draw); t+=0.012;
-    const w=cv.width,h=cv.height;
-    if(!illDrawCoverPhoto(x,hi,w,h,t,0.18)){
-      const g=x.createLinearGradient(0,0,w,h); g.addColorStop(0,'#e8dfd1'); g.addColorStop(.55,'#cbbba6'); g.addColorStop(1,'#5e3d2d');
-      x.fillStyle=g; x.fillRect(0,0,w,h);
-      const rg=x.createRadialGradient(w*(.45+Math.sin(t*.4)*.2),h*.32,20,w*.5,h*.45,w*.85);
-      rg.addColorStop(0,'rgba(255,250,240,0.82)'); rg.addColorStop(1,'transparent');
-      x.fillStyle=rg; x.fillRect(0,0,w,h);
-    }
-    x.setLineDash([6,7]); x.strokeStyle='rgba(250,247,241,0.7)'; x.strokeRect(24,24,w-48,h-48); x.setLineDash([]);
-    x.fillStyle='rgba(250,247,241,0.92)'; x.font='600 24px Bodoni Moda,serif'; x.fillText(CFG.brand,36,h-48);
+illRunHeroCanvas('atelierCanvas',(x,w,h,hi,t)=>{
+  if(!illDrawCoverPhoto(x,hi,w,h,t,0.18)){
+    const g=x.createLinearGradient(0,0,w,h); g.addColorStop(0,'#e8dfd1'); g.addColorStop(.55,'#cbbba6'); g.addColorStop(1,'#5e3d2d');
+    x.fillStyle=g; x.fillRect(0,0,w,h);
+    const rg=x.createRadialGradient(w*(.45+Math.sin(t*.4)*.2),h*.32,20,w*.5,h*.45,w*.85);
+    rg.addColorStop(0,'rgba(255,250,240,0.82)'); rg.addColorStop(1,'transparent');
+    x.fillStyle=rg; x.fillRect(0,0,w,h);
   }
-  draw();
-})();
+  x.setLineDash([6,7]); x.strokeStyle='rgba(250,247,241,0.7)'; x.strokeRect(24,24,w-48,h-48); x.setLineDash([]);
+  x.fillStyle='rgba(250,247,241,0.92)'; x.font='600 24px Bodoni Moda,serif'; x.fillText(CFG.brand,36,h-48);
+});
 /* Sewing-thread scroll needle */
 window.addEventListener('scroll',()=>{
   const p=scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight);
@@ -344,7 +353,7 @@ document.getElementById('atForm').onsubmit=(e)=>{
 :root{--bg:#fbfaf7;--paper:#ffffff;--stone:#eee8dd;--fg:#22211f;--mute:#77726a;--line:#e2dccf;--accent:#8a6f4d;--dark:#161513;--ease:cubic-bezier(.16,1,.3,1);--sans:'Pretendard Variable',sans-serif;--mono:'IBM Plex Mono',monospace}
 *{box-sizing:border-box;margin:0;padding:0}
 a{color:inherit;text-decoration:none}
-html{scroll-behavior:smooth;background:var(--bg);color:var(--fg)}
+html{scroll-behavior:auto;background:var(--bg);color:var(--fg)}
 body{font-family:var(--sans);background:var(--bg);color:var(--fg);overflow-x:hidden;word-break:keep-all;line-height:1.68}
 .wrap{max-width:1240px;margin:0 auto;padding:0 clamp(20px,4vw,48px)}
 .mono{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
@@ -486,23 +495,16 @@ const CFG=${cfg};
 ${ART_SYNTH_JS}
 illAttachPhotos('arch');
 window.addEventListener('scroll',()=>{document.getElementById('hdr').classList.toggle('solid',scrollY>60);},{passive:true});
-/* Architectural light-beam & HD photography 60fps canvas */
-(function(){
-  const cv=document.getElementById('archCanvas'),x=cv.getContext('2d'),hi=illLoadHeroPhoto(); let t=0;
-  function draw(){
-    requestAnimationFrame(draw); t+=0.008;
-    const w=cv.width,h=cv.height;
-    if(!illDrawCoverPhoto(x,hi,w,h,t,0.32)){
-      const g=x.createLinearGradient(0,0,w,h); g.addColorStop(0,'#1c1916'); g.addColorStop(.55,'#2a251f'); g.addColorStop(1,'#11100e');
-      x.fillStyle=g; x.fillRect(0,0,w,h);
-      const sx=w*(.65+Math.sin(t*.4)*.15);
-      const rg=x.createRadialGradient(sx,h*.22,20,sx,h*.28,w*.68);
-      rg.addColorStop(0,'rgba(214,182,138,0.42)'); rg.addColorStop(1,'transparent');
-      x.fillStyle=rg; x.fillRect(0,0,w,h);
-    }
+illRunHeroCanvas('archCanvas',(x,w,h,hi,t)=>{
+  if(!illDrawCoverPhoto(x,hi,w,h,t,0.32)){
+    const g=x.createLinearGradient(0,0,w,h); g.addColorStop(0,'#1c1916'); g.addColorStop(.55,'#2a251f'); g.addColorStop(1,'#11100e');
+    x.fillStyle=g; x.fillRect(0,0,w,h);
+    const sx=w*(.65+Math.sin(t*.4)*.15);
+    const rg=x.createRadialGradient(sx,h*.22,20,sx,h*.28,w*.68);
+    rg.addColorStop(0,'rgba(214,182,138,0.42)'); rg.addColorStop(1,'transparent');
+    x.fillStyle=rg; x.fillRect(0,0,w,h);
   }
-  draw();
-})();
+});
 document.querySelectorAll('#pTabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('#pTabs button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
   const c=b.dataset.c; document.querySelectorAll('#pGrid .pcard').forEach(el=>{el.style.display=(c==='전체'||el.dataset.cat===c)?'':'none';});
@@ -549,7 +551,7 @@ document.getElementById('qSubmit').onclick=()=>{
 :root{--bg:#0b1019;--bg2:#101826;--card:#141e30;--gold:#c9a45c;--gold2:#e5c88d;--burg:#7a1f2b;--txt:#ece6da;--mut:#9aa3b2;--line:rgba(201,164,92,.22);--serif:'Noto Serif KR',serif;--en:'Cormorant Garamond',serif;--sans:'Pretendard Variable',sans-serif;--ease:cubic-bezier(.16,1,.3,1)}
 *{box-sizing:border-box;margin:0;padding:0}
 a{color:inherit;text-decoration:none}
-html{scroll-behavior:smooth;background:var(--bg);color:var(--txt)}
+html{scroll-behavior:auto;background:var(--bg);color:var(--txt)}
 body{font-family:var(--sans);background:var(--bg);color:var(--txt);overflow-x:hidden;word-break:keep-all;line-height:1.68}
 .wrap{max-width:1240px;margin:0 auto;padding:0 clamp(20px,4vw,48px)}
 .ey{font-family:var(--en);font-style:italic;font-size:15px;letter-spacing:.14em;color:var(--gold2);text-transform:uppercase}
@@ -671,21 +673,15 @@ footer{padding:42px 0;border-top:1px solid var(--line);display:flex;justify-cont
 const CFG=${cfg};
 ${ART_SYNTH_JS}
 illAttachPhotos('luxury');
-(function(){
-  const cv=document.getElementById('luxCanvas'),x=cv.getContext('2d'),hi=illLoadHeroPhoto(); let t=0;
-  function draw(){
-    requestAnimationFrame(draw); t+=0.009;
-    const w=cv.width,h=cv.height;
-    if(!illDrawCoverPhoto(x,hi,w,h,t,0.52)){
-      const g=x.createLinearGradient(0,0,w,h); g.addColorStop(0,'#090e17'); g.addColorStop(.5,'#141e30'); g.addColorStop(1,'#070a0f');
-      x.fillStyle=g; x.fillRect(0,0,w,h);
-      const rg=x.createRadialGradient(w*(.5+Math.sin(t*.4)*.18),h*.38,20,w*.5,h*.45,w*.62);
-      rg.addColorStop(0,'rgba(201,164,92,0.38)'); rg.addColorStop(1,'transparent');
-      x.fillStyle=rg; x.fillRect(0,0,w,h);
-    }
+illRunHeroCanvas('luxCanvas',(x,w,h,hi,t)=>{
+  if(!illDrawCoverPhoto(x,hi,w,h,t,0.52)){
+    const g=x.createLinearGradient(0,0,w,h); g.addColorStop(0,'#090e17'); g.addColorStop(.5,'#141e30'); g.addColorStop(1,'#070a0f');
+    x.fillStyle=g; x.fillRect(0,0,w,h);
+    const rg=x.createRadialGradient(w*(.5+Math.sin(t*.4)*.18),h*.38,20,w*.5,h*.45,w*.62);
+    rg.addColorStop(0,'rgba(201,164,92,0.38)'); rg.addColorStop(1,'transparent');
+    x.fillStyle=rg; x.fillRect(0,0,w,h);
   }
-  draw();
-})();
+});
 let selP=${tiers[0].price}, selN=${JSON.stringify(tiers[0].name)};
 function updR(){
   const q=Number(document.getElementById('rQty').value), gu=Number(document.getElementById('rGuest').value);
@@ -729,7 +725,7 @@ document.getElementById('rGo').onclick=()=>{document.getElementById('rMsg').text
 :root{--bg:#fbf8f3;--sf:#ffffff;--ink:#1f2a22;--mut:#66705f;--ora:#f2661c;--leaf:#3f6b45;--line:rgba(31,42,34,.12);--disp:'Bagel Fat One','Pretendard Variable',sans-serif;--serif:'DM Serif Display',serif;--sans:'Pretendard Variable',sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
 a{color:inherit;text-decoration:none}
-html{scroll-behavior:smooth;background:var(--bg);color:var(--ink)}
+html{scroll-behavior:auto;background:var(--bg);color:var(--ink)}
 body{font-family:var(--sans);background:var(--bg);color:var(--ink);overflow-x:hidden;word-break:keep-all;line-height:1.65}
 .wrap{max-width:1120px;margin:0 auto;padding:0 clamp(18px,4vw,36px)}
 header{position:sticky;top:0;z-index:800;display:flex;align-items:center;justify-content:space-between;padding:16px clamp(18px,4vw,36px);background:rgba(251,248,243,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
@@ -857,21 +853,15 @@ footer{padding:36px 0;text-align:center;font-size:13px;color:var(--mut)}
 const CFG=${cfg};
 ${ART_SYNTH_JS}
 illAttachPhotos('cafe');
-(function(){
-  const cv=document.getElementById('cafeCanvas'),x=cv.getContext('2d'),hi=illLoadHeroPhoto(); let t=0;
-  function draw(){
-    requestAnimationFrame(draw); t+=0.01;
-    const w=cv.width,h=cv.height;
-    if(!illDrawCoverPhoto(x,hi,w,h,t,0.28)){
-      const g=x.createLinearGradient(0,0,w,h); g.addColorStop(0,'#403428'); g.addColorStop(.5,'#875332'); g.addColorStop(1,'#243026');
-      x.fillStyle=g; x.fillRect(0,0,w,h);
-      const rg=x.createRadialGradient(w*(.72+Math.sin(t*.5)*.12),h*.28,20,w*.68,h*.3,w*.62);
-      rg.addColorStop(0,'rgba(242,102,28,0.62)'); rg.addColorStop(1,'transparent');
-      x.fillStyle=rg; x.fillRect(0,0,w,h);
-    }
+illRunHeroCanvas('cafeCanvas',(x,w,h,hi,t)=>{
+  if(!illDrawCoverPhoto(x,hi,w,h,t,0.28)){
+    const g=x.createLinearGradient(0,0,w,h); g.addColorStop(0,'#403428'); g.addColorStop(.5,'#875332'); g.addColorStop(1,'#243026');
+    x.fillStyle=g; x.fillRect(0,0,w,h);
+    const rg=x.createRadialGradient(w*(.72+Math.sin(t*.5)*.12),h*.28,20,w*.68,h*.3,w*.62);
+    rg.addColorStop(0,'rgba(242,102,28,0.62)'); rg.addColorStop(1,'transparent');
+    x.fillStyle=rg; x.fillRect(0,0,w,h);
   }
-  draw();
-})();
+});
 document.querySelectorAll('#mTabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('#mTabs button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
   const c=b.dataset.c; document.querySelectorAll('#mGrid .mcard').forEach(el=>{el.style.display=(c==='전체'||el.dataset.cat===c)?'':'none';});
@@ -906,7 +896,7 @@ document.getElementById('cForm').onsubmit=(e)=>{e.preventDefault();document.getE
 :root{--bg:#070b14;--sf:#0c1220;--el:#111a2d;--fg:#e9eef8;--mut:#93a0b8;--ac:#3d7eff;--live:#45f0a1;--line:rgba(255,255,255,.09);--sans:'Pretendard Variable',sans-serif;--mono:'JetBrains Mono',monospace}
 *{box-sizing:border-box;margin:0;padding:0}
 a{color:inherit;text-decoration:none}
-html{scroll-behavior:smooth;background:var(--bg);color:var(--fg)}
+html{scroll-behavior:auto;background:var(--bg);color:var(--fg)}
 body{font-family:var(--sans);background:radial-gradient(900px 460px at 50% -10%,rgba(61,126,255,.22),transparent 65%),linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px) 0 0/44px 44px,linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px) 0 0/44px 44px,var(--bg);color:var(--fg);overflow-x:hidden;word-break:keep-all;line-height:1.6}
 .wrap{max-width:1200px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
 .mono{font-family:var(--mono);font-size:11.5px}
@@ -1078,7 +1068,7 @@ setInterval(()=>{
 :root{--bg:#ffffff;--sf:#f5f7fa;--dark:#0b1220;--ink:#0f172a;--mut:#64748b;--ac:#1d4ed8;--ac2:#3b82f6;--line:rgba(15,23,42,.1);--ease:cubic-bezier(.16,1,.3,1);--sans:'Pretendard Variable',sans-serif;--mono:'JetBrains Mono',monospace}
 *{box-sizing:border-box;margin:0;padding:0}
 a{color:inherit;text-decoration:none}
-html{scroll-behavior:smooth;background:var(--bg);color:var(--ink)}
+html{scroll-behavior:auto;background:var(--bg);color:var(--ink)}
 body{font-family:var(--sans);background:var(--bg);color:var(--ink);overflow-x:hidden;word-break:keep-all;line-height:1.6}
 .wrap{max-width:1320px;margin:0 auto;padding:0 clamp(20px,4vw,52px)}
 .mono{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase}
@@ -1265,22 +1255,16 @@ document.querySelectorAll('#nTabs button').forEach(b=>b.onclick=()=>{
 });
 document.querySelectorAll('#langTog button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#langTog button').forEach(x=>x.classList.remove('on'));b.classList.add('on');});
 document.getElementById('corpForm').onsubmit=(e)=>{e.preventDefault();document.getElementById('corpMsg').textContent='✓ 담당 부서에 정상 접수되었습니다.';e.target.reset();};
-(function(){
-  const cv=document.getElementById('corpCanvas'),x=cv.getContext('2d'),hi=illLoadHeroPhoto(); let t=0;
-  function draw(){
-    requestAnimationFrame(draw); t+=0.008;
-    const w=cv.width,h=cv.height;
-    if(!illDrawCoverPhoto(x,hi,w,h,t,0.48)){
-      x.fillStyle='#0b1220'; x.fillRect(0,0,w,h);
-      const cx=w*.74,cy=h*.48;
-      for(let k=0;k<7;k++){
-        x.beginPath(); x.ellipse(cx,cy,180+k*38,85+k*20,t*.25+k*.2,0,Math.PI*2);
-        x.strokeStyle=k%2?'rgba(96,165,250,0.22)':'rgba(255,255,255,0.08)'; x.lineWidth=1.3; x.stroke();
-      }
+illRunHeroCanvas('corpCanvas',(x,w,h,hi,t)=>{
+  if(!illDrawCoverPhoto(x,hi,w,h,t,0.48)){
+    x.fillStyle='#0b1220'; x.fillRect(0,0,w,h);
+    const cx=w*.74,cy=h*.48;
+    for(let k=0;k<7;k++){
+      x.beginPath(); x.ellipse(cx,cy,180+k*38,85+k*20,t*.25+k*.2,0,Math.PI*2);
+      x.strokeStyle=k%2?'rgba(96,165,250,0.22)':'rgba(255,255,255,0.08)'; x.lineWidth=1.3; x.stroke();
     }
   }
-  draw();
-})();
+});
 </script>
 </body>
 </html>`;
@@ -1318,7 +1302,7 @@ document.getElementById('corpForm').onsubmit=(e)=>{e.preventDefault();document.g
 :root{--bg:#ffffff;--sf:#f7f5f2;--ink:#151413;--mut:#716d68;--red:#d93829;--gold:#8a6b48;--line:rgba(21,20,19,.1);--sans:'Pretendard Variable',sans-serif;--ease:cubic-bezier(.16,1,.3,1)}
 *{box-sizing:border-box;margin:0;padding:0}
 a{color:inherit;text-decoration:none}
-html{scroll-behavior:smooth;background:var(--bg);color:var(--ink)}
+html{scroll-behavior:auto;background:var(--bg);color:var(--ink)}
 body{font-family:var(--sans);background:var(--bg);color:var(--ink);overflow-x:hidden;word-break:keep-all;line-height:1.55}
 .wrap{max-width:1320px;margin:0 auto;padding:0 clamp(16px,3.5vw,44px)}
 /* Imweb Sticky Top Promo Strip */
@@ -1536,7 +1520,7 @@ renderCart();
 :root{--bg:#faf8f5;--ink:#141312;--mut:#67625c;--ac:#ea580c;--ac2:#fb923c;--dark:#121110;--line:rgba(20,19,18,.1);--sans:'Pretendard Variable',sans-serif;--mono:'JetBrains Mono',monospace}
 *{box-sizing:border-box;margin:0;padding:0}
 a{color:inherit;text-decoration:none}
-html{scroll-behavior:smooth;background:var(--bg);color:var(--ink)}
+html{scroll-behavior:auto;background:var(--bg);color:var(--ink)}
 body{font-family:var(--sans);background:var(--bg);color:var(--ink);overflow-x:hidden;word-break:keep-all;line-height:1.65;padding-bottom:84px}
 .wrap{max-width:960px;margin:0 auto;padding:0 clamp(18px,4vw,32px)}
 /* Live Scarcity Countdown Bar */
@@ -1677,5 +1661,412 @@ document.getElementById('leadForm').onsubmit=(e)=>{e.preventDefault();document.g
 </html>`;
   }
 
-  window.ILLArchetypes = { renderAtelier, renderArchitecture, renderLuxury, renderCafe, renderSaaS, renderCorporate, renderCommerce, renderLanding };
+  /* =========================================================================
+   * ARCHETYPE 9: WHITE CLINICAL & LIVE QUEUE HOSPITAL (Imweb · Elpis · Cheongdam Clean)
+   * Crisp Pure White #ffffff + Clinical Sage/Navy, Live Clinic Status & Wait-Time Widget,
+   * Filterable Procedure Cards with Duration/Recovery Badges, 4-Col Specialist Cards, Clean Split Booking
+   * ========================================================================= */
+  function renderClinicClean(bp) {
+    const P = bp.palette || {};
+    const pri = P.brand || '#0f303e';
+    const acc = '#0d9488';
+    const procs = bp.services.concat(bp.cases.slice(0, 2)).map((s, i) => ({
+      cat: ['리프팅·탄력', '정밀진단·치료', '프리미엄 케어'][i % 3],
+      code: s.code || `0${i + 1}`,
+      name: s.name || s.title,
+      desc: s.summary || s.desc,
+      time: ['20분', '35분', '45분', '30분', '40분', '25분'][i % 6],
+      recovery: ['당일 일상복귀', '다운타임 최소', '1:1 회복케어'][i % 3],
+      tags: s.tags || [s.cat || '전문의 직접진료', '정품 인증'],
+    }));
+    const cfg = JSON.stringify({ brand: bp.brand, sub: bp.brandSub, photos: bp._photos || [], pal: { a: '#e6f0f2', b: '#c9dfe4', c: pri, hi: acc } }).replace(/<\/script/gi, '<\\/script');
+    return `<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(bp.brand)} — ${esc(bp.brandSub)}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--mist:#f4f7f9;--card:#ffffff;--ink:#0f172a;--ink2:#475569;--mut:#64748b;--pri:${pri};--acc:${acc};--mint:#10b981;--line:#e2e8f0;--sans:'Pretendard Variable',sans-serif;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+a{color:inherit;text-decoration:none}
+html{scroll-behavior:auto;background:var(--bg);color:var(--ink)}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);overflow-x:hidden;word-break:keep-all;line-height:1.65}
+.wrap{max-width:1240px;margin:0 auto;padding:0 clamp(18px,4vw,44px)}
+.top-info{background:var(--pri);color:rgba(255,255,255,.88);font-size:12.5px;padding:9px 0}
+.top-info .wrap{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.live-pill{display:inline-flex;align-items:center;gap:7px;font-weight:700;color:#6ee7b7}
+.live-pill i{width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 0 4px rgba(16,185,129,.28)}
+header{position:sticky;top:0;z-index:800;background:rgba(255,255,255,.97);border-bottom:1px solid var(--line)}
+.hdr-in{height:70px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.logo{font-size:20px;font-weight:800;letter-spacing:-.02em;color:var(--pri);display:flex;align-items:baseline;gap:8px}
+.logo small{font-size:11px;font-weight:600;color:var(--acc);letter-spacing:.08em}
+nav{display:flex;gap:28px;font-size:14.5px;font-weight:600;color:var(--ink2)}
+nav a:hover{color:var(--pri)}
+.btn-p{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;background:var(--pri);color:#fff;font-size:13.5px;font-weight:700;border:0;cursor:pointer;transition:transform .2s,background .2s}
+.btn-p:hover{transform:translateY(-2px);background:var(--acc)}
+.btn-o{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:700}
+@media(max-width:820px){nav{display:none}}
+
+/* Symmetric Clean Clinical Hero + Floating Live Queue Card */
+.hero{background:linear-gradient(180deg,var(--mist) 0%,#ffffff 100%);padding:clamp(42px,6vw,78px) 0 64px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,60px);align-items:center}
+.h-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:rgba(13,148,136,.1);color:var(--acc);font-size:12.5px;font-weight:700;margin-bottom:18px}
+.hero h1{font-size:clamp(2.2rem,4.6vw,3.65rem);font-weight:800;letter-spacing:-.04em;line-height:1.18;color:var(--pri);margin-bottom:18px}
+.hero h1 em{font-style:normal;color:var(--acc)}
+.hero p{font-size:16px;color:var(--ink2);max-width:520px;margin-bottom:26px;line-height:1.78}
+.h-acts{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px}
+.h-trust{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding-top:22px;border-top:1px solid var(--line)}
+.h-trust b{display:block;font-size:24px;font-weight:800;color:var(--pri);letter-spacing:-.03em}
+.h-trust span{font-size:12px;color:var(--mut)}
+.h-vis{position:relative}
+.h-photo{border-radius:24px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 24px 60px rgba(15,23,42,.12);background:var(--mist)}
+.h-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.queue-card{position:relative;margin:-36px 18px 0;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 20px;box-shadow:0 18px 40px rgba(15,23,42,.08);display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.q-stat{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px;font-size:12.5px;color:var(--ink2)}
+.q-stat b{color:var(--pri)}
+@media(max-width:880px){.hero-grid{grid-template-columns:1fr}}
+
+/* Quick Specialty Strip */
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:24px 0 56px}
+.scard{background:var(--mist);border:1px solid var(--line);border-radius:16px;padding:20px;display:grid;gap:6px;transition:transform .25s,border-color .25s}
+.scard:hover{transform:translateY(-4px);border-color:var(--acc);background:#fff}
+.scard small{font-family:var(--mono);font-size:11px;color:var(--acc);font-weight:600}
+.scard b{font-size:16px;color:var(--pri)}
+.scard span{font-size:12.5px;color:var(--mut)}
+@media(max-width:860px){.strip{grid-template-columns:1fr 1fr}}
+
+.sec{padding:clamp(60px,7vw,96px) 0;border-top:1px solid var(--line)}
+.sec.mist{background:var(--mist)}
+.sh{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:32px}
+.sh small{font-family:var(--mono);font-size:11.5px;color:var(--acc);font-weight:600;letter-spacing:.1em}
+.sh h2{font-size:clamp(1.75rem,3.2vw,2.55rem);font-weight:800;letter-spacing:-.035em;color:var(--pri);margin-top:6px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tabs button{padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:600;color:var(--ink2);cursor:pointer}
+.tabs button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.pcard{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:transform .3s,box-shadow .3s}
+.pcard:hover{transform:translateY(-5px);box-shadow:0 18px 40px rgba(15,23,42,.08)}
+.pimg{aspect-ratio:16/10;overflow:hidden;background:var(--mist)}
+.pimg img{width:100%;height:100%;object-fit:cover}
+.pb{padding:20px;display:grid;gap:10px;flex:1}
+.pmeta{display:flex;gap:8px;flex-wrap:wrap;font-size:11.5px;font-weight:700;color:var(--acc)}
+.pmeta span{padding:3px 9px;border-radius:999px;background:rgba(13,148,136,.09)}
+.pb h3{font-size:18px;color:var(--pri)}
+.pb p{font-size:13.8px;color:var(--ink2)}
+
+/* 4-Col Doctor Grid */
+.dgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.dcard{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;transition:transform .3s}
+.dcard:hover{transform:translateY(-5px)}
+.dimg{aspect-ratio:3/4;overflow:hidden;background:var(--mist)}
+.dimg img{width:100%;height:100%;object-fit:cover}
+.db{padding:18px}
+.db small{font-size:12px;color:var(--acc);font-weight:700}
+.db h3{font-size:18px;color:var(--pri);margin:4px 0 6px}
+.db p{font-size:12.8px;color:var(--mut);line-height:1.6}
+@media(max-width:960px){.pgrid,.dgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.pgrid,.dgrid{grid-template-columns:1fr}}
+
+/* Clean White Split Booking & Timetable */
+.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:30px;background:#fff;border:1px solid var(--line);border-radius:24px;padding:clamp(24px,4vw,44px);box-shadow:0 20px 50px rgba(15,23,42,.05)}
+.tt{display:grid;gap:10px;margin:18px 0}
+.tt div{display:flex;justify-content:space-between;padding:11px 14px;border-radius:10px;background:var(--mist);font-size:13.5px}
+.bform{display:grid;gap:12px}
+.bform input,.bform select,.bform textarea{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--mist);font:14px var(--sans);outline:none}
+.bform input:focus,.bform select:focus,.bform textarea:focus{border-color:var(--acc);background:#fff}
+@media(max-width:860px){.bgrid{grid-template-columns:1fr}}
+.kr-dock{position:fixed;right:18px;bottom:22px;z-index:850;display:flex;flex-direction:column;gap:8px}
+.kr-dock a,.kr-dock button{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:11.5px;font-weight:800;border:0;cursor:pointer;box-shadow:0 10px 24px rgba(15,23,42,.18)}
+footer{background:var(--pri);color:rgba(255,255,255,.75);padding:44px 0;font-size:13px}
+</style>
+</head>
+<body>
+<div class="top-info"><div class="wrap"><span class="live-pill"><i></i>현재 정상 진료 중 · 당일 1:1 정밀 상담 가능</span><span>${esc(bp.address)} · 대표전화 ${esc(bp.phone)}</span></div></div>
+<header>
+  <div class="wrap hdr-in">
+    <a href="#top" class="logo">${esc(bp.brand)} <small>${esc(bp.brandSub)}</small></a>
+    <nav><a href="#programs">진료 센터</a><a href="#doctors">전문의 소개</a><a href="#process">진료 프로세스</a><a href="#booking">실시간 예약</a></nav>
+    <a href="#booking" class="btn-p">실시간 진료 예약 →</a>
+  </div>
+</header>
+
+<section id="top" class="hero" data-stitch-screen="화이트 클리니컬 히어로">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="h-badge">✓ ${esc(bp.status)}</span>
+      <h1>${esc(bp.heroLines[0])} <em>${esc(bp.heroLines[1])}</em><br>${esc(bp.heroLines[2])}</h1>
+      <p>${esc(bp.heroDesc)}</p>
+      <div class="h-acts">
+        <a href="#booking" class="btn-p">${esc(bp.ctaPrimary)} →</a>
+        <a href="#programs" class="btn-o">${esc(bp.ctaSecondary)}</a>
+      </div>
+      <div class="h-trust">
+        ${bp.kpis.slice(0, 3).map(([n, u, l]) => `<div><b>${esc(n)}${esc(u)}</b><span>${esc(l)}</span></div>`).join('')}
+      </div>
+    </div>
+    <div class="h-vis">
+      <div class="h-photo"><img data-ill-art="${esc(bp.brand + ' · CLINIC')}" alt="${esc(bp.brand)}"></div>
+      <div class="queue-card">
+        <div>
+          <span class="live-pill" style="color:var(--acc);font-size:12px"><i></i>실시간 원내 진료 현황</span>
+          <div class="q-stat"><span>예상 대기 <b>약 10분</b></span><span>금일 예약 잔여 <b>4타임</b></span><span>전문의 <b>${bp.team.length}인 진료</b></span></div>
+        </div>
+        <a href="#booking" class="btn-p" style="padding:9px 14px;font-size:12.5px">빠른 접수</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="strip">
+    ${bp.services.map((s, i) => `<a href="#programs" class="scard"><small>CENTER 0${i + 1}</small><b>${esc(s.name)}</b><span>${esc((s.tags || []).slice(0, 2).join(' · '))}</span></a>`).join('')}
+  </div>
+</div>
+
+<section id="programs" class="sec mist" data-stitch-screen="맞춤 진료 프로그램">
+  <div class="wrap">
+    <div class="sh">
+      <div><small>CLINICAL PROGRAMS</small><h2>${esc(bp.servicesTitle)}</h2></div>
+      <div class="tabs" id="clTabs"><button class="on" data-c="전체">전체 진료</button><button data-c="리프팅·탄력">리프팅·탄력</button><button data-c="정밀진단·치료">정밀진단·치료</button><button data-c="프리미엄 케어">프리미엄 케어</button></div>
+    </div>
+    <div class="pgrid" id="clGrid">
+      ${procs.map((p) => `<article class="pcard" data-cat="${esc(p.cat)}"><div class="pimg"><img data-ill-art="${esc(p.name)}" alt="${esc(p.name)}"></div><div class="pb"><div class="pmeta"><span>소요 ${esc(p.time)}</span><span>${esc(p.recovery)}</span></div><h3>${esc(p.name)}</h3><p>${esc(p.desc)}</p></div></article>`).join('')}
+    </div>
+  </div>
+</section>
+
+<section id="doctors" class="sec" data-stitch-screen="전문의 의료진">
+  <div class="wrap">
+    <div class="sh"><div><small>BOARD-CERTIFIED SPECIALISTS</small><h2>${esc(bp.teamTitle)}</h2></div></div>
+    <div class="dgrid">
+      ${bp.team.map((t) => `<article class="dcard"><div class="dimg"><img data-ill-art="${esc(t.name)}" alt="${esc(t.name)}"></div><div class="db"><small>${esc(t.role)}</small><h3>${esc(t.name)} 원장</h3><p>${esc(t.bio)}</p></div></article>`).join('')}
+    </div>
+  </div>
+</section>
+
+<section id="process" class="sec mist" data-stitch-screen="안심 진료 프로세스">
+  <div class="wrap">
+    <div class="sh"><div><small>PATIENT JOURNEY</small><h2>${esc(bp.processTitle)}</h2></div></div>
+    <div class="strip" style="padding:0">
+      ${bp.process.map((p) => `<div class="scard" style="background:#fff"><small>${esc(p.time)}</small><b>${esc(p.title)}</b><span style="line-height:1.65">${esc(p.desc)}</span></div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<section id="booking" class="sec" data-stitch-screen="진료시간 · 실시간 예약">
+  <div class="wrap">
+    <div class="bgrid">
+      <div>
+        <small style="font-family:var(--mono);font-size:11.5px;color:var(--acc);font-weight:700">VISIT & HOURS</small>
+        <h2 style="font-size:clamp(1.65rem,2.8vw,2.3rem);color:var(--pri);margin:6px 0 12px">${esc(bp.contactTitle)} ${esc(bp.contactSub)}</h2>
+        <p style="font-size:14.5px;color:var(--ink2)">${esc(bp.address)}</p>
+        <div class="tt">
+          <div><span>진료 시간</span><b>${esc(bp.hours)}</b></div>
+          <div><span>대표 전화</span><b style="color:var(--acc)">${esc(bp.phone)}</b></div>
+          <div><span>주차 안내</span><b>건물 내 무료 발렛파킹 지원</b></div>
+        </div>
+      </div>
+      <form class="bform" id="clForm">
+        <input required placeholder="환자분 성함">
+        <input required placeholder="연락처 (010-0000-0000)">
+        <select>${bp.contactChips.map((c) => `<option>${esc(c)}</option>`).join('')}</select>
+        <textarea rows="3" placeholder="희망 방문 일시 및 상담 고민을 남겨주세요."></textarea>
+        <button type="submit" class="btn-p" style="justify-content:center">네이버 · 원내 간편 예약 신청 →</button>
+        <div id="clMsg" style="font-size:13px;font-weight:700;color:var(--acc)"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div class="kr-dock">
+  <button type="button" style="background:#fee500;color:#191919" onclick="alert('${esc(bp.brand)} 카카오톡 실시간 상담으로 연결됩니다.')">Ch</button>
+  <a href="#booking" style="background:var(--pri);color:#fff">예약</a>
+  <a href="#top" style="background:#fff;color:var(--pri);border:1px solid var(--line)">TOP</a>
+</div>
+<footer><div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px"><span>© 2026 ${esc(bp.brand)} ${esc(bp.brandSub)}. All rights reserved.</span><span>${esc(bp.address)} · ${esc(bp.phone)}</span></div></footer>
+<script>
+const CFG=${cfg};
+${ART_SYNTH_JS}
+illAttachPhotos('arch');
+document.querySelectorAll('#clTabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#clTabs button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  const c=b.dataset.c; document.querySelectorAll('#clGrid .pcard').forEach(el=>{el.style.display=(c==='전체'||el.dataset.cat===c)?'':'none';});
+});
+document.getElementById('clForm').onsubmit=(e)=>{e.preventDefault();document.getElementById('clMsg').textContent='✓ 진료 예약이 정상 접수되었습니다. 카카오톡으로 확정 안내를 보내드립니다.';e.target.reset();};
+</script>
+</body>
+</html>`;
+  }
+
+  /* =========================================================================
+   * ARCHETYPE 10: CINEMATIC FULL-BLEED HOSPITAL & SPECIALTY CENTER (DBCut · GDWEB Winner)
+   * 100vh Full-Bleed Dark Cinematic Photo Slider (01/03), 4-Panel Hover-Expand Specialty Centers,
+   * Dark Champagne-Gold Clinical Metrics, VIP Lounge & Specialists, Bottom Quick-Reserve Bar
+   * ========================================================================= */
+  function renderClinicCinema(bp) {
+    const cfg = JSON.stringify({ brand: bp.brand, sub: bp.brandSub, photos: bp._photos || [], pal: { a: '#0c1118', b: '#1a2330', c: '#080a0f', hi: '#d4af7a' } }).replace(/<\/script/gi, '<\\/script');
+    return `<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(bp.brand)} — ${esc(bp.brandSub)}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0d12;--bg2:#121620;--sf:#171c28;--ink:#f4f1ea;--mut:#9ba3b4;--gold:#d4af7a;--gold2:#ebd0a4;--line:rgba(212,175,122,.22);--ease:cubic-bezier(.16,1,.3,1);--sans:'Pretendard Variable',sans-serif;--en:'Cormorant Garamond',serif;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+a{color:inherit;text-decoration:none}
+html{scroll-behavior:auto;background:var(--bg);color:var(--ink)}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);overflow-x:hidden;word-break:keep-all;line-height:1.65;padding-bottom:72px}
+.wrap{max-width:1340px;margin:0 auto;padding:0 clamp(20px,4vw,52px)}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+header{position:fixed;top:0;left:0;right:0;z-index:850;height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,4vw,52px);background:rgba(11,13,18,.88);border-bottom:1px solid var(--line)}
+.logo{font-family:var(--en);font-size:24px;letter-spacing:.14em;font-weight:600;color:#fff}
+nav{display:flex;gap:30px;font-size:13.5px;color:var(--mut);font-weight:500}
+nav a:hover{color:var(--gold2)}
+.btn-g{padding:10px 22px;border-radius:999px;background:var(--gold);color:#0b0d12;font-size:13px;font-weight:800;border:0;cursor:pointer}
+.btn-o{padding:10px 22px;border-radius:999px;border:1px solid var(--gold);color:var(--gold2);font-size:13px;font-weight:600}
+@media(max-width:820px){nav{display:none}}
+
+/* 100vh Full-Bleed Dark Photo Hero Slider */
+.hero{position:relative;min-height:92vh;display:flex;align-items:flex-end;padding:120px 0 74px;overflow:hidden;background:#07090d}
+.hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.58;transform:scale(1.04);animation:cinZoom 20s ease-in-out infinite alternate;will-change:transform}
+@keyframes cinZoom{0%{transform:scale(1.02)}100%{transform:scale(1.1)}}
+.hero-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,13,18,.88) 0%,rgba(11,13,18,.48) 58%,rgba(11,13,18,.72) 100%),linear-gradient(180deg,rgba(11,13,18,.3),rgba(11,13,18,.94))}
+.hero-in{position:relative;z-index:2;width:100%;display:grid;gap:22px}
+.hero h1{font-size:clamp(2.5rem,5.8vw,4.9rem);font-weight:700;letter-spacing:-.04em;line-height:1.12;max-width:860px;color:#fff}
+.hero p{max-width:560px;font-size:16px;color:rgba(244,241,234,.82);line-height:1.75}
+.s-ctl{display:flex;align-items:center;gap:14px;max-width:380px;margin-top:16px}
+.s-bar{flex:1;height:2px;background:rgba(255,255,255,.2)}
+.s-bar i{display:block;height:100%;width:33%;background:var(--gold);transition:width .4s var(--ease)}
+.s-ctl button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);color:#fff;background:transparent;cursor:pointer}
+
+/* 4-Panel Hover-Expand Specialized Medical Centers */
+.sec{padding:clamp(72px,8vw,118px) 0}
+.sec.alt{background:var(--bg2)}
+.sh{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:38px}
+.sh h2{font-size:clamp(1.9rem,3.6vw,3rem);font-weight:700;letter-spacing:-.035em;margin-top:8px;color:#fff}
+.centers{display:flex;gap:14px;height:490px}
+.cpanel{position:relative;flex:1;border-radius:18px;overflow:hidden;cursor:pointer;transition:flex .55s var(--ease);display:flex;align-items:flex-end;padding:28px;border:1px solid var(--line);background:var(--sf)}
+.cpanel.on,.cpanel:hover{flex:2.35}
+.cpanel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.68;transition:transform .6s var(--ease),opacity .35s}
+.cpanel:hover img,.cpanel.on img{transform:scale(1.06);opacity:.9}
+.cpanel::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,13,18,.12) 25%,rgba(11,13,18,.9) 100%)}
+.cp-b{position:relative;z-index:2;display:grid;gap:8px}
+.cp-b h3{font-size:clamp(1.2rem,2vw,1.7rem);color:#fff}
+.cp-b p{font-size:13.8px;color:rgba(244,241,234,.82);max-height:0;overflow:hidden;opacity:0;transition:.4s}
+.cpanel:hover .cp-b p,.cpanel.on .cp-b p{max-height:110px;opacity:1}
+@media(max-width:860px){.centers{flex-direction:column;height:auto}.cpanel{min-height:220px;flex:none!important}.cp-b p{max-height:none;opacity:1}}
+
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.mcard{background:var(--sf);border:1px solid var(--line);border-radius:18px;padding:28px}
+.mcard b{display:block;font-family:var(--en);font-size:clamp(2.4rem,4vw,3.5rem);color:var(--gold2);line-height:1}
+.mcard span{display:block;font-size:13.5px;color:var(--mut);margin-top:8px}
+.tgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.tcard{background:var(--sf);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.tcard img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block}
+.tcard div{padding:18px}
+.tcard h3{font-size:17.5px;color:#fff;margin:4px 0 6px}
+.tcard p{font-size:12.8px;color:var(--mut)}
+@media(max-width:860px){.mgrid,.tgrid{grid-template-columns:1fr 1fr}}
+
+/* Bottom Quick-Reserve Bar (Korean Major Hospital Signature) */
+.qbar{position:fixed;left:0;right:0;bottom:0;z-index:900;background:#121620;border-top:1px solid var(--line);padding:12px clamp(16px,4vw,44px)}
+.qbar form{max-width:1340px;margin:0 auto;display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;gap:10px;align-items:center}
+.qbar input,.qbar select{padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:#0b0d12;color:#fff;font:13.5px var(--sans)}
+@media(max-width:900px){.qbar form{grid-template-columns:1fr 1fr}.qbar .q-lbl{display:none}}
+footer{padding:48px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mut)}
+</style>
+</head>
+<body>
+<header>
+  <a href="#top" class="logo">${esc(bp.brand)}</a>
+  <nav><a href="#centers">특화 센터</a><a href="#metrics">안전 · 성과</a><a href="#specialists">의료진</a><a href="#quick">빠른 상담</a></nav>
+  <a href="#quick" class="btn-g">VIP 1:1 예약</a>
+</header>
+
+<section id="top" class="hero" data-stitch-screen="시네마틱 대형병원 히어로">
+  <img class="hero-bg" id="cinHeroImg" data-ill-art="${esc(bp.brand + ' · CINEMA')}" alt="${esc(bp.brand)}">
+  <div class="hero-shade"></div>
+  <div class="wrap hero-in">
+    <span class="mono">${esc(bp.brandSub)} · ${esc(bp.est)}</span>
+    <h1 id="cinTitle">${esc(bp.heroLines.join(' '))}</h1>
+    <p id="cinDesc">${esc(bp.heroDesc)}</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap"><a href="#quick" class="btn-g">${esc(bp.ctaPrimary)} →</a><a href="#centers" class="btn-o">${esc(bp.ctaSecondary)}</a></div>
+    <div class="s-ctl">
+      <span class="mono" id="cinNum">01 / 03</span>
+      <div class="s-bar"><i id="cinBar"></i></div>
+      <button type="button" id="cinPrev">‹</button><button type="button" id="cinNext">›</button>
+    </div>
+  </div>
+</section>
+
+<section id="centers" class="sec" data-stitch-screen="4대 특화 센터">
+  <div class="wrap">
+    <div class="sh"><div><span class="mono">01 · SPECIALIZED CENTERS</span><h2>${esc(bp.servicesTitle)}</h2></div><span class="mono">HOVER TO EXPLORE</span></div>
+    <div class="centers">
+      ${bp.services.map((s, i) => `<article class="cpanel${i === 0 ? ' on' : ''}"><img data-ill-art="${esc(s.name)}" alt="${esc(s.name)}"><div class="cp-b"><span class="mono">${esc(s.code)}</span><h3>${esc(s.name)}</h3><p>${esc(s.summary)}</p></div></article>`).join('')}
+    </div>
+  </div>
+</section>
+
+<section id="metrics" class="sec alt" data-stitch-screen="임상 지표 · 안전 시스템">
+  <div class="wrap">
+    <div class="sh"><div><span class="mono">02 · CLINICAL EXCELLENCE</span><h2>${esc(bp.beliefTitle)}</h2></div></div>
+    <div class="mgrid">
+      ${bp.kpis.map(([n, u, l]) => `<div class="mcard"><b>${esc(n)}${esc(u)}</b><span>${esc(l)}</span></div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<section id="specialists" class="sec" data-stitch-screen="전문의 디렉토리">
+  <div class="wrap">
+    <div class="sh"><div><span class="mono">03 · MEDICAL BOARD</span><h2>${esc(bp.teamTitle)}</h2></div></div>
+    <div class="tgrid">
+      ${bp.team.map((t) => `<article class="tcard"><img data-ill-art="${esc(t.name)}" alt="${esc(t.name)}"><div><span class="mono">${esc(t.role)}</span><h3>${esc(t.name)}</h3><p>${esc(t.bio)}</p></div></article>`).join('')}
+    </div>
+  </div>
+</section>
+
+<footer id="quick"><div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px"><span>© 2026 ${esc(bp.brand)} ${esc(bp.brandSub)} · ${esc(bp.address)}</span><span class="mono">${esc(bp.phone)} · ${esc(bp.hours)}</span></div></footer>
+
+<div class="qbar">
+  <form id="qBarForm">
+    <b class="q-lbl" style="color:var(--gold2);font-size:13px">⚡ 30초 빠른 상담</b>
+    <input required placeholder="성함">
+    <input required placeholder="연락처 (010-0000-0000)">
+    <select>${bp.contactChips.map((c) => `<option>${esc(c)}</option>`).join('')}</select>
+    <button type="submit" class="btn-g">무료 상담 신청</button>
+  </form>
+</div>
+<script>
+const CFG=${cfg};
+${ART_SYNTH_JS}
+illAttachPhotos('luxury');
+const SL=[
+  {t:${JSON.stringify(bp.heroLines.join(' '))},d:${JSON.stringify(bp.heroDesc)}},
+  {t:${JSON.stringify(bp.beliefTitle)},d:${JSON.stringify(bp.statementText)}},
+  {t:${JSON.stringify(bp.servicesTitle)},d:'대학병원급 안전 시스템과 분과별 전문의 협진으로 최상의 임상 결과를 약속합니다.'}
+];
+let ci=0;
+function goSl(n){
+  ci=(n+SL.length)%SL.length;
+  document.getElementById('cinTitle').textContent=SL[ci].t;
+  document.getElementById('cinDesc').textContent=SL[ci].d;
+  document.getElementById('cinNum').textContent='0'+(ci+1)+' / 0'+SL.length;
+  document.getElementById('cinBar').style.width=((ci+1)/SL.length*100)+'%';
+  if(CFG.photos&&CFG.photos.length){document.getElementById('cinHeroImg').src=CFG.photos[ci%CFG.photos.length];}
+}
+document.getElementById('cinPrev').onclick=()=>goSl(ci-1);
+document.getElementById('cinNext').onclick=()=>goSl(ci+1);
+document.querySelectorAll('.cpanel').forEach(c=>c.addEventListener('mouseenter',()=>{document.querySelectorAll('.cpanel').forEach(x=>x.classList.remove('on'));c.classList.add('on');}));
+document.getElementById('qBarForm').onsubmit=(e)=>{e.preventDefault();alert('✓ 빠른 상담 신청이 접수되었습니다. 전담 컨시어지가 곧 연락드립니다.');e.target.reset();};
+</script>
+</body>
+</html>`;
+  }
+
+  window.ILLArchetypes = { renderAtelier, renderArchitecture, renderLuxury, renderCafe, renderSaaS, renderCorporate, renderCommerce, renderLanding, renderClinicClean, renderClinicCinema };
 })();

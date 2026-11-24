@@ -98,13 +98,14 @@
     const sections = Array.from(doc.querySelectorAll('main > section, body > section, section[id], section[data-stitch-screen]'))
       .filter((el) => !el.closest('dialog, .modal, [hidden]'));
 
-    // Hide modals & floating clutter inside board thumbnails and force all reveal/fade animations visible
+    // Hide modals & floating clutter inside board thumbnails and freeze loops so thumbnails use 0% CPU
     const injectCss = `
+      <script>window.__ILL_STATIC_THUMB__=true;<\/script>
       <style data-stitch-slice>
         html, body { overflow: hidden !important; scroll-behavior: auto !important; margin: 0 !important; }
-        dialog, .modal, .floating-bar, .fab, #bookingModal, [role="dialog"] { display: none !important; }
+        dialog, .modal, .floating-bar, .fab, #bookingModal, [role="dialog"], .loader { display: none !important; }
         section, section *, main, article, .card, .item, [class*="reveal"], [class*="fade"], [data-dc-motion-init] {
-          opacity: 1 !important; transform: none !important; visibility: visible !important; animation: none !important;
+          opacity: 1 !important; transform: none !important; visibility: visible !important; animation: none !important; backdrop-filter: none !important;
         }
         ${sliceIndex > 0 ? 'section { min-height: auto !important; padding-top: 56px !important; }' : ''}
       </style>

@@ -54,9 +54,9 @@ button{cursor:pointer}
   background:radial-gradient(ellipse 46% 36% at 50% 50%, rgba(196,154,118,.12), rgba(59,130,246,.08) 48%, transparent 74%);
   transition:opacity .55s ease;
 }
-/* Dim gently when in active workspace so video remains subtly alive without hurting legibility */
-body.in-work .bg-hero-video{opacity:.24;filter:saturate(.95) brightness(.55) blur(3px)}
-body.in-work .bg-hero-aura{opacity:.25}
+/* Hide & pause ambient video in active workspace so scrolling previews hits locked 60/120fps */
+body.in-work .bg-hero-video{opacity:0;filter:none;visibility:hidden}
+body.in-work .bg-hero-aura{opacity:.18}
 
 /* ===== LOGIN MODAL GATE (on-demand) ===== */
 .gate{

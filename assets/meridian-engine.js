@@ -1385,7 +1385,6 @@ JSON 스키마:
 <title>${esc(bp.brand)} — ${esc(bp.brandSub)}</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js" defer></script>
 <style>
 :root{
   --paper:${P.paper};--paper-2:${P.paper2};--ink:${P.ink};--ink-2:${P.ink2};--mute:${P.mute};
@@ -1396,7 +1395,7 @@ JSON 스키마:
   --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:16px;scroll-behavior:smooth;background:var(--paper);color:var(--ink)}
+html{font-size:16px;scroll-behavior:auto;background:var(--paper);color:var(--ink)}
 body{font-family:var(--sans);background:var(--paper);color:var(--ink);overflow-x:hidden;-webkit-font-smoothing:antialiased;word-break:keep-all;line-height:1.55}
 ::selection{background:var(--accent);color:var(--ink)}
 img{display:block;max-width:100%;height:auto}
@@ -1405,34 +1404,33 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .wrap{max-width:1440px;margin:0 auto;padding:0 clamp(20px,4vw,56px)}
 .mono{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
 
-/* Film grain & scroll progress */
-.grain{position:fixed;inset:0;pointer-events:none;z-index:990;opacity:.055;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-.prog{position:fixed;top:0;left:0;height:2.5px;width:0;background:var(--accent);z-index:1010;transition:width .08s linear}
+/* Scroll progress (GPU scaleX, zero layout thrash) */
+.prog{position:fixed;top:0;left:0;height:2.5px;width:100%;transform:scaleX(0);transform-origin:left;background:var(--accent);z-index:1010;will-change:transform;pointer-events:none}
 
 /* Fast editorial preloader */
-.loader{position:fixed;inset:0;z-index:2000;background:var(--dark);color:#fff;display:flex;flex-direction:column;justify-content:space-between;padding:36px clamp(20px,4vw,56px);transition:transform .8s cubic-bezier(.76,0,.24,1),visibility .8s}
+.loader{position:fixed;inset:0;z-index:2000;background:var(--dark);color:#fff;display:flex;flex-direction:column;justify-content:space-between;padding:36px clamp(20px,4vw,56px);transition:transform .55s cubic-bezier(.76,0,.24,1),visibility .55s}
 .loader.done{transform:translateY(-102%);visibility:hidden;pointer-events:none}
 .ld-top{display:flex;justify-content:space-between;color:rgba(255,255,255,.55)}
 .ld-mid{overflow:hidden}
-.ld-brand{font-size:clamp(2.8rem,8vw,6.8rem);font-weight:700;letter-spacing:-.05em;line-height:.92;transform:translateY(0);transition:transform .6s var(--ease)}
+.ld-brand{font-size:clamp(2.8rem,8vw,6.8rem);font-weight:700;letter-spacing:-.05em;line-height:.92;transform:translateY(0);transition:transform .45s var(--ease)}
 .ld-bar{height:2px;background:rgba(255,255,255,.15);overflow:hidden}
-.ld-bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .55s var(--ease)}
+.ld-bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .35s var(--ease)}
 
-/* Custom cursor */
-.cur,.cur-r{position:fixed;top:0;left:0;pointer-events:none;z-index:1100;transform:translate(-50%,-50%);display:none}
+/* GPU Custom cursor (translate3d, zero layout cost) */
+.cur,.cur-r{position:fixed;top:0;left:0;pointer-events:none;z-index:1100;will-change:transform;display:none}
 @media(hover:hover) and (pointer:fine){.cur,.cur-r{display:block}}
-.cur{width:6px;height:6px;border-radius:50%;background:var(--ink);transition:background .25s,transform .15s}
-.cur-r{width:36px;height:36px;border-radius:50%;border:1px solid rgba(17,17,17,.35);display:grid;place-items:center;font-family:var(--mono);font-size:10px;font-weight:500;color:var(--ink);transition:width .35s var(--ease),height .35s var(--ease),background .3s,border-color .3s,color .3s}
-.cur-r.big{width:62px;height:62px;border-color:var(--brand);background:rgba(17,17,17,.06)}
-.cur-r.pill{width:94px;height:94px;border-color:transparent;background:var(--accent);color:var(--ink)}
+.cur{width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--ink);transition:background .2s}
+.cur-r{width:36px;height:36px;margin:-18px 0 0 -18px;border-radius:50%;border:1px solid rgba(17,17,17,.35);display:grid;place-items:center;font-family:var(--mono);font-size:10px;font-weight:500;color:var(--ink);transition:width .28s var(--ease),height .28s var(--ease),margin .28s var(--ease),background .25s,border-color .25s,color .25s}
+.cur-r.big{width:62px;height:62px;margin:-31px 0 0 -31px;border-color:var(--brand);background:rgba(17,17,17,.06)}
+.cur-r.pill{width:94px;height:94px;margin:-47px 0 0 -47px;border-color:transparent;background:var(--accent);color:var(--ink)}
 .cur.on-dark{background:#fff}
 .cur-r.on-dark{border-color:rgba(255,255,255,.45);color:#fff}
 
-/* Adaptive Fixed Header */
-#hdr{position:fixed;top:0;left:0;right:0;height:74px;z-index:900;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 clamp(20px,4vw,56px);transition:background .4s var(--ease),color .35s,border-color .35s;border-bottom:1px solid transparent}
-#hdr.solid{background:color-mix(in srgb,var(--paper) 84%,transparent);backdrop-filter:blur(14px);border-bottom-color:var(--line)}
-#hdr.brand{background:color-mix(in srgb,var(--brand) 88%,transparent);backdrop-filter:blur(14px);color:#fff;border-bottom-color:var(--line-d)}
-#hdr.dark{background:color-mix(in srgb,var(--dark) 88%,transparent);backdrop-filter:blur(14px);color:#fff;border-bottom-color:var(--line-d)}
+/* Adaptive Fixed Header (opaque glass, zero backdrop-filter scroll lag) */
+#hdr{position:fixed;top:0;left:0;right:0;height:74px;z-index:900;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 clamp(20px,4vw,56px);transition:background .3s var(--ease),color .25s,border-color .25s;border-bottom:1px solid transparent}
+#hdr.solid{background:color-mix(in srgb,var(--paper) 96%,transparent);border-bottom-color:var(--line)}
+#hdr.brand{background:color-mix(in srgb,var(--brand) 96%,transparent);color:#fff;border-bottom-color:var(--line-d)}
+#hdr.dark{background:color-mix(in srgb,var(--dark) 96%,transparent);color:#fff;border-bottom-color:var(--line-d)}
 .logo{font-weight:700;font-size:18px;letter-spacing:-.04em;display:inline-flex;align-items:baseline;gap:6px}
 .logo sup{font-size:10px;opacity:.65}
 .nav{display:flex;gap:clamp(14px,2.2vw,30px);font-size:13.5px;font-weight:500}
@@ -1479,9 +1477,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .hero h1 .thin{font-weight:250}
 .hero h1 .dot{color:var(--brand)}
 @keyframes slideUp{from{transform:translateY(108%);opacity:0}to{transform:none;opacity:1}}
-.hero-motion{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:4/5;background:var(--dark);box-shadow:0 32px 72px rgba(17,17,17,.22)}
-.hero-motion canvas{width:100%;height:100%;display:block}
-.hm-badge{position:absolute;top:12px;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;padding:7px 11px;border-radius:999px;background:rgba(14,14,16,.56);backdrop-filter:blur(10px);color:#fff;font-family:var(--mono);font-size:9.5px;letter-spacing:.05em}
+.hero-motion{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:4/5;background:var(--dark);box-shadow:0 24px 54px rgba(17,17,17,.22);contain:layout paint}
+.hero-motion .hm-photo{width:100%;height:100%;object-fit:cover;transform:scale(1.04);animation:illKenBurns 18s ease-in-out infinite alternate;will-change:transform}
+@keyframes illKenBurns{0%{transform:scale(1.02) translate3d(0,0,0)}100%{transform:scale(1.1) translate3d(-1.6%,-1.2%,0)}}
+.hero-motion .hm-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.08) 0%,rgba(0,0,0,0) 48%,rgba(0,0,0,.74) 100%);pointer-events:none}
+.hero-motion .hm-cap{position:absolute;left:22px;right:22px;bottom:20px;z-index:2;pointer-events:none}
+.hero-motion .hm-cap small{display:block;font-family:var(--mono);font-size:10.5px;color:var(--accent);letter-spacing:.08em;margin-bottom:4px}
+.hero-motion .hm-cap b{display:block;font-size:24px;font-weight:700;color:#fff;letter-spacing:-.03em}
+.hm-badge{position:absolute;top:12px;left:12px;right:12px;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:7px 11px;border-radius:999px;background:rgba(14,14,16,.72);color:#fff;font-family:var(--mono);font-size:9.5px;letter-spacing:.05em}
 .hm-badge i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:7px;animation:pulse 1.4s infinite}
 .hero-foot{display:grid;grid-template-columns:1.1fr auto;gap:24px;align-items:end;padding-top:20px;border-top:1px solid var(--line)}
 .hero-foot p{max-width:540px;font-size:clamp(14px,1.2vw,17.5px);color:var(--ink-2);line-height:1.68}
@@ -1498,11 +1501,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .mq-item{font-size:clamp(1.1rem,2vw,1.65rem);font-weight:650;letter-spacing:-.03em;color:var(--ink-2);opacity:.78;white-space:nowrap}
 .mq-item.alt{font-weight:300;letter-spacing:.04em}
 
-/* 03. SCROLL-EXPANDING CLIP-PATH VISUAL */
-.reveal-img{position:relative;height:185vh;margin:36px 0}
+/* 03. SCROLL-EXPANDING VISUAL (GPU transform scale3d, zero clip-path repaint) */
+.reveal-img{position:relative;height:145vh;margin:36px 0}
 .ri-sticky{position:sticky;top:0;height:100vh;overflow:hidden;display:grid;place-items:center}
-.ri-frame{position:relative;width:100%;height:100%;clip-path:inset(14% 16% 14% 16% round 24px);overflow:hidden;will-change:clip-path}
-.ri-frame img{width:100%;height:100%;object-fit:cover;transform:scale(1.16);will-change:transform}
+.ri-frame{position:relative;width:100%;height:100%;border-radius:22px;overflow:hidden;transform:scale3d(.86,.86,1);will-change:transform;contain:layout paint}
+.ri-frame img{width:100%;height:100%;object-fit:cover}
 .ri-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,14,16,.1) 35%,rgba(14,14,16,.78) 100%)}
 .ri-stats{position:absolute;left:clamp(20px,4vw,56px);right:clamp(20px,4vw,56px);bottom:clamp(24px,4vw,48px);display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding-top:18px;border-top:1px solid rgba(255,255,255,.24);color:#fff}
 .ri-stats span{display:block;opacity:.65;margin-bottom:4px}
@@ -1564,7 +1567,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .proc-left{position:sticky;top:110px}
 .proc-big{font-size:clamp(6rem,14vw,12rem);font-weight:200;letter-spacing:-.08em;line-height:.88;color:var(--brand);margin:14px 0 22px;font-variant-numeric:tabular-nums}
 .proc-bar{height:2px;background:var(--line);overflow:hidden;max-width:280px}
-.proc-bar i{display:block;height:100%;width:25%;background:var(--brand);transition:width .5s var(--ease)}
+.proc-bar i{display:block;height:100%;width:100%;transform:scaleX(.25);transform-origin:left;background:var(--brand);transition:transform .4s var(--ease)}
 .proc-list{display:grid;gap:clamp(42px,6vw,78px)}
 .pstep{opacity:.3;transition:opacity .6s var(--ease)}
 .pstep.act{opacity:1}
@@ -1576,7 +1579,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 @media(max-width:900px){.proc-grid{grid-template-columns:1fr}.proc-left{position:static}.pstep{opacity:1}}
 
 /* 08. SELECTED CASES HORIZONTAL SCROLL BAND */
-.cases-band{position:relative;height:280vh;background:var(--brand);color:#fff}
+.cases-band{position:relative;height:240vh;background:var(--brand);color:#fff}
 .cases-sticky{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;justify-content:space-between;padding:88px 0 34px;overflow:hidden}
 .cases-hd{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
 .cases-hd h2{font-size:clamp(2.2rem,4.8vw,4.2rem);font-weight:700;letter-spacing:-.055em;line-height:1.02}
@@ -1597,7 +1600,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .ccard-cta h3{font-size:clamp(1.8rem,3.2vw,2.7rem);font-weight:700;letter-spacing:-.045em;line-height:1.12}
 .cases-foot{display:flex;align-items:center;gap:18px;padding:0 clamp(20px,4vw,56px)}
 .cases-bar{flex:1;height:2px;background:rgba(255,255,255,.18);overflow:hidden}
-.cases-bar i{display:block;height:100%;width:20%;background:var(--accent)}
+.cases-bar i{display:block;height:100%;width:100%;transform:scaleX(.2);transform-origin:left;background:var(--accent);will-change:transform}
 @media(max-width:760px){.cases-band{height:auto}.cases-sticky{position:static;height:auto;gap:28px}.cases-track{overflow-x:auto;scroll-snap-type:x mandatory}.ccard{grid-template-columns:1fr;flex:0 0 86vw;scroll-snap-align:start}}
 
 /* 09. TEAM DIRECTORY (Bottom-up black inversion) */
@@ -1688,12 +1691,11 @@ footer{background:var(--dark);color:rgba(255,255,255,.65);padding-top:26px;overf
 .kr-dock a,.kr-dock button{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;box-shadow:0 12px 26px rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.14);transition:transform .25s var(--ease)}
 .kr-dock a:hover,.kr-dock button:hover{transform:translateY(-3px)}
 .kr-dock .dk-kakao{background:#fee500;color:#191919;border-color:#fee500;font-size:13px}
-.kr-dock .dk-book{background:var(--brand);color:var(--accent)}
+.kr-dock .dk-book{background:var(--dark);color:var(--accent);border:1.5px solid var(--accent)}
 .kr-dock .dk-top{background:var(--dark);color:#fff;font-family:var(--mono);font-size:9.5px}
 </style>
 </head>
 <body>
-<div class="grain" aria-hidden="true"></div>
 <div class="prog" id="prog"></div>
 <div class="cur" id="cur"></div>
 <div class="cur-r" id="curR"></div>
@@ -1736,8 +1738,10 @@ footer{background:var(--dark);color:rgba(255,255,255,.65);padding-top:26px;overf
         <span class="ln"><span>${esc(heroLine3)}<em class="dot" style="font-style:normal">.</em></span></span>
       </h1>
       <div class="hero-motion" data-cur="LIVE">
-        <canvas id="heroCanvas" width="720" height="900"></canvas>
-        <div class="hm-badge"><span><i></i>${esc(bp.heroMotionTag)}</span><span>60FPS</span></div>
+        <img class="hm-photo" id="heroPhoto" src="${esc(heroImg)}" alt="${esc(bp.brand)}" data-art-label="${esc(bp.brand + ' · HERO')}">
+        <div class="hm-shade"></div>
+        <div class="hm-badge"><span><i></i>${esc(bp.heroMotionTag)}</span><span>HD LIVE</span></div>
+        <div class="hm-cap"><small>BESPOKE MOTION · ${esc(bp.brandSub)}</small><b>${esc(bp.brand)}®</b></div>
       </div>
     </div>
 
@@ -2074,107 +2078,40 @@ document.querySelectorAll('[data-float]').forEach((el,idx)=>{
   }
 });
 
-/* Fast editorial preloader */
+/* Instant preloader dismiss */
 (function(){
   const ld=document.getElementById('loader'),bar=document.getElementById('ldBar'),pct=document.getElementById('ldPct');
-  let p=0;
-  const iv=setInterval(()=>{
-    p=Math.min(100,p+25); bar.style.width=p+'%'; pct.textContent=String(p).padStart(2,'0')+'%';
-    if(p>=100){clearInterval(iv);setTimeout(()=>ld.classList.add('done'),120);}
-  },75);
+  if(window.__ILL_STATIC_THUMB__){ld.classList.add('done');return;}
+  bar.style.width='100%'; pct.textContent='100%';
+  setTimeout(()=>ld.classList.add('done'),160);
 })();
-
-/* Lenis smooth scroll */
-window.addEventListener('DOMContentLoaded',()=>{
-  if(window.Lenis){const lenis=new Lenis({duration:1.15,easing:t=>Math.min(1,1.001-Math.pow(2,-10*t))});function raf(t){lenis.raf(t);requestAnimationFrame(raf);}requestAnimationFrame(raf);}
-});
 
 /* Live Seoul clock */
 function tickClk(){
   const d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Seoul'}));
   document.getElementById('clk').textContent='SEOUL '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
 }
-tickClk(); setInterval(tickClk,15000);
+tickClk(); if(!window.__ILL_STATIC_THUMB__) setInterval(tickClk,30000);
 
-/* 60fps Generative Hero Cinema Canvas (architectural light beams, golden-ratio sculpture & bokeh film) */
-(function(){
-  const cv=document.getElementById('heroCanvas'), ctx=cv.getContext('2d');
-  const im=CFG.heroImg?new Image():null;
-  if(im){im.crossOrigin='anonymous';im.src=CFG.heroImg;}
-  const pts=Array.from({length:26},()=>({x:Math.random(),y:Math.random(),r:1.5+Math.random()*4.2,vx:(Math.random()-.5)*.0018,vy:-.0012-Math.random()*.0026,a:.14+Math.random()*.32}));
-  let t=0;
-  function draw(){
-    requestAnimationFrame(draw); t+=0.012;
-    const w=cv.width,h=cv.height,P=CFG.palette;
-    const bg=ctx.createLinearGradient(0,0,w,h);
-    bg.addColorStop(0,P.brand); bg.addColorStop(.55,P.brand2); bg.addColorStop(1,P.dark);
-    ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
-    if(im && im.complete && im.naturalWidth>0){
-      const sc=1.08+Math.sin(t*.45)*0.06, ox=Math.cos(t*.35)*18, oy=Math.sin(t*.3)*14;
-      const ir=im.naturalWidth/im.naturalHeight, cr=w/h;
-      let dw=w,dh=h; if(ir>cr){dh=h;dw=h*ir;}else{dw=w;dh=w/ir;}
-      ctx.save(); ctx.translate(w/2+ox,h/2+oy); ctx.scale(sc,sc);
-      ctx.drawImage(im,-dw/2,-dh/2,dw,dh); ctx.restore();
-    } else {
-      // Silky volumetric studio sunbeam + architectural arch + morphing golden-ratio ribbons
-      const lx=w*(.52+Math.sin(t*.5)*.2), ly=h*(.34+Math.cos(t*.4)*.12);
-      const rg=ctx.createRadialGradient(lx,ly,16,lx,ly,w*.88);
-      rg.addColorStop(0,P.accent+'b8'); rg.addColorStop(.38,P.accent+'30'); rg.addColorStop(1,'transparent');
-      ctx.fillStyle=rg; ctx.fillRect(0,0,w,h);
-      // Architectural recessed arch
-      ctx.save();
-      const aw=w*.34, ax=w*.5, ay=h*.42;
-      ctx.beginPath(); ctx.arc(ax,ay,aw,Math.PI,0); ctx.lineTo(ax+aw,h*.84); ctx.lineTo(ax-aw,h*.84); ctx.closePath();
-      const ag=ctx.createLinearGradient(ax,ay-aw,ax,h*.84);
-      ag.addColorStop(0,'rgba(255,255,255,0.16)'); ag.addColorStop(1,'rgba(0,0,0,0.34)');
-      ctx.fillStyle=ag; ctx.fill();
-      ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=1.5; ctx.stroke();
-      // Rotating sculptural orbits
-      for(let k=0;k<4;k++){
-        ctx.beginPath();
-        ctx.ellipse(w*.5,h*.48,w*(.15+k*.085),h*(.11+k*.065),t*(.18+k*.06)*(k%2?1:-1),0,Math.PI*2);
-        ctx.strokeStyle=k===1?P.accent+'aa':'rgba(255,255,255,0.16)';
-        ctx.lineWidth=k===1?2.2:1.2; ctx.stroke();
-      }
-      // Flowing silk light wave
-      for(let r=0;r<3;r++){
-        ctx.beginPath();
-        for(let px=0;px<=w;px+=14){
-          const py=h*(.52+r*.06)+Math.sin(px*.009+t*1.1+r)*38+Math.cos(px*.016-t*.8)*18;
-          if(px===0)ctx.moveTo(px,py); else ctx.lineTo(px,py);
-        }
-        ctx.strokeStyle=r===0?P.accent+'99':'rgba(255,255,255,0.18)';
-        ctx.lineWidth=r===0?2.4:1.1; ctx.stroke();
-      }
-      ctx.restore();
-    }
-    const sh=ctx.createLinearGradient(0,h*.55,0,h);
-    sh.addColorStop(0,'rgba(0,0,0,0)'); sh.addColorStop(1,'rgba(0,0,0,0.74)');
-    ctx.fillStyle=sh; ctx.fillRect(0,0,w,h);
-    pts.forEach(pt=>{
-      pt.x=(pt.x+pt.vx+1)%1; pt.y=(pt.y+pt.vy+1)%1;
-      ctx.beginPath(); ctx.arc(pt.x*w,pt.y*h,pt.r,0,Math.PI*2);
-      ctx.fillStyle=P.accent+Math.round(pt.a*255).toString(16).padStart(2,'0'); ctx.fill();
-    });
-    ctx.fillStyle=P.accent; ctx.font='600 13px JetBrains Mono,monospace';
-    ctx.fillText('BESPOKE MOTION · '+CFG.brandSub,30,h-64);
-    ctx.fillStyle='rgba(255,255,255,0.94)'; ctx.font='700 28px Pretendard,sans-serif';
-    ctx.fillText(CFG.brand+'®',30,h-30);
-  }
-  draw();
-})();
-
-/* Custom cursor & floating preview image */
+/* Zero-idle-CPU GPU custom cursor & floating preview */
 const cur=document.getElementById('cur'),curR=document.getElementById('curR'),fImg=document.getElementById('floatImg'),fImEl=fImg.querySelector('img');
-let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my;
-window.addEventListener('mousemove',e=>{
-  mx=e.clientX; my=e.clientY;
-  cur.style.left=mx+'px'; cur.style.top=my+'px';
-  fImg.style.left=(mx+150)+'px'; fImg.style.top=my+'px';
-});
-(function loopCur(){rx+=(mx-rx)*.16;ry+=(my-ry)*.16;curR.style.left=rx+'px';curR.style.top=ry+'px';requestAnimationFrame(loopCur);})();
+let mx=-200,my=-200,rx=-200,ry=-200,curRaf=0;
+function stepCur(){
+  rx+=(mx-rx)*.2; ry+=(my-ry)*.2;
+  curR.style.transform='translate3d('+rx+'px,'+ry+'px,0)';
+  if(Math.abs(mx-rx)>.25 || Math.abs(my-ry)>.25) curRaf=requestAnimationFrame(stepCur);
+  else curRaf=0;
+}
+if(!window.__ILL_STATIC_THUMB__ && window.matchMedia('(hover:hover) and (pointer:fine)').matches){
+  window.addEventListener('mousemove',e=>{
+    mx=e.clientX; my=e.clientY;
+    cur.style.transform='translate3d('+mx+'px,'+my+'px,0)';
+    if(fImg.classList.contains('show')) fImg.style.transform='translate3d('+(mx+150)+'px,'+my+'px,0) scale(1) rotate(-2.5deg)';
+    if(!curRaf) curRaf=requestAnimationFrame(stepCur);
+  },{passive:true});
+}
 document.querySelectorAll('[data-float]').forEach(el=>{
-  el.addEventListener('mouseenter',()=>{fImEl.src=el.dataset.float;fImg.classList.add('show');});
+  el.addEventListener('mouseenter',()=>{fImEl.src=el.dataset.float;fImg.style.left='0';fImg.style.top='0';fImg.style.transform='translate3d('+(mx+150)+'px,'+my+'px,0) scale(1) rotate(-2.5deg)';fImg.classList.add('show');});
   el.addEventListener('mouseleave',()=>fImg.classList.remove('show'));
 });
 document.querySelectorAll('a,button,[data-cur]').forEach(el=>{
@@ -2190,70 +2127,86 @@ document.querySelectorAll('.srv-btn').forEach(b=>b.onclick=()=>{
   const row=b.closest('.srv-row'), was=row.classList.contains('open');
   document.querySelectorAll('.srv-row').forEach(r=>r.classList.remove('open'));
   if(!was)row.classList.add('open');
+  setTimeout(measure,400);
 });
-document.querySelectorAll('.fq').forEach(b=>b.onclick=()=>b.closest('.fitem').classList.toggle('open'));
+document.querySelectorAll('.fq').forEach(b=>b.onclick=()=>{b.closest('.fitem').classList.toggle('open');setTimeout(measure,400);});
 
-/* Master Scroll Choreography */
-const hdr=document.getElementById('hdr'),prog=document.getElementById('prog'),riSec=document.getElementById('rimg'),riFrame=document.getElementById('riFrame'),riImg=riFrame.querySelector('img');
-const words=[...document.querySelectorAll('#stmt .w')],psteps=[...document.querySelectorAll('.pstep')],procNum=document.getElementById('procNum'),procBar=document.getElementById('procBar');
+/* Zero-Reflow rAF-Throttled Scroll Choreography (60/120fps native compositor smooth) */
+const hdr=document.getElementById('hdr'),prog=document.getElementById('prog'),riSec=document.getElementById('rimg'),riFrame=document.getElementById('riFrame');
+const stmtEl=document.getElementById('stmt'),words=[...document.querySelectorAll('#stmt .w')],psteps=[...document.querySelectorAll('.pstep')],procNum=document.getElementById('procNum'),procBar=document.getElementById('procBar');
 const cBand=document.getElementById('cases'),cTrack=document.getElementById('casesTrack'),cIdx=document.getElementById('caseIdx'),cBar=document.getElementById('caseBar');
 const ctSec=document.getElementById('contact'),navLinks=[...document.querySelectorAll('.nav a')];
 
-function onScroll(){
-  const y=scrollY, maxY=Math.max(1,document.documentElement.scrollHeight-innerHeight);
-  prog.style.width=(y/maxY*100)+'%';
+let M={vh:900,vw:1440,maxY:1,riTop:0,riSpan:1,stTop:0,stH:1,cTop:0,cBot:0,cSpan:1,maxShift:0,ctTop:0,pTops:[],navSecs:[]};
+let lastHdr='',lastWord=-1,lastStep=-1,lastCase=-1,lastNav=-1,ticking=false;
 
-  // Adaptive header polarity
-  const cRect=cBand.getBoundingClientRect(), ctRect=ctSec.getBoundingClientRect();
-  const inBrand=cRect.top<=74 && cRect.bottom>=74, inDark=ctRect.top<=74;
-  hdr.className=inDark?'dark':inBrand?'brand':y>40?'solid':'';
-  cur.classList.toggle('on-dark',inBrand||inDark);
-  curR.classList.toggle('on-dark',inBrand||inDark);
+function measure(){
+  const y=window.scrollY;
+  M.vh=window.innerHeight||900; M.vw=window.innerWidth||1440;
+  M.maxY=Math.max(1,document.documentElement.scrollHeight-M.vh);
+  const rR=riSec.getBoundingClientRect(); M.riTop=rR.top+y; M.riSpan=Math.max(1,rR.height-M.vh);
+  const sR=stmtEl.getBoundingClientRect(); M.stTop=sR.top+y; M.stH=Math.max(1,sR.height+M.vh*.22);
+  const cR=cBand.getBoundingClientRect(); M.cTop=cR.top+y; M.cBot=cR.bottom+y; M.cSpan=Math.max(1,cR.height-M.vh);
+  M.maxShift=Math.max(0,cTrack.scrollWidth-M.vw+56);
+  M.ctTop=ctSec.getBoundingClientRect().top+y;
+  M.pTops=psteps.map(s=>s.getBoundingClientRect().top+y);
+  M.navSecs=navLinks.map(a=>{const t=document.querySelector(a.getAttribute('href'));if(!t)return null;const tr=t.getBoundingClientRect();return {top:tr.top+y,bot:tr.bottom+y};});
+}
 
-  // Scroll-spy nav
-  navLinks.forEach(a=>{
-    const t=document.querySelector(a.getAttribute('href'));
-    if(!t)return; const r=t.getBoundingClientRect();
-    a.classList.toggle('act',r.top<=innerHeight*.4 && r.bottom>=innerHeight*.2);
-  });
+function renderScroll(){
+  ticking=false;
+  const y=window.scrollY;
+  prog.style.transform='scaleX('+(y/M.maxY)+')';
 
-  // Clip-path expanding visual
-  const rr=riSec.getBoundingClientRect();
-  const rp=Math.max(0,Math.min(1,-rr.top/Math.max(1,rr.height-innerHeight)));
-  const iv=(1-rp)*14, ih=(1-rp)*16, rad=(1-rp)*24;
-  riFrame.style.clipPath='inset('+iv+'% '+ih+'% '+iv+'% '+ih+'% round '+rad+'px)';
-  riImg.style.transform='scale('+(1.16-rp*.16)+')';
+  const inBrand=(M.cTop-y)<=74 && (M.cBot-y)>=74, inDark=(M.ctTop-y)<=74;
+  const nextHdr=inDark?'dark':inBrand?'brand':y>40?'solid':'';
+  if(nextHdr!==lastHdr){
+    lastHdr=nextHdr; hdr.className=nextHdr;
+    cur.classList.toggle('on-dark',inBrand||inDark);
+    curR.classList.toggle('on-dark',inBrand||inDark);
+  }
 
-  // Word-by-word scrub
-  const st=document.getElementById('stmt').getBoundingClientRect();
-  const sp=Math.max(0,Math.min(1,(innerHeight*.82-st.top)/Math.max(1,st.height+innerHeight*.22)));
+  let actNav=-1;
+  for(let i=0;i<M.navSecs.length;i++){const s=M.navSecs[i];if(s && (s.top-y)<=M.vh*.4 && (s.bot-y)>=M.vh*.2){actNav=i;break;}}
+  if(actNav!==lastNav){lastNav=actNav;navLinks.forEach((a,i)=>a.classList.toggle('act',i===actNav));}
+
+  const rp=Math.max(0,Math.min(1,(y-M.riTop)/M.riSpan));
+  const sc=0.86+rp*0.14;
+  riFrame.style.transform='scale3d('+sc.toFixed(4)+','+sc.toFixed(4)+',1)';
+
+  const sp=Math.max(0,Math.min(1,(y+M.vh*.82-M.stTop)/M.stH));
   const activeCount=Math.floor(sp*words.length);
-  words.forEach((w,i)=>w.classList.toggle('on',i<=activeCount));
+  if(activeCount!==lastWord){
+    const lo=Math.min(lastWord,activeCount), hi=Math.max(lastWord,activeCount);
+    for(let i=Math.max(0,lo);i<=Math.min(words.length-1,hi);i++) words[i].classList.toggle('on',i<=activeCount);
+    lastWord=activeCount;
+  }
 
-  // Sticky process step
   let curStep=0;
-  psteps.forEach((s,i)=>{
-    const r=s.getBoundingClientRect();
-    const isAct=r.top<innerHeight*.58;
-    if(isAct)curStep=i;
-    s.classList.toggle('act',i===curStep);
-  });
-  procNum.textContent=psteps[curStep]?.dataset.step||'01';
-  procBar.style.width=((curStep+1)/psteps.length*100)+'%';
+  for(let i=0;i<M.pTops.length;i++){if(M.pTops[i]-y<M.vh*.58) curStep=i;}
+  if(curStep!==lastStep){
+    lastStep=curStep;
+    psteps.forEach((s,i)=>s.classList.toggle('act',i===curStep));
+    procNum.textContent=psteps[curStep]?.dataset.step||'01';
+    procBar.style.transform='scaleX('+((curStep+1)/psteps.length)+')';
+  }
 
-  // Horizontal scroll cases
-  if(innerWidth>760){
-    const hp=Math.max(0,Math.min(1,-cRect.top/Math.max(1,cRect.height-innerHeight)));
-    const maxShift=Math.max(0,cTrack.scrollWidth-innerWidth+56);
-    cTrack.style.transform='translate3d('+(-hp*maxShift)+'px,0,0)';
+  if(M.vw>760){
+    const hp=Math.max(0,Math.min(1,(y-M.cTop)/M.cSpan));
+    cTrack.style.transform='translate3d('+(-hp*M.maxShift).toFixed(1)+'px,0,0)';
+    cBar.style.transform='scaleX('+(0.2+hp*0.8).toFixed(4)+')';
     const idx=Math.min(5,Math.floor(hp*4.99)+1);
-    cIdx.textContent='0'+idx+' / 05';
-    cBar.style.width=(20+hp*80)+'%';
+    if(idx!==lastCase){lastCase=idx;cIdx.textContent='0'+idx+' / 05';}
   }
 }
-window.addEventListener('scroll',onScroll,{passive:true});
-window.addEventListener('resize',onScroll);
-onScroll();
+
+function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(renderScroll);}}
+if(!window.__ILL_STATIC_THUMB__){
+  measure(); renderScroll();
+  window.addEventListener('load',()=>{measure();renderScroll();});
+  window.addEventListener('resize',()=>{measure();renderScroll();},{passive:true});
+  window.addEventListener('scroll',onScroll,{passive:true});
+}
 
 /* Live Booking Form + Modal + LocalStorage CRM */
 const CRM_KEY='ill_crm_'+CFG.brand.toLowerCase();
@@ -2303,75 +2256,194 @@ crmDrawer.onclick=e=>{if(e.target===crmDrawer)crmDrawer.classList.remove('open')
 </html>`;
   }
 
-  /* ================= 4-STAGE EXECUTION ENTRYPOINT ================= */
-  async function runWebsitePipeline(prompt, run, callTracked) {
-    const spec = detectSpecialty(prompt);
+  /* ================= MULTI-VERSION VARIANT POOLS & CLAUDE-STYLE FREEFORM ARTIFACT ENGINE ================= */
+  const VARIANT_POOLS = {
+    plastic: ['meridian', 'clinic_clean', 'clinic_cinema', 'landing', 'freeform'],
+    derma: ['meridian', 'clinic_clean', 'clinic_cinema', 'landing', 'freeform'],
+    dental: ['clinic_clean', 'meridian', 'clinic_cinema', 'landing', 'freeform'],
+    hospital: ['clinic_clean', 'clinic_cinema', 'meridian', 'landing', 'freeform'],
+    fashion: ['atelier', 'commerce', 'luxury', 'landing', 'freeform'],
+    architecture: ['architecture', 'meridian', 'clinic_cinema', 'corporate', 'freeform'],
+    luxury: ['luxury', 'clinic_cinema', 'meridian', 'atelier', 'freeform'],
+    cafe: ['cafe', 'atelier', 'commerce', 'landing', 'freeform'],
+    tech: ['saas', 'corporate', 'landing', 'freeform'],
+    corporate: ['corporate', 'clinic_cinema', 'meridian', 'saas', 'freeform'],
+    commerce: ['commerce', 'atelier', 'landing', 'freeform'],
+    landing: ['landing', 'commerce', 'clinic_clean', 'meridian', 'freeform'],
+    default: ['meridian', 'clinic_clean', 'corporate', 'saas', 'freeform'],
+  };
+
+  const ARCH_NAMES = {
+    meridian: '스위스 에디토리얼 모션 (비대칭 대형 타이포 · 가로 케이스 · 실시간 CRM)',
+    clinic_clean: '화이트 클리니컬 · 실시간 대기/예약형 (순백 신뢰 UI · 라이브 대기위젯 · 전문의 카드)',
+    clinic_cinema: '강남 대형병원 풀스크린 시네마틱형 (100vh 슬라이더 · 4단 호버 센터 · 하단 30초 퀵상담바)',
+    atelier: '아틀리에 룩북 (코튼 페이퍼 · 듀얼 폴드 · 재봉선 스크롤)',
+    architecture: '아키텍처 스톤 (라임워시 · 필터 포트폴리오 · 자동 견적 계산기)',
+    luxury: '녹터널 럭셔리 (옵시디언 골드 · 시네마틱 히어로 · 실시간 요금 예약)',
+    cafe: '오가닉 다이닝 (필름 프레임 · 신선도 배지 · 가격표 메뉴 보드)',
+    saas: '테크니컬 SaaS (다크 네이비 · 라이브 프로덕션 콘솔 · SDK · 요금 토글)',
+    corporate: '한국형 기업·B2B (풀블리드 슬라이더 · 4단 호버 사업영역 · 뉴스룸/IR)',
+    commerce: '한국형 D2C 쇼핑몰 (3단 룩북 · 클릭 쿠폰팩 · 슬라이드 장바구니 · 무료배송 게이지)',
+    landing: '고전환 프로모션·상세 랜딩 (카운트다운 · 드래그 Before/After 슬라이더 · Sticky CTA)',
+    freeform: 'Claude Artifacts 방식 · AI 백지 자유 설계 (맞춤 레이아웃·인터랙션 처음부터 직접 생성)',
+  };
+
+  function pickArchetype(spec, opts = {}) {
+    if (opts.forceFreeform) return 'freeform';
+    const pool = VARIANT_POOLS[spec.key] || VARIANT_POOLS.default;
+    const used = Array.isArray(opts.usedLayouts) ? opts.usedLayouts : [];
+    if (opts.isVariant || used.length > 0) {
+      const fresh = pool.find((a) => !used.includes(a));
+      if (fresh) return fresh;
+      return pool[used.length % pool.length];
+    }
+    return spec.archetype || pool[0];
+  }
+
+  function dispatchRender(bp, specKey, arch) {
+    const A = window.ILLArchetypes || {};
+    const photos = PHOTO_BANK[specKey] || PHOTO_BANK.default;
+    const bpWithPhotos = { ...bp, _photos: photos };
+    if (arch === 'clinic_clean' && A.renderClinicClean) return A.renderClinicClean(bpWithPhotos);
+    if (arch === 'clinic_cinema' && A.renderClinicCinema) return A.renderClinicCinema(bpWithPhotos);
+    if (arch === 'atelier' && A.renderAtelier) return A.renderAtelier(bpWithPhotos);
+    if (arch === 'architecture' && A.renderArchitecture) return A.renderArchitecture(bpWithPhotos);
+    if (arch === 'luxury' && A.renderLuxury) return A.renderLuxury(bpWithPhotos);
+    if (arch === 'cafe' && A.renderCafe) return A.renderCafe(bpWithPhotos);
+    if (arch === 'saas' && A.renderSaaS) return A.renderSaaS(bpWithPhotos);
+    if (arch === 'corporate' && A.renderCorporate) return A.renderCorporate(bpWithPhotos);
+    if (arch === 'commerce' && A.renderCommerce) return A.renderCommerce(bpWithPhotos);
+    if (arch === 'landing' && A.renderLanding) return A.renderLanding(bpWithPhotos);
+    return renderMeridianSite(bpWithPhotos, specKey);
+  }
+
+  const FREEFORM_ARTIFACT_SYS = `당신은 세계 최고 수준의 프론트엔드 디자인 디렉터이자 풀스택 웹 아키텍트입니다(Claude Artifacts 수준).
+사용자의 요청을 받아 템플릿을 재사용하지 않고, 매번 **처음부터 완전히 새로운 디자인 시스템·레이아웃·인터랙션**을 가진 단 하나의 완결형 \`<!doctype html>\` 문서를 작성합니다.
+
+[절대 준수 규칙]
+1. 외부 CSS 프레임워크(Tailwind/Bootstrap) 금지 — \`<head>\` 안 \`<style>\`에 완성도 높은 반응형 CSS(:root 변수, Flexbox/Grid, 고급 타이포그래피, 부드러운 hover/전환, 60fps 네이티브 스크롤)를 직접 작성하십시오.
+2. **스크롤 성능 필수**: Lenis 등 외부 스크롤 라이브러리, \`html{scroll-behavior:smooth}\`, 전체 화면 SVG feTurbulence 노이즈, 무거운 backdrop-filter 남용을 절대 금지합니다.
+3. **실사 사진**: 이미지가 필요한 곳에 \`<img data-ill-photo="0" alt="...">\`, \`data-ill-photo="1"\` ... 형태로 넣으면 엔진이 업종별 고화질 실사 사진을 자동 주입합니다(임의 외부 URL 금지).
+4. **실제 작동하는 인터랙션**: 탭 필터, 실시간 예약/견적/계산기/모달 등 업종에 꼭 맞는 인터랙션 JS를 \`<script>\` 안에 오류 없이 구현하십시오.
+5. **완전한 한국어 콘텐츠**: 더미 텍스트("Lorem ipsum") 금지. 5~6개 섹션(헤더, 히어로, 핵심 특징/서비스, 사례/포트폴리오/의료진, 예약/문의 폼, 푸터)을 완결되게 작성하고 반드시 \`</html>\`로 닫으십시오.
+6. 설명 없이 오직 \`\`\`html ... \`\`\` 코드 블록 1개만 출력하십시오.`;
+
+  function injectHdPhotosIntoHtml(html, specKey) {
+    const photos = PHOTO_BANK[specKey] || PHOTO_BANK.default;
+    let idx = 0;
+    let out = String(html || '').replace(/<img\b([^>]*?)>/gi, (m, attrs) => {
+      const ph = photos[(idx++) % photos.length];
+      if (/\bsrc\s*=\s*["']https?:\/\/images\.pexels\.com/i.test(attrs)) return m;
+      const cleaned = attrs.replace(/\bsrc\s*=\s*["'][^"']*["']/gi, '').replace(/\bdata-ill-photo\s*=\s*["'][^"']*["']/gi, '');
+      return `<img src="${ph}" loading="lazy"${cleaned}>`;
+    });
+    if (!/pretendard/i.test(out)) {
+      out = out.replace(/<\/head>/i, `<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></head>`);
+    }
+    return out;
+  }
+
+  function isValidFreeformHtml(html) {
+    if (!html || html.length < 3200) return false;
+    const styleMatch = html.match(/<style[\s>][\s\S]*?<\/style>/gi) || [];
+    const styleLen = styleMatch.join('').length;
+    if (styleLen < 650) return false;
+    if (!/<body[\s>]/i.test(html) || !/<\/html>\s*$/i.test(html.trim())) return false;
+    if (/<input\b/i.test(html) && !/input\b[^{]*\{/i.test(styleMatch.join(''))) return false;
+    return true;
+  }
+
+  async function runClaudeFreeform(prompt, spec, run, callTracked, opts = {}) {
     run.stage('BENCHMARK');
-    run.log(`bench  업종 인식: ${spec.label} · 상위 1% 레퍼런스 UX 패턴 분석`, 'k');
+    run.log(`freeform Claude Artifacts 방식 백지 자유 설계 시작 (${spec.label})`, 'k');
+    run.stage('ARCHITECTURE');
+    const avoidStr = (opts.usedLayouts || []).length ? `\n[절대 반복 금지]: 이 대화에서 이미 사용한 레이아웃(${opts.usedLayouts.join(', ')})과 완전히 다른 배치·배색·히어로 구조를 설계하십시오.` : '';
+    const r = await callTracked(run, {
+      role: 'code',
+      label: 'artifact-freeform',
+      system: FREEFORM_ARTIFACT_SYS,
+      messages: [{ role: 'user', content: `사용자 요청: ${prompt}\n업종: ${spec.label}${avoidStr}\n\n지금 바로 상위 1% 디자인 에이전시 수준의 완전히 새로운 단일 HTML 웹사이트를 작성하십시오.` }],
+      maxTokens: 12000,
+      temperature: 0.72,
+    });
+    run.stage('VISUALS');
+    const m = r.text.match(/```html[^\n]*\n([\s\S]*?)```/i) || r.text.match(/(<!doctype html[\s\S]*<\/html>)/i);
+    let html = m ? m[1].trim() : '';
+    if (html) html = injectHdPhotosIntoHtml(html, spec.key);
+    run.stage('MOTION');
+    if (isValidFreeformHtml(html)) {
+      run.log(`freeform 백지 자유 생성 품질 게이트 통과 (${html.length.toLocaleString()} bytes)`, 'ok');
+      return html;
+    }
+    run.log('freeform 무료 모델 출력 불완전 감지 → 미사용 프리미엄 아키타입으로 무손실 자동 전환', 'warn');
+    return null;
+  }
+
+  /* ================= 4-STAGE EXECUTION ENTRYPOINT ================= */
+  async function runWebsitePipeline(prompt, run, callTracked, opts = {}) {
+    let spec = detectSpecialty(prompt);
+    if (opts.isVariant && opts.prevSpecKey && spec.key === 'default' && SPECIALTIES[opts.prevSpecKey]) {
+      spec = { key: opts.prevSpecKey, ...SPECIALTIES[opts.prevSpecKey] };
+    }
+    const arch = pickArchetype(spec, opts);
+
+    if (arch === 'freeform') {
+      try {
+        const freeHtml = await runClaudeFreeform(prompt, spec, run, callTracked, opts);
+        if (freeHtml) {
+          run.siteState = { bp: { brand: (freeHtml.match(/<title[^>]*>([^<]{2,36})<\/title>/i)?.[1] || 'ILL Studio').split(/[—·|-]/)[0].trim() }, specKey: spec.key, arch: 'freeform', specialtyLabel: spec.label, rawHtml: freeHtml };
+          run.calls.push({ label: 'freeform-artifact', provider: 'ILL Freeform Artifact', short: 'ARTIFACT', pid: 'media', model: 'v5' });
+          return `## 합의 요약\n- **Claude Artifacts 방식 백지 자유 설계 (${spec.label})**로 이전과 겹치지 않는 완전히 새로운 레이아웃·배색·인터랙션을 처음부터 생성했습니다.\n- 업종 맞춤 고화질 실사 사진 자동 매칭 및 60fps 네이티브 스크롤 최적화까지 완료했습니다.\n\n## 자율 실행 산출물\n\`\`\`html\n${freeHtml}\n\`\`\`\n\n## 세션 상태 스냅샷\n\`\`\`yaml\nuser_goal: "${String(prompt).slice(0, 70).replace(/"/g, "'")}"\nspecialty: "${spec.label}"\narchetype: "freeform"\nactive_artifacts: ["index.html"]\n\`\`\``;
+        }
+      } catch (e) {
+        if (e.kind === 'abort') throw e;
+        run.log(`freeform 실패(${e.message}) → 미사용 아키타입 폴백`, 'warn');
+      }
+    }
+
+    const finalArch = arch === 'freeform' ? (VARIANT_POOLS[spec.key] || VARIANT_POOLS.default).find((a) => a !== 'freeform' && !(opts.usedLayouts || []).includes(a)) || 'clinic_clean' : arch;
+
+    run.stage('BENCHMARK');
+    run.log(`bench  업종 인식: ${spec.label} · 레이아웃 선정: ${ARCH_NAMES[finalArch] || finalArch}`, 'k');
     spec.benchmarks.forEach((b) => run.log(`bench  • ${b}`, 't'));
 
     run.stage('ARCHITECTURE');
-    run.log('arch   13-밴드 에디토리얼 UI 아키텍처 & 업종 맞춤 카피·AI 비주얼 프롬프트 생성', 'k');
+    run.log(`arch   [${finalArch.toUpperCase()}] 구조 맞춤 브랜드·카피·팔레트 설계`, 'k');
     let parsed = null;
     try {
+      const varHint = opts.isVariant ? `\n[중요 - 새로운 버전 요청]: 이전 버전과 브랜드명, 컬러 분위기, 헤드라인 카피를 완전히 다르게 새롭게 창작하십시오!` : '';
       const r = await callTracked(run, {
         role: 'general',
         label: 'blueprint',
         system: BLUEPRINT_SYS,
-        messages: [{ role: 'user', content: `사용자 요청: ${prompt}\n감지된 업종: ${spec.label}\n\n이 요청에 100% 맞춤화된 상위 1% 하이엔드 웹사이트 JSON 블루프린트를 작성하십시오. 모든 글과 영문 AI 이미지 프롬프트(imgPrompt)가 이 업종에 완벽하게 일치해야 합니다.` }],
+        messages: [{ role: 'user', content: `사용자 요청: ${prompt}\n감지된 업종: ${spec.label}\n선택된 레이아웃 스타일: ${ARCH_NAMES[finalArch] || finalArch}${varHint}\n\n이 요청에 100% 맞춤화된 상위 1% 하이엔드 웹사이트 JSON 블루프린트를 작성하십시오.` }],
         maxTokens: 4096,
-        temperature: 0.55,
+        temperature: opts.isVariant ? 0.78 : 0.55,
       });
       const jm = r.text.match(/\{[\s\S]*\}/);
       if (jm) parsed = JSON.parse(jm[0]);
     } catch (e) {
       if (e.kind === 'abort') throw e;
-      run.log('arch   JSON 구조 보정 → 업종 특화 프리미엄 템플릿 엔진 결합', 'warn');
+      run.log('arch   JSON 구조 보정 → 업종 특화 프리미엄 엔진 결합', 'warn');
     }
 
     const bp = mergeBlueprint(spec, parsed, prompt);
-    const arch = spec.archetype || 'meridian';
-    const archNames = {
-      atelier: '아틀리에 룩북 (코튼 페이퍼 · 듀얼 폴드 · 재봉선 스크롤)',
-      architecture: '아키텍처 스톤 (라임워시 · 필터 포트폴리오 · 자동 견적 계산기)',
-      luxury: '녹터널 럭셔리 (옵시디언 골드 · 시네마틱 히어로 · 실시간 요금 예약)',
-      cafe: '오가닉 다이닝 (필름 프레임 · 신선도 배지 · 가격표 메뉴 보드)',
-      saas: '테크니컬 SaaS (다크 네이비 · 라이브 프로덕션 콘솔 · SDK · 요금 토글)',
-      corporate: '한국형 기업·B2B (DBCut·GDWEB 풀블리드 슬라이더 · 4단 호버 사업영역 · 뉴스룸/IR)',
-      commerce: '한국형 D2C 쇼핑몰 (Imweb·DBCut 3단 룩북 · 클릭 쿠폰팩 · 슬라이드 장바구니 · 무료배송 게이지)',
-      landing: '고전환 랜딩·상세페이지 (Notefolio 카운트다운 · 드래그 Before/After 슬라이더 · Sticky CTA)',
-      meridian: '스위스 에디토리얼 모션 (13-밴드 스크롤 코레오그래피 · 실시간 CRM · 플로팅 상담 독)',
-    };
     run.stage('VISUALS');
-    run.log(`visual 아키타입 [${archNames[arch]}] 전용 비주얼·60fps 모션 캔버스 직접 합성`, 'ok');
+    run.log(`visual 아키타입 [${ARCH_NAMES[finalArch]}] 고화질 실사 비주얼 매칭 완료`, 'ok');
 
     run.stage('MOTION');
-    run.log(`motion 업종 특화 인터랙션 모듈 및 반응형 완성본 조립`, 'ok');
-    function dispatchRender(bp, specKey, arch) {
-      const A = window.ILLArchetypes || {};
-      const photos = PHOTO_BANK[specKey] || PHOTO_BANK.default;
-      const bpWithPhotos = { ...bp, _photos: photos };
-      if (arch === 'atelier' && A.renderAtelier) return A.renderAtelier(bpWithPhotos);
-      if (arch === 'architecture' && A.renderArchitecture) return A.renderArchitecture(bpWithPhotos);
-      if (arch === 'luxury' && A.renderLuxury) return A.renderLuxury(bpWithPhotos);
-      if (arch === 'cafe' && A.renderCafe) return A.renderCafe(bpWithPhotos);
-      if (arch === 'saas' && A.renderSaaS) return A.renderSaaS(bpWithPhotos);
-      if (arch === 'corporate' && A.renderCorporate) return A.renderCorporate(bpWithPhotos);
-      if (arch === 'commerce' && A.renderCommerce) return A.renderCommerce(bpWithPhotos);
-      if (arch === 'landing' && A.renderLanding) return A.renderLanding(bpWithPhotos);
-      return renderMeridianSite(bpWithPhotos, specKey);
-    }
-    const html = dispatchRender(bp, spec.key, arch);
-    run.siteState = { bp, specKey: spec.key, arch, specialtyLabel: bp.specialtyLabel };
-    run.calls.push({ label: 'editorial-engine', provider: 'ILL Multi-Archetype Engine', short: arch.toUpperCase(), pid: 'media', model: 'v4' });
+    run.log(`motion 60fps 네이티브 스크롤 최적화 및 반응형 인터랙션 조립 완료`, 'ok');
+    const html = dispatchRender(bp, spec.key, finalArch);
+    run.siteState = { bp, specKey: spec.key, arch: finalArch, specialtyLabel: bp.specialtyLabel };
+    run.calls.push({ label: 'editorial-engine', provider: 'ILL Multi-Archetype Engine', short: finalArch.toUpperCase(), pid: 'media', model: 'v5' });
 
     const benchMd = bp.benchmarkNotes.map((b) => `- ${b}`).join('\n');
     return `## 합의 요약
-- **업종 벤치마크 & 아키타입 선정 (${bp.specialtyLabel})**:
-  - 적용 아키타입: **${archNames[arch]}**
+- **업종 & 레이아웃 버전 (${bp.specialtyLabel})**:
+  - 적용 레이아웃: **${ARCH_NAMES[finalArch]}**${opts.isVariant ? ' *(이전과 완전히 다른 신규 레이아웃 버전)*' : ''}
 ${benchMd}
-- **브랜드 & 디자인 시스템**: **${bp.brand} (${bp.brandSub})** · 업종 전용 팔레트(\`${bp.palette.paper}\` / \`${bp.palette.brand}\` / \`${bp.palette.accent}\`) 적용
-- **고화질 에디토리얼 비주얼 & 인터랙션**: 업종 맞춤 고화질 실사 비주얼·60fps 모션 히어로와 실전 인터랙션(견적 계산기·요금 엔진·라이브 콘솔·장바구니·Before/After 슬라이더·CRM 예약)을 통합 구현했습니다.
+- **브랜드 & 디자인 시스템**: **${bp.brand} (${bp.brandSub})** · 팔레트(\`${bp.palette.paper}\` / \`${bp.palette.brand}\` / \`${bp.palette.accent}\`)
+- **60fps 네이티브 스크롤 & 실사 비주얼**: 버벅임 없는 순수 GPU 스크롤과 업종 맞춤 고화질 실사·실전 인터랙션(실시간 대기/예약·호버 센터·Before/After 슬라이더·CRM)을 통합 구현했습니다.
 
 ## 자율 실행 산출물
 \`\`\`html
@@ -2382,15 +2454,35 @@ ${html}
 \`\`\`yaml
 user_goal: "${String(prompt).slice(0, 70).replace(/"/g, "'")}"
 specialty: "${bp.specialtyLabel}"
-archetype: "${arch}"
+archetype: "${finalArch}"
 brand: "${bp.brand}"
-completed_steps: ["상위 1% 업종 벤치마크 및 아키타입 선정", "업종 전용 레이아웃·맞춤 카피 설계", "고화질 에디토리얼 비주얼·60fps 모션 합성", "업종 특화 인터랙션·예약/견적 모듈 빌드"]
+completed_steps: ["상위 1% 업종 벤치마크 및 신규 레이아웃 선정", "업종 전용 카피·브랜드 설계", "고화질 실사 비주얼 매칭", "60fps 네이티브 스크롤·인터랙션 빌드"]
 active_artifacts: ["index.html"]
 \`\`\``;
   }
 
-  /* ================= CLEAN JSON-PATCH FOLLOW-UP REVISION (NEVER CHOPS HTML / ZERO BROKEN CSS) ================= */
+  /* ================= CLEAN FOLLOW-UP REVISION (NEVER CHOPS HTML / ZERO BROKEN CSS) ================= */
   async function reviseWebsiteBlueprint(prompt, lastSite, run, callTracked) {
+    if (lastSite.arch === 'freeform' && lastSite.rawHtml) {
+      run.stage('BENCHMARK');
+      run.log('revise 백지 자유 생성 아티팩트 전체 컨텍스트 정밀 수정', 'k');
+      run.stage('ARCHITECTURE');
+      const r = await callTracked(run, {
+        role: 'code',
+        label: 'freeform-revise',
+        system: FREEFORM_ARTIFACT_SYS + '\n\n[정밀 수정 규칙]: 기존 HTML/CSS 디자인 시스템을 100% 보존하면서 사용자가 요청한 부분만 정확히 반영한 완성본 <!doctype html>을 출력하십시오.',
+        messages: [{ role: 'user', content: `[기존 완성 코드]\n${lastSite.rawHtml.slice(0, 48000)}\n\n[사용자 수정 요청]\n${prompt}\n\n완전한 수정본 HTML만 출력:` }],
+        maxTokens: 12000,
+        temperature: 0.35,
+      });
+      const m = r.text.match(/```html[^\n]*\n([\s\S]*?)```/i) || r.text.match(/(<!doctype html[\s\S]*<\/html>)/i);
+      let nextHtml = m ? injectHdPhotosIntoHtml(m[1].trim(), lastSite.specKey) : '';
+      if (isValidFreeformHtml(nextHtml)) {
+        run.stage('VISUALS'); run.stage('MOTION');
+        run.siteState = { ...lastSite, rawHtml: nextHtml };
+        return `## 합의 요약\n- 요청하신 수정 사항(**"${String(prompt).slice(0, 50)}"**)을 기존 아티팩트 손상 없이 반영했습니다.\n\n## 자율 실행 산출물\n\`\`\`html\n${nextHtml}\n\`\`\`\n\n## 세션 상태 스냅샷\n\`\`\`yaml\nuser_goal: "${String(prompt).slice(0, 70).replace(/"/g, "'")}"\narchetype: "freeform"\nactive_artifacts: ["index.html"]\n\`\`\``;
+      }
+    }
     run.stage('BENCHMARK');
     run.log(`revise 기존 [${lastSite.bp.brand}] 블루프린트 기반 정밀 수정 분석`, 'k');
     run.stage('ARCHITECTURE');
@@ -2417,22 +2509,10 @@ active_artifacts: ["index.html"]
     run.stage('VISUALS');
     run.log('visual 수정된 디자인 시스템에 맞춰 고화질 비주얼 재매핑', 'ok');
     run.stage('MOTION');
-    const A = window.ILLArchetypes || {};
-    const photos = PHOTO_BANK[lastSite.specKey] || PHOTO_BANK.default;
-    const bpWithPhotos = { ...nextBp, _photos: photos };
     const arch = lastSite.arch || 'meridian';
-    let html;
-    if (arch === 'atelier' && A.renderAtelier) html = A.renderAtelier(bpWithPhotos);
-    else if (arch === 'architecture' && A.renderArchitecture) html = A.renderArchitecture(bpWithPhotos);
-    else if (arch === 'luxury' && A.renderLuxury) html = A.renderLuxury(bpWithPhotos);
-    else if (arch === 'cafe' && A.renderCafe) html = A.renderCafe(bpWithPhotos);
-    else if (arch === 'saas' && A.renderSaaS) html = A.renderSaaS(bpWithPhotos);
-    else if (arch === 'corporate' && A.renderCorporate) html = A.renderCorporate(bpWithPhotos);
-    else if (arch === 'commerce' && A.renderCommerce) html = A.renderCommerce(bpWithPhotos);
-    else if (arch === 'landing' && A.renderLanding) html = A.renderLanding(bpWithPhotos);
-    else html = renderMeridianSite(bpWithPhotos, lastSite.specKey);
+    const html = dispatchRender(nextBp, lastSite.specKey, arch);
     run.siteState = { ...lastSite, bp: nextBp };
-    run.calls.push({ label: 'revise-engine', provider: 'ILL Multi-Archetype Engine', short: 'REVISE', pid: 'media', model: 'v4' });
+    run.calls.push({ label: 'revise-engine', provider: 'ILL Multi-Archetype Engine', short: 'REVISE', pid: 'media', model: 'v5' });
     return `## 합의 요약
 - 요청하신 수정 사항(**"${String(prompt).slice(0, 50)}"**)을 **${nextBp.brand}** 전체 디자인 시스템과 레이아웃 손상 없이 깔끔하게 반영했습니다.
 
@@ -2450,5 +2530,5 @@ active_artifacts: ["index.html"]
 \`\`\``;
   }
 
-  window.ILLMeridian = { runWebsitePipeline, reviseWebsiteBlueprint, detectSpecialty, renderMeridianSite };
+  window.ILLMeridian = { runWebsitePipeline, reviseWebsiteBlueprint, detectSpecialty, renderMeridianSite, ARCH_NAMES };
 })();

@@ -31,8 +31,8 @@ const FREE_DAILY_CAP = Infinity; // 평생 무제한 무료
 const DEFAULT_OPTS = { ttl: 86400, compressAt: 16000, keepRecent: 4, firstByteTimeout: 10000, idleTimeout: 18000, cooldown429: 60, gateA: false, gateC: false, claudeMonthlyCap: 0, claudeMaxOut: 6000, localAuto: true, azureRegion: 'koreacentral' };
 
 const PROVIDER_DEFS = [
-  { id: 'pollinations', name: '클라우드 고속 엔진 A (기본)', short: 'NODE·A', kind: 'openai', base: 'https://text.pollinations.ai/v1', model: 'openai-fast', prefer: ['openai-fast', 'mistral', 'qwen-coder'], weight: 9, roles: ['general', 'plan', 'code', 'verify', 'summary', 'synth', 'fast'], builtin: true, note: '기본 내장 엔진 · 키 불필요 · 고속 스트리밍' },
-  { id: 'gemini-free', name: '클라우드 기본 엔진 B', short: 'NODE·B', kind: 'firebase', model: 'gemini-3.5-flash-lite', weight: 2, roles: ['general', 'multimodal', 'long', 'plan', 'code', 'verify', 'summary', 'synth', 'fast'], builtin: true, note: '내장 보조 엔진 · 키 불필요' },
+  { id: 'pollinations', name: '클라우드 고속 엔진 A (보조)', short: 'NODE·A', kind: 'openai', base: 'https://text.pollinations.ai/v1', model: 'openai-fast', prefer: ['openai-fast', 'mistral', 'qwen-coder'], weight: 3, roles: ['general', 'plan', 'summary', 'fast'], builtin: true, note: '고속 보조 엔진 · 키 불필요' },
+  { id: 'gemini-free', name: '클라우드 정밀 엔진 B (기본)', short: 'NODE·B', kind: 'firebase', model: 'gemini-3.5-flash-lite', weight: 10, roles: ['general', 'multimodal', 'long', 'plan', 'code', 'verify', 'summary', 'synth', 'fast'], builtin: true, note: '기본 정밀 엔진 · 코드/디자인 주력 · 키 불필요' },
   { id: 'gemini', name: '외부 엔진 1 (개인 키)', short: 'EXT·1', kind: 'gemini', model: 'gemini-3.8-flash', prefer: ['gemini-3.8-flash', 'gemini-4-hydrogen', 'gemini-3.5-flash-lite'], weight: 6, roles: ['multimodal', 'long', 'general', 'plan', 'synth', 'code', 'verify'], needs: ['key'], note: '긴 컨텍스트 · 음성 나레이션 지원' },
   { id: 'groq', name: '외부 엔진 2 (초고속)', short: 'EXT·2', kind: 'openai', base: 'https://api.groq.com/openai/v1', model: 'openai/gpt-oss-120b', prefer: ['openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b'], weight: 5, roles: ['fast', 'plan', 'summary', 'general', 'code'], needs: ['key'], note: '고속 추론 노드' },
   { id: 'openrouter', name: '외부 엔진 3 (통합 풀)', short: 'EXT·3', kind: 'openai', base: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-ultra-550b-a55b:free', prefer: ['nvidia/nemotron-3-ultra-550b-a55b:free', 'google/gemma-4-31b-it:free'], weight: 3, roles: ['verify', 'general', 'code'], needs: ['key'], note: '오픈 모델 라우팅' },
@@ -840,7 +840,9 @@ async function execute(prompt, { noCache = false } = {}) {
   const currentActiveCode = artifacts?.files?.find((f) => f.lang === 'html')?.code || '';
   const hasSite = Boolean(currentActiveCode && thread.messages.length > 0 && !/data-ill-player="true"/i.test(currentActiveCode));
   const domain = detectDomain(prompt, hasSite);
-  const isNewSiteAsk = /(만들어|제작해|새로|생성해|구축해|홈페이지|웹사이트|쇼핑몰|랜딩|상세페이지)/i.test(prompt) && !/(바꿔|수정|고쳐|추가|변경|빼줘|삭제)/i.test(prompt);
+  const isVariantAsk = /(다른\s*버전|다르게|다른\s*스타일|다른\s*디자인|다른\s*느낌|새\s*버전|새로운\s*버전|새로운\s*스타일|리디자인|완전\s*다르게|다른\s*시안|또\s*만들어|다시\s*만들어|2안|3안|v2|v3)/i.test(prompt);
+  const isFreeformAsk = /(클로드처럼|claude|자유\s*생성|백지에서|템플릿\s*없이|웹앱|대시보드|계산기|게임|투두|일정관리|캘린더|차트|시뮬레이터|도구\s*만들)/i.test(prompt);
+  const isNewSiteAsk = isVariantAsk || isFreeformAsk || (/(만들어|제작해|새로|생성해|구축해|홈페이지|웹사이트|쇼핑몰|랜딩|상세페이지)/i.test(prompt) && !/(바꿔|수정|고쳐|추가|변경|빼줘|삭제)/i.test(prompt));
   const isFollowUp = Boolean(hasSite && !isNewSiteAsk);
   const useEditorialWeb = Boolean(domain === 'web' && !['local6', 'core', 'exec'].includes(state.mode) && window.ILLMeridian);
   const mode = domain === 'image' ? 'image' : domain === 'video' ? 'video' : domain === 'music' ? 'music' : useEditorialWeb ? 'website' : state.mode;
@@ -857,11 +859,11 @@ async function execute(prompt, { noCache = false } = {}) {
   state.running = run;
   setRunning(true);
   try {
-    const key = fnv(JSON.stringify({ v: 11, mode, domain, isFollowUp, route: state.route, p: prompt.trim().toLowerCase(), ctx: thread.messages.slice(-5, -1).map((m) => (m.modelText || m.content).slice(0, 400)) }));
+    const key = fnv(JSON.stringify({ v: 13, mode, domain, isFollowUp, isVariantAsk, isFreeformAsk, route: state.route, p: prompt.trim().toLowerCase(), ctx: thread.messages.slice(-5, -1).map((m) => (m.modelText || m.content).slice(0, 400)) }));
     run.stage('CACHE');
     run.log(`cache  lookup key=${key} ttl=${opts.ttl}s`, 'k');
     const execMode = mode === 'exec';
-    const hit = noCache || execMode || isFollowUp ? null : cacheGet(key);
+    const hit = noCache || execMode || isFollowUp || isVariantAsk || isFreeformAsk ? null : cacheGet(key);
     if (noCache) run.log('cache  bypass (다시 실행)', 't');
     else if (execMode) run.log('cache  bypass (EXEC: 내 PC 실행 검증)', 't');
     let modelText, sec, snap;
@@ -879,7 +881,12 @@ async function execute(prompt, { noCache = false } = {}) {
         if (isFollowUp && thread.lastSite && window.ILLMeridian.reviseWebsiteBlueprint) {
           modelText = await window.ILLMeridian.reviseWebsiteBlueprint(prompt, thread.lastSite, run, callTracked);
         } else {
-          modelText = await window.ILLMeridian.runWebsitePipeline(prompt, run, callTracked);
+          modelText = await window.ILLMeridian.runWebsitePipeline(prompt, run, callTracked, {
+            usedLayouts: thread.usedLayouts || [],
+            prevSpecKey: thread.lastSite?.specKey || null,
+            isVariant: isVariantAsk,
+            forceFreeform: isFreeformAsk,
+          });
         }
       }
       else if (mode === 'image') modelText = await runImage(prompt, run);
@@ -906,7 +913,11 @@ async function execute(prompt, { noCache = false } = {}) {
     const answer = composeAnswer(run, sec, snap);
     const msg = { role: 'assistant', content: answer, modelText, snapshot: snap, t: Date.now(), meta: { ms: run.ms, route: 'ILL AI', lines: run.lines, mode, cached: !!run.cacheHit, local6State: run.local6State || null, coreState: run.coreState || null, execState: run.execState || null } };
     thread = curThread() || thread;
-    if (run.siteState) thread.lastSite = run.siteState;
+    if (run.siteState) {
+      thread.lastSite = run.siteState;
+      if (!Array.isArray(thread.usedLayouts)) thread.usedLayouts = [];
+      if (run.siteState.arch && !thread.usedLayouts.includes(run.siteState.arch)) thread.usedLayouts.push(run.siteState.arch);
+    }
     thread.messages.push(msg);
     thread.artifacts = buildArtifacts(sec, snap, thread, run);
     thread.updated = Date.now();
@@ -1133,13 +1144,23 @@ function previewOverlay() {
   return ov;
 }
 let stitchCanvas = null;
+let pendingBoardDoc = null;
+let pendingBoardTitle = '';
 function setStitchMode(mode) {
   const isBoards = mode === 'boards';
   $$('#stitchModeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.sm === mode));
   const bm = $('#stitchBoardMount'), ps = $('#pvStage');
   if (bm) bm.hidden = !isBoards;
   if (ps) ps.hidden = isBoards;
-  if (isBoards) requestAnimationFrame(() => stitchCanvas?.fitAll());
+  if (isBoards && stitchCanvas) {
+    if (pendingBoardDoc && stitchCanvas.fullHtml !== pendingBoardDoc) {
+      stitchCanvas.renderComplete(pendingBoardDoc, pendingBoardTitle);
+    }
+    requestAnimationFrame(() => stitchCanvas?.fitAll());
+  } else if (!isBoards && stitchCanvas && stitchCanvas.boards?.children.length) {
+    // Unmount 4 thumbnail iframes while in Live Preview so scrolling hits locked 60/120fps
+    stitchCanvas.clear();
+  }
 }
 function previewLoading(run, prompt, mode) {
   const ov = previewOverlay();
@@ -1160,12 +1181,7 @@ function previewLoading(run, prompt, mode) {
   $('.pg-tail', ov).textContent = '';
   $('#pvUrl').textContent = 'canvas://generating';
   switchTab('preview'); showRight(true);
-  if (!['image', 'video', 'music'].includes(mode) && stitchCanvas && run.domain === 'web') {
-    setStitchMode('boards');
-    stitchCanvas.startBuild(prompt);
-  } else {
-    setStitchMode('live');
-  }
+  setStitchMode('live');
   const origStage = run.stage, origRain = run.rain;
   let buf = '';
   run.stage = function (name) {
@@ -1996,11 +2012,15 @@ function setPreview(doc) {
   if (ab) ab.style.display = '';
   fr.style.display = ''; pi.style.display = 'none';
   if (!doc) {
+    pendingBoardDoc = null;
     stitchCanvas?.clear();
   } else if (htmlFile && stitchCanvas && !isIllPlayer) {
-    setStitchMode('boards');
-    stitchCanvas.renderComplete(doc, artifacts?.title);
+    // Claude Artifacts UX: open directly into butter-smooth single-iframe Live Preview (lazy-load multi-board only on click)
+    pendingBoardDoc = doc;
+    pendingBoardTitle = artifacts?.title || '';
+    setStitchMode('live');
   } else {
+    pendingBoardDoc = null;
     setStitchMode('live');
   }
   const targetDoc = doc || `<body style="margin:0;background:#0d0e13;color:#71717a;font:13px 'Pretendard Variable',system-ui,sans-serif;display:grid;place-items:center;height:100vh">명령을 입력하면 캔버스에 실시간으로 렌더링됩니다</body>`;
@@ -2048,6 +2068,10 @@ function syncHomeState() {
   const isHome = state.centerView !== 'dash' && !hasMsgs && !rightVisible();
   app.classList.toggle('is-home', isHome);
   document.body.classList.toggle('in-work', !isHome);
+  const bgVid = $('#bgHeroVideo');
+  if (bgVid) {
+    if (isHome) { bgVid.play().catch(() => {}); } else { bgVid.pause(); }
+  }
   const dashBtn = $('#railDash');
   if (dashBtn) dashBtn.classList.toggle('active', state.centerView === 'dash');
 }

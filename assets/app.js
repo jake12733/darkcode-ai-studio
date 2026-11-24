@@ -1980,6 +1980,11 @@ function buildPreviewDoc(a) {
     if (usesTw && !hasCustomStyle && !/cdn\.tailwindcss\.com/i.test(doc)) {
       doc = doc.replace(/<\/head>/i, `<script src="https://cdn.tailwindcss.com"><\/script></head>`);
     }
+    // Prevent <a href="#..."> inside sandboxed srcdoc from navigating to parent URL
+    const anchorFix = `<script>document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;var h=a.getAttribute('href');if(h&&h.length>1){var t=document.querySelector(h);if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}}});<\/script>`;
+    if (!doc.includes('a[href^="#"]')) {
+      doc = doc.replace(/<\/body>/i, `${anchorFix}</body>`);
+    }
     // Aside 런타임 옵저버 자동 주입 (오류 포착 & 자율 조작 커서 지원)
     const asideScript = window.DCAsideOperator ? window.DCAsideOperator.getInjectedScript() : '';
     if (asideScript && !doc.includes('__dc_aside_runtime__')) {

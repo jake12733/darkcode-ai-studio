@@ -297,12 +297,17 @@
     return { key: 'default', ...SPECIALTIES.default };
   }
 
-  /* ================= AI-GENERATED BESPOKE IMAGE URL BUILDER ================= */
-  function aiImgUrl(prompt, seed, w = 1280, h = 860) {
-    const clean = String(prompt || 'luxury minimalist Korean architectural studio interior, soft daylight, editorial photography, 8k')
-      .replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 260);
-    const enc = encodeURIComponent(clean + ', ultra detailed, editorial photography, no text, no watermark');
-    return `https://image.pollinations.ai/prompt/${enc}?width=${w}&height=${h}&seed=${seed}&nologo=true&enhance=true`;
+  /* ================= BESPOKE VISUAL RESOLVER (AI KEY OR GENERATIVE STUDIO ART) ================= */
+  function bespokeImgUrl(prompt, seed, w = 1200, h = 840) {
+    // Only call external AI image endpoint when an authenticated pollen key is configured;
+    // otherwise synthesize bespoke art directly in-browser (zero "Free Limit" banners, instant 60fps).
+    if (window.DCMedia && window.DCMedia.has && window.DCMedia.has('pollinations')) {
+      const clean = String(prompt || 'luxury minimalist Korean architectural studio interior, soft daylight, editorial photography, 8k')
+        .replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 240);
+      const enc = encodeURIComponent(clean + ', ultra detailed, editorial photography, no text, no watermark');
+      return `https://image.pollinations.ai/prompt/${enc}?width=${w}&height=${h}&seed=${seed}&nologo=true&enhance=true`;
+    }
+    return '';
   }
 
   /* ================= LLM BLUEPRINT SYSTEM PROMPT ================= */
@@ -496,11 +501,11 @@ JSON 스키마:
   }
 
   /* ================= MERIDIAN-GRADE HTML GENERATOR ================= */
-  function renderMeridianSite(bp) {
+  function renderMeridianSite(bp, specKey = 'default') {
     const P = bp.palette;
     const baseSeed = Math.floor((Date.now() / 1000) % 89000) + 1000;
     let sIdx = 0;
-    const nextUrl = (prompt, w = 1200, h = 840) => aiImgUrl(prompt, baseSeed + (++sIdx) * 37, w, h);
+    const nextUrl = (prompt, w = 1200, h = 840) => bespokeImgUrl(prompt, baseSeed + (++sIdx) * 37, w, h);
 
     const heroImg = nextUrl(bp.heroPrompt, 960, 1200);
     const revealImg = nextUrl(bp.revealPrompt, 1600, 1000);
@@ -529,6 +534,7 @@ JSON 스키마:
     const clientData = JSON.stringify({
       brand: bp.brand,
       brandSub: bp.brandSub,
+      specialty: specKey,
       palette: P,
       heroImg,
       heroTag: bp.heroMotionTag,
@@ -604,7 +610,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .hdr-cta{font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:999px;border:1px solid currentColor;transition:background .3s,color .3s}
 .hdr-cta:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
 #hdr.brand .hdr-cta:hover,#hdr.dark .hdr-cta:hover{background:var(--accent);color:var(--ink);border-color:var(--accent)}
-@media(max-width:900px){.nav,.clk{display:none}#hdr{grid-template-columns:1fr auto}}
+@media(max-width:640px){.nav,.clk{display:none}#hdr{grid-template-columns:1fr auto}}
 
 /* Pill Buttons (bottom-up fill wipe) */
 .pill{position:relative;display:inline-flex;align-items:center;gap:12px;padding:15px 26px;border-radius:999px;border:1px solid var(--ink);font-size:14.5px;font-weight:600;overflow:hidden;isolation:isolate;transition:color .4s var(--ease),border-color .4s}
@@ -628,24 +634,24 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .status-b{display:inline-flex;align-items:center;gap:7px}
 .status-b i{width:7px;height:7px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 55%,transparent);animation:pulse 1.8s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.hero-stage{position:relative;display:grid;grid-template-columns:1fr minmax(260px,31%);gap:clamp(24px,4vw,52px);align-items:center;padding:18px 0}
-.hero h1{font-size:clamp(3rem,8.2vw,7.4rem);font-weight:700;letter-spacing:-.065em;line-height:.93}
+.hero-stage{position:relative;display:grid;grid-template-columns:1fr minmax(210px,33%);gap:clamp(18px,3.2vw,48px);align-items:center;padding:14px 0}
+.hero h1{font-size:clamp(2.55rem,6.8vw,6.8rem);font-weight:700;letter-spacing:-.065em;line-height:.93}
 .hero h1 .ln{display:block;overflow:hidden}
 .hero h1 .ln span{display:inline-block;animation:slideUp .95s var(--ease) both}
-.hero h1 .ln:nth-child(2){padding-left:clamp(28px,10vw,150px)}
+.hero h1 .ln:nth-child(2){padding-left:clamp(22px,8vw,136px)}
 .hero h1 .ln:nth-child(2) span{animation-delay:.12s}
 .hero h1 .ln:nth-child(3) span{animation-delay:.24s}
 .hero h1 .thin{font-weight:250}
 .hero h1 .dot{color:var(--brand)}
 @keyframes slideUp{from{transform:translateY(108%);opacity:0}to{transform:none;opacity:1}}
-.hero-motion{position:relative;border-radius:22px;overflow:hidden;aspect-ratio:4/5;background:var(--dark);box-shadow:0 32px 72px rgba(17,17,17,.18)}
+.hero-motion{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:4/5;background:var(--dark);box-shadow:0 32px 72px rgba(17,17,17,.22)}
 .hero-motion canvas{width:100%;height:100%;display:block}
-.hm-badge{position:absolute;top:14px;left:14px;right:14px;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:999px;background:rgba(14,14,16,.52);backdrop-filter:blur(10px);color:#fff;font-family:var(--mono);font-size:10px;letter-spacing:.06em}
+.hm-badge{position:absolute;top:12px;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;padding:7px 11px;border-radius:999px;background:rgba(14,14,16,.56);backdrop-filter:blur(10px);color:#fff;font-family:var(--mono);font-size:9.5px;letter-spacing:.05em}
 .hm-badge i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:7px;animation:pulse 1.4s infinite}
-.hero-foot{display:grid;grid-template-columns:1.1fr auto;gap:28px;align-items:end;padding-top:24px;border-top:1px solid var(--line)}
-.hero-foot p{max-width:560px;font-size:clamp(15px,1.25vw,18px);color:var(--ink-2);line-height:1.68}
-.hero-acts{display:flex;gap:12px;flex-wrap:wrap}
-@media(max-width:960px){.meta-strip{grid-template-columns:1fr 1fr}.hero-stage{grid-template-columns:1fr}.hero-motion{aspect-ratio:16/10;max-height:360px}.hero-foot{grid-template-columns:1fr}}
+.hero-foot{display:grid;grid-template-columns:1.1fr auto;gap:24px;align-items:end;padding-top:20px;border-top:1px solid var(--line)}
+.hero-foot p{max-width:540px;font-size:clamp(14px,1.2vw,17.5px);color:var(--ink-2);line-height:1.68}
+.hero-acts{display:flex;gap:10px;flex-wrap:wrap}
+@media(max-width:620px){.meta-strip{grid-template-columns:1fr 1fr}.hero-stage{grid-template-columns:1fr}.hero-motion{aspect-ratio:16/10;max-height:340px}.hero-foot{grid-template-columns:1fr}}
 
 /* 02. MARQUEE */
 .clients{padding:36px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden}
@@ -1149,33 +1155,86 @@ footer{background:var(--dark);color:rgba(255,255,255,.65);padding-top:26px;overf
 
 <script>
 const CFG=${clientData};
-/* Bespoke generative fallback art if any AI image takes too long */
-function paintFallbackArt(img){
-  if(img.dataset.fbDone)return; img.dataset.fbDone='1';
-  const c=document.createElement('canvas'); c.width=1200; c.height=900;
-  const x=c.getContext('2d'), P=CFG.palette;
-  const g=x.createLinearGradient(0,0,1200,900);
-  g.addColorStop(0,P.brand); g.addColorStop(.58,P.brand2); g.addColorStop(1,P.dark);
-  x.fillStyle=g; x.fillRect(0,0,1200,900);
-  const r=x.createRadialGradient(840,260,30,840,260,520);
-  r.addColorStop(0,P.accent+'66'); r.addColorStop(1,'transparent');
-  x.fillStyle=r; x.fillRect(0,0,1200,900);
-  x.strokeStyle='rgba(255,255,255,0.12)'; x.lineWidth=1.5;
-  for(let k=1;k<5;k++){x.beginPath();x.arc(600,450,k*135,0,Math.PI*2);x.stroke();}
-  x.fillStyle='rgba(255,255,255,0.88)'; x.font='600 28px Pretendard,sans-serif';
-  x.fillText(img.dataset.artLabel||CFG.brand,72,810);
-  img.src=c.toDataURL('image/png');
+/* High-craft bespoke generative architectural & editorial artwork synthesizer (0ms, zero rate limits) */
+function makeEditorialArt(label, idx, w, h){
+  const c=document.createElement('canvas'); c.width=w||1200; c.height=h||900;
+  const x=c.getContext('2d'), P=CFG.palette, W=c.width, H=c.height;
+  const seed=(idx+1)*137.5;
+  // Base architectural lighting gradient
+  const g=x.createLinearGradient(0,0,W,H);
+  if(idx%3===0){g.addColorStop(0,P.brand);g.addColorStop(.55,P.brand2);g.addColorStop(1,P.dark);}
+  else if(idx%3===1){g.addColorStop(0,'#1c1816');g.addColorStop(.5,P.brand);g.addColorStop(1,P.dark);}
+  else {g.addColorStop(0,P.paper2);g.addColorStop(.55,P.paper);g.addColorStop(1,P.brand2);}
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  // Warm volumetric studio sunbeam
+  const lx=W*(.28+((idx*29)%50)/100), ly=H*(.22+((idx*17)%35)/100);
+  const rg=x.createRadialGradient(lx,ly,20,lx,ly,W*.72);
+  rg.addColorStop(0,P.accent+'aa'); rg.addColorStop(.42,P.accent+'28'); rg.addColorStop(1,'transparent');
+  x.fillStyle=rg; x.fillRect(0,0,W,H);
+  // Sculptural architectural arches & golden ratio geometry
+  x.save();
+  x.strokeStyle=idx%3===2?'rgba(20,17,16,0.16)':'rgba(255,255,255,0.16)';
+  x.lineWidth=2;
+  const cx=W*.5, cy=H*.52;
+  // Grand arch silhouette
+  x.beginPath();
+  x.arc(cx,cy-H*.06,Math.min(W,H)*.31,Math.PI,0);
+  x.lineTo(cx+Math.min(W,H)*.31,H*.86);
+  x.lineTo(cx-Math.min(W,H)*.31,H*.86);
+  x.closePath();
+  const ag=x.createLinearGradient(cx,H*.15,cx,H*.86);
+  ag.addColorStop(0,idx%3===2?P.brand+'22':'rgba(255,255,255,0.14)');
+  ag.addColorStop(1,'rgba(0,0,0,0.22)');
+  x.fillStyle=ag; x.fill(); x.stroke();
+  // Floating sculptural sphere / contour rings
+  for(let k=1;k<=4;k++){
+    x.beginPath();
+    x.ellipse(cx+Math.sin(seed+k)*36, cy+Math.cos(seed+k)*22, Math.min(W,H)*(.09*k), Math.min(W,H)*(.13*k), (idx*.35), 0, Math.PI*2);
+    x.strokeStyle=k===2?P.accent+'88':(idx%3===2?'rgba(20,17,16,0.12)':'rgba(255,255,255,0.12)');
+    x.lineWidth=k===2?2.2:1.2;
+    x.stroke();
+  }
+  // Smooth organic contour ribbon
+  x.beginPath();
+  for(let px=0;px<=W;px+=18){
+    const py=H*.56+Math.sin(px*.006+seed)*H*.11+Math.cos(px*.012-idx)*H*.04;
+    if(px===0)x.moveTo(px,py); else x.lineTo(px,py);
+  }
+  x.strokeStyle=P.accent+'99'; x.lineWidth=2.5; x.stroke();
+  x.restore();
+  // Bottom vignette & editorial caption
+  const sh=x.createLinearGradient(0,H*.62,0,H);
+  sh.addColorStop(0,'rgba(0,0,0,0)'); sh.addColorStop(1,'rgba(12,10,10,0.72)');
+  x.fillStyle=sh; x.fillRect(0,0,W,H);
+  x.fillStyle=P.accent; x.font='600 '+Math.round(W*.016)+'px JetBrains Mono,monospace';
+  x.fillText(CFG.brand+' · BESPOKE VISUAL 0'+((idx%9)+1), Math.round(W*.055), Math.round(H*.86));
+  x.fillStyle='#ffffff'; x.font='600 '+Math.round(W*.028)+'px Pretendard,sans-serif';
+  x.fillText(String(label||CFG.brandSub).slice(0,32), Math.round(W*.055), Math.round(H*.92));
+  return c.toDataURL('image/png');
 }
-document.querySelectorAll('img').forEach(im=>{im.addEventListener('error',()=>paintFallbackArt(im));});
+const ART_CACHE={};
+function getArt(label,idx,w,h){const k=label+':'+idx; return ART_CACHE[k]||(ART_CACHE[k]=makeEditorialArt(label,idx,w,h));}
+document.querySelectorAll('img').forEach((im,idx)=>{
+  const lbl=im.dataset.artLabel||im.alt||CFG.brand;
+  const src=(im.getAttribute('src')||'').trim();
+  if(!src){im.src=getArt(lbl,idx,1200,900);}
+  else{im.addEventListener('error',()=>{if(!im.dataset.fb){im.dataset.fb='1';im.src=getArt(lbl,idx,1200,900);}});}
+});
+document.querySelectorAll('[data-float]').forEach((el,idx)=>{
+  if(!el.dataset.float){
+    const lbl=el.querySelector('.srv-name,.t-name')?.textContent||CFG.brand;
+    el.dataset.float=getArt(lbl,idx+20,840,1050);
+  }
+});
 
 /* Fast editorial preloader */
 (function(){
   const ld=document.getElementById('loader'),bar=document.getElementById('ldBar'),pct=document.getElementById('ldPct');
   let p=0;
   const iv=setInterval(()=>{
-    p=Math.min(100,p+22); bar.style.width=p+'%'; pct.textContent=String(p).padStart(2,'0')+'%';
-    if(p>=100){clearInterval(iv);setTimeout(()=>ld.classList.add('done'),160);}
-  },90);
+    p=Math.min(100,p+25); bar.style.width=p+'%'; pct.textContent=String(p).padStart(2,'0')+'%';
+    if(p>=100){clearInterval(iv);setTimeout(()=>ld.classList.add('done'),120);}
+  },75);
 })();
 
 /* Lenis smooth scroll */
@@ -1190,39 +1249,70 @@ function tickClk(){
 }
 tickClk(); setInterval(tickClk,15000);
 
-/* 60fps Generative Hero Cinema Canvas (blends AI-generated visual with Ken Burns + bokeh light) */
+/* 60fps Generative Hero Cinema Canvas (architectural light beams, golden-ratio sculpture & bokeh film) */
 (function(){
   const cv=document.getElementById('heroCanvas'), ctx=cv.getContext('2d');
-  const im=new Image(); im.crossOrigin='anonymous'; im.src=CFG.heroImg;
-  const pts=Array.from({length:20},()=>({x:Math.random(),y:Math.random(),r:2+Math.random()*5,vx:(Math.random()-.5)*.002,vy:-.0015-Math.random()*.003,a:.12+Math.random()*.25}));
+  const im=CFG.heroImg?new Image():null;
+  if(im){im.crossOrigin='anonymous';im.src=CFG.heroImg;}
+  const pts=Array.from({length:26},()=>({x:Math.random(),y:Math.random(),r:1.5+Math.random()*4.2,vx:(Math.random()-.5)*.0018,vy:-.0012-Math.random()*.0026,a:.14+Math.random()*.32}));
   let t=0;
   function draw(){
-    requestAnimationFrame(draw); t+=0.008;
+    requestAnimationFrame(draw); t+=0.012;
     const w=cv.width,h=cv.height,P=CFG.palette;
     const bg=ctx.createLinearGradient(0,0,w,h);
-    bg.addColorStop(0,P.brand); bg.addColorStop(1,P.dark);
+    bg.addColorStop(0,P.brand); bg.addColorStop(.55,P.brand2); bg.addColorStop(1,P.dark);
     ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
-    if(im.complete && im.naturalWidth>0){
+    if(im && im.complete && im.naturalWidth>0){
       const sc=1.08+Math.sin(t*.45)*0.06, ox=Math.cos(t*.35)*18, oy=Math.sin(t*.3)*14;
       const ir=im.naturalWidth/im.naturalHeight, cr=w/h;
       let dw=w,dh=h; if(ir>cr){dh=h;dw=h*ir;}else{dw=w;dh=w/ir;}
       ctx.save(); ctx.translate(w/2+ox,h/2+oy); ctx.scale(sc,sc);
       ctx.drawImage(im,-dw/2,-dh/2,dw,dh); ctx.restore();
     } else {
-      const rg=ctx.createRadialGradient(w*(.5+.18*Math.sin(t)),h*(.4+.15*Math.cos(t)),20,w*.5,h*.5,w*.85);
-      rg.addColorStop(0,P.accent+'55'); rg.addColorStop(1,'transparent');
+      // Silky volumetric studio sunbeam + architectural arch + morphing golden-ratio ribbons
+      const lx=w*(.52+Math.sin(t*.5)*.2), ly=h*(.34+Math.cos(t*.4)*.12);
+      const rg=ctx.createRadialGradient(lx,ly,16,lx,ly,w*.88);
+      rg.addColorStop(0,P.accent+'b8'); rg.addColorStop(.38,P.accent+'30'); rg.addColorStop(1,'transparent');
       ctx.fillStyle=rg; ctx.fillRect(0,0,w,h);
+      // Architectural recessed arch
+      ctx.save();
+      const aw=w*.34, ax=w*.5, ay=h*.42;
+      ctx.beginPath(); ctx.arc(ax,ay,aw,Math.PI,0); ctx.lineTo(ax+aw,h*.84); ctx.lineTo(ax-aw,h*.84); ctx.closePath();
+      const ag=ctx.createLinearGradient(ax,ay-aw,ax,h*.84);
+      ag.addColorStop(0,'rgba(255,255,255,0.16)'); ag.addColorStop(1,'rgba(0,0,0,0.34)');
+      ctx.fillStyle=ag; ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=1.5; ctx.stroke();
+      // Rotating sculptural orbits
+      for(let k=0;k<4;k++){
+        ctx.beginPath();
+        ctx.ellipse(w*.5,h*.48,w*(.15+k*.085),h*(.11+k*.065),t*(.18+k*.06)*(k%2?1:-1),0,Math.PI*2);
+        ctx.strokeStyle=k===1?P.accent+'aa':'rgba(255,255,255,0.16)';
+        ctx.lineWidth=k===1?2.2:1.2; ctx.stroke();
+      }
+      // Flowing silk light wave
+      for(let r=0;r<3;r++){
+        ctx.beginPath();
+        for(let px=0;px<=w;px+=14){
+          const py=h*(.52+r*.06)+Math.sin(px*.009+t*1.1+r)*38+Math.cos(px*.016-t*.8)*18;
+          if(px===0)ctx.moveTo(px,py); else ctx.lineTo(px,py);
+        }
+        ctx.strokeStyle=r===0?P.accent+'99':'rgba(255,255,255,0.18)';
+        ctx.lineWidth=r===0?2.4:1.1; ctx.stroke();
+      }
+      ctx.restore();
     }
     const sh=ctx.createLinearGradient(0,h*.55,0,h);
-    sh.addColorStop(0,'rgba(0,0,0,0)'); sh.addColorStop(1,'rgba(0,0,0,0.68)');
+    sh.addColorStop(0,'rgba(0,0,0,0)'); sh.addColorStop(1,'rgba(0,0,0,0.74)');
     ctx.fillStyle=sh; ctx.fillRect(0,0,w,h);
     pts.forEach(pt=>{
       pt.x=(pt.x+pt.vx+1)%1; pt.y=(pt.y+pt.vy+1)%1;
       ctx.beginPath(); ctx.arc(pt.x*w,pt.y*h,pt.r,0,Math.PI*2);
       ctx.fillStyle=P.accent+Math.round(pt.a*255).toString(16).padStart(2,'0'); ctx.fill();
     });
-    ctx.fillStyle='rgba(255,255,255,0.88)'; ctx.font='600 22px Pretendard,sans-serif';
-    ctx.fillText(CFG.brand+' · '+CFG.brandSub,30,h-34);
+    ctx.fillStyle=P.accent; ctx.font='600 13px JetBrains Mono,monospace';
+    ctx.fillText('BESPOKE MOTION · '+CFG.brandSub,30,h-64);
+    ctx.fillStyle='rgba(255,255,255,0.94)'; ctx.font='700 28px Pretendard,sans-serif';
+    ctx.fillText(CFG.brand+'®',30,h-30);
   }
   draw();
 })();
@@ -1398,7 +1488,7 @@ crmDrawer.onclick=e=>{if(e.target===crmDrawer)crmDrawer.classList.remove('open')
 
     run.stage('MOTION');
     run.log('motion Lenis 스무스 스크롤 · 클립패스 확장 · 단어별 리빌 · 호버 플로팅 · 가로 스크롤 케이스 · 실시간 CRM 조립', 'ok');
-    const html = renderMeridianSite(bp);
+    const html = renderMeridianSite(bp, spec.key);
     run.calls.push({ label: 'editorial-engine', provider: 'ILL Editorial Motion Engine', short: 'MERIDIAN', pid: 'media', model: 'v2' });
 
     const benchMd = bp.benchmarkNotes.map((b) => `- ${b}`).join('\n');

@@ -426,7 +426,7 @@ async function routeCall({ role, system, messages, onToken, signal, log, avoid =
   const override = state.route;
   const tryOne = async (p, modelOverride) => {
     const model = modelOverride || p.model;
-    log(`route  ${label || role} → ${p.name} [${model}] w=${(p._ew ?? p.weight).toFixed?.(2) ?? p.weight} health=${p.health.toFixed(2)}`, 'route');
+    log(`route  ${label || role} → ${p.name} (${p.short})`, 'route');
     const t0 = performance.now();
     let first = true;
     let text = await callProvider(p, { system, messages, signal, maxTokens, temperature, modelOverride, onToken: (t) => { if (first) { first = false; log(`stream ${p.short} first-byte ${Math.round(performance.now() - t0)}ms`, 't'); } onToken?.(t); } });
@@ -1771,7 +1771,7 @@ function renderPool() {
 }
 function renderRouteSel() {
   const sel = $('#routeSel');
-  const opt = [['auto', 'AUTO · WRR 라운드로빈']].concat(Object.values(prov).filter((p) => !p.primary && !p.local).map((p) => [p.id, `${p.short} · ${p.model}`]));
+  const opt = [['auto', '자동 라우팅 (최적 노드)']].concat(Object.values(prov).filter((p) => !p.primary && !p.local).map((p) => [p.id, `${p.short} · ${p.name}`]));
   sel.innerHTML = opt.map(([v, l]) => `<option value="${v}"${v === state.route ? ' selected' : ''}>${esc(l)}</option>`).join('');
 }
 function renderStatus() {

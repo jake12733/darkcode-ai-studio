@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DARK CODE AI · Astra Live Execution Console</title>
+  <link rel="icon" href="assets/logo-clean.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #09090b;
+      --panel: #111116;
+      --panel-2: #17171e;
+      --border: rgba(255,255,255,.09);
+      --border-hi: rgba(255,255,255,.16);
+      --text: #f4f4f5;
+      --muted: #a1a1aa;
+      --accent: #818cf8;
+      --ok: #10b981;
+      --warn: #f59e0b;
+      --err: #f43f5e;
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      --sans: "Pretendard Variable", system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; color: var(--text); font-family: var(--sans); line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      background:
+        radial-gradient(840px 400px at 85% -10%, rgba(99,102,241,.12), transparent 60%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 22px; display: grid; gap: 16px; }
+    header {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;
+      background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px;
+    }
+    h1 { margin: 0; font-size: 17.5px; letter-spacing: -.02em; color: #fff; }
+    .sub { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+    .badge {
+      font-family: var(--mono); font-size: 11.5px; padding: 6px 11px;
+      border-radius: 999px; border: 1px solid var(--border); background: var(--panel-2); color: var(--muted);
+    }
+    .grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 16px; }
+    @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+      padding: 18px; display: grid; gap: 12px; align-content: start;
+    }
+    .card h2 { margin: 0; font-size: 14.5px; color: #fff; letter-spacing: -.01em; }
+    label { display: grid; gap: 6px; font-size: 12.5px; color: var(--muted); }
+    input, textarea {
+      width: 100%; background: #0b0b0f; color: var(--text);
+      border: 1px solid var(--border-hi); border-radius: 9px; padding: 9px 12px;
+      font-family: var(--mono); font-size: 12.5px; outline: none;
+    }
+    input:focus, textarea:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.2); }
+    textarea.code { min-height: 210px; resize: vertical; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    button {
+      background: var(--panel-2); color: var(--text); border: 1px solid var(--border-hi);
+      border-radius: 9px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; transition: .15s;
+    }
+    button:hover { border-color: rgba(255,255,255,.28); background: #20202a; }
+    button.primary { background: #fafafa; border-color: #fff; color: #09090b; }
+    button.primary:hover { background: #fff; }
+    .pill { font-family: var(--mono); font-size: 11px; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--border); background: var(--panel-2); }
+    .pill.ok { color: #34d399; border-color: rgba(16, 185, 129, 0.45); background: rgba(16, 185, 129, 0.1); }
+    .pill.warn { color: #fcd34d; border-color: rgba(245, 158, 11, 0.45); background: rgba(245, 158, 11, 0.1); }
+    pre.log {
+      margin: 0; background: #0b0b0f; border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px; font-family: var(--mono); font-size: 12px; max-height: 240px;
+      overflow: auto; white-space: pre-wrap; word-break: break-word; color: #d4d4d8;
+    }
+    .ledger { display: grid; gap: 8px; max-height: 220px; overflow: auto; }
+    .item {
+      background: #0b0b0f; border: 1px solid var(--border); border-radius: 9px;
+      padding: 10px 12px; font-family: var(--mono); font-size: 12px; display: grid; gap: 4px;
+    }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .hint { font-size: 12px; color: var(--muted); min-height: 16px; }
+    .hint.ok { color: #34d399; }
+    .hint.warn { color: #fcd34d; }
+    .hint a { color: var(--accent); }
+    textarea.code[readonly] { cursor: default; }
+    textarea.code.ok { border-color: rgba(16, 185, 129, 0.5); }
+    textarea.code.unv { border-color: rgba(245, 158, 11, 0.5); }
+    #codeLabel.ok, .tag-ok { color: #34d399; }
+    #codeLabel.unv, .tag-unv { color: #fcd34d; }
+    .item .act { justify-self: start; padding: 4px 9px; font-size: 11.5px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>DARK CODE · Astra Live Execution Console</h1>
+        <div class="sub">Live LLM (Ollama · OpenAI 호환) · Local Runner (/run · 127.0.0.1:8797) · Self-Healing Loop · Truth Gate</div>
+      </div>
+      <div class="row">
+        <a class="badge" href="./" title="DARK CODE 메인으로 (EXEC 모드와 원장 공유)" style="text-decoration:none;color:var(--accent)">DARK CODE</a>
+        <div class="badge" id="runnerStatus">RUNNER: CHECKING...</div>
+        <div class="badge" id="lockStatus">LOCK: IDLE</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <h2>실제 모델 &amp; 로컬 실행기 연동 설정</h2>
+
+        <label>
+          로컬 실행기 베이스 URL (darkcode-core · start-runner.bat)
+          <input id="runnerBase" type="text" value="http://127.0.0.1:8797" spellcheck="false" />
+        </label>
+
+        <label>
+          모델 API 엔드포인트 (Ollama /api/generate · /api/chat 또는 OpenAI 호환 /v1/chat/completions)
+          <input id="llmEndpoint" type="text" value="http://127.0.0.1:11434/api/generate" spellcheck="false" />
+        </label>
+        <div class="hint" id="modelHint"></div>
+
+        <div class="row">
+          <label style="flex: 1;">
+            모델명
+            <input id="llmModel" type="text" value="qwen2.5-coder:7b" list="modelList" spellcheck="false" />
+            <datalist id="modelList"></datalist>
+          </label>
+          <label style="width: 110px;">
+            최대 재시도
+            <input id="maxRetries" type="number" min="1" max="5" value="3" />
+          </label>
+        </div>
+
+        <label>
+          API Key (로컬 Ollama는 비워둠 · 저장하지 않음)
+          <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off" />
+        </label>
+
+        <label>
+          단일 타겟 모듈명
+          <input id="targetModule" type="text" value="live_task_module" spellcheck="false" />
+        </label>
+
+        <label>
+          실행할 작업 프롬프트
+          <textarea id="userPrompt" rows="3" spellcheck="false">1부터 100까지의 소수(Prime Number)를 모두 찾아 개수를 console.log로 출력하는 Node.js 코드를 작성해줘.</textarea>
+        </label>
+
+        <div class="row">
+          <button class="primary" id="startBtn" type="button">실구동 루프 시작</button>
+          <button id="pingBtn" type="button">러너 연결 확인</button>
+          <button id="clearBtn" type="button">원장 초기화</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="row" style="justify-content: space-between;">
+          <h2>실제 구동 결과 &amp; 진실 게이트</h2>
+          <div class="row">
+            <span class="pill warn" id="gatePill">UNVERIFIED_NEEDS_LOCAL_RUN</span>
+            <span class="pill" id="stopPill">STOP: -</span>
+            <span class="pill" id="sourcePill">SOURCE: -</span>
+          </div>
+        </div>
+
+        <label>
+          <span id="codeLabel">실행된 코드 (실행기 workspace 저장본과 같은 코드) · 아직 실행 없음</span>
+          <textarea class="code" id="finalCode" spellcheck="false" readonly></textarea>
+        </label>
+
+        <div>
+          <div class="sub" style="margin-bottom: 6px;">실시간 실행 로그 &amp; 검증 판정</div>
+          <pre class="log" id="traceLog">대기 중...</pre>
+        </div>
+      </section>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Committed 원장 (VERIFIED 실구동 통과분만 반영)</h2>
+        <div class="ledger" id="committedBox"></div>
+      </section>
+
+      <section class="card">
+        <h2>Runs 원장 (전체 실행 시도 이력)</h2>
+        <div class="ledger" id="runsBox"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // 엔진 모듈을 못 불러오면 화면에 알림 (모듈 스크립트는 실패해도 조용히 멈추기 때문)
+    setTimeout(function () {
+      if (window.__astraConsoleReady) return;
+      var b = document.getElementById('runnerStatus');
+      b.textContent = 'ENGINE: 로드 실패 (assets/astra-unified-engine.js)';
+      b.style.color = '#fca5a5';
+      document.getElementById('startBtn').disabled = true;
+    }, 8000);
+  </script>
+  <script type="module">
+    // 엔진 원본: darkcode-core/runner/astra-unified-engine.js (이 사이트 assets 에 같은 파일)
+    // 규칙은 전부 엔진이 판단: 단일 타겟 잠금 · 0원 폴백 · 재시도 루프 · 관측 출력 기반 VERIFIED · runs/committed 원장
+    // 이 페이지는 입력 전달, 진행 표시, 결과 표시만 한다. VERIFIED 를 여기서 만들지 않는다.
+    import { AstraUnifiedEngine } from './assets/astra-unified-engine.js?v=20261124e3';
+
+    const UNV = '[UNVERIFIED_NEEDS_LOCAL_RUN]';
+    const MODEL_TIMEOUT_MS = 180000;
+    const $ = (id) => document.getElementById(id);
+    const els = {
+      runnerStatus: $('runnerStatus'), lockStatus: $('lockStatus'),
+      runnerBase: $('runnerBase'), llmEndpoint: $('llmEndpoint'), llmModel: $('llmModel'), modelList: $('modelList'), modelHint: $('modelHint'),
+      maxRetries: $('maxRetries'), apiKey: $('apiKey'), targetModule: $('targetModule'), userPrompt: $('userPrompt'),
+      startBtn: $('startBtn'), pingBtn: $('pingBtn'), clearBtn: $('clearBtn'),
+      gatePill: $('gatePill'), stopPill: $('stopPill'), sourcePill: $('sourcePill'),
+      codeLabel: $('codeLabel'), finalCode: $('finalCode'), traceLog: $('traceLog'),
+      committedBox: $('committedBox'), runsBox: $('runsBox'),
+    };
+
+    const STOP_INFO = {
+      OK: '실행기 실측 exit 0 + 표준 출력 확인',
+      RUNNER_UNREACHABLE: '실행기(8797)에 연결 안 됨 → darkcode-core 폴더의 start-runner.bat 실행, 브라우저의 로컬 접근 허용 확인',
+      RUNNER_HTTP_403: '실행기가 이 페이지 주소를 거부함 (허용 Origin/Host 확인)',
+      RUNNER_HTTP_404: '이 주소에 /run 이 없음 → 실행기 주소(8797)인지 확인 (8787은 게이트웨이)',
+      RUNNER_HTTP_409: '실행기가 다른 코드를 실행 중',
+      RUNNER_HTTP_413: '코드가 실행기 한도보다 큼',
+      RUNNER_BAD_RESPONSE: '실행기 응답이 JSON이 아님 (주소 확인)',
+      APPROVAL_DENIED: '실행기 창에서 거부했거나 60초 안에 승인하지 않음',
+      SPAWN_ERROR: '실행기가 프로세스를 띄우지 못함 (Node 설치 확인)',
+      NO_NEW_PATCH: '모델이 같은 코드를 다시 냄 → 프롬프트를 더 구체적으로',
+      TESTS_FAILED: '요구사항 테스트를 끝까지 통과하지 못함 → 프롬프트를 더 구체적으로 또는 다른 모델',
+      REPEATED_ERROR: '같은 에러가 반복됨 → 프롬프트 수정 또는 다른 모델',
+      MODEL_FAILED_ON_RETRY: '재시도 중 모델 호출 실패',
+      FALLBACK_ONLY: '모델 호출 실패 → 0원 스텁만 실행됨 (실행기 경로 확인용, 확정 불가)',
+      MAX_RETRIES: '최대 재시도까지 실패',
+      SINGLE_TARGET_LOCKED: '다른 작업이 진행 중 (단일 타겟 잠금)',
+      ENGINE_ERROR: '엔진 내부 오류',
+    };
+    const stopText = (s) => STOP_INFO[s] || (String(s || '').startsWith('RUNNER_HTTP_') ? `실행기 HTTP 오류 (${String(s).slice(12)})` : (s || '-'));
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const clock = () => new Date().toTimeString().slice(0, 8);
+    const fmtTime = (ts) => { const d = new Date(ts); return isNaN(d) ? String(ts || '') : d.toLocaleString('ko-KR', { hour12: false }); };
+    const runnerBase = () => els.runnerBase.value.trim().replace(/\/+$/, '') || 'http://127.0.0.1:8797';
+    const retries = () => Math.min(5, Math.max(1, parseInt(els.maxRetries.value, 10) || 3));
+    // 엔진 판정을 그대로 쓰되, 예전 형식 기록(exit code 없음 · 폴백)은 VERIFIED 로 보여주지 않는다
+    const trulyVerified = (r) => Boolean(r && r.verified === true && r.status === 'VERIFIED' && r.exitCode === 0 && r.source === 'model' && !r.fallbackUsed);
+
+    let lines = [];
+    const log = (s, raw = false) => {
+      String(s).split('\n').forEach((l, i) => lines.push(raw || i ? l : `${clock()} ${l}`));
+      if (lines.length > 600) lines = lines.slice(-600);
+      els.traceLog.textContent = lines.join('\n');
+      els.traceLog.scrollTop = els.traceLog.scrollHeight;
+    };
+
+    let runnerInfo = null;
+    let running = false;
+    let currentTarget = '';
+    let modelTouched = false;
+
+    const engine = new AstraUnifiedEngine({
+      runnerUrl: runnerBase() + '/run',
+      maxRetries: retries(),
+      onLedgerChange: () => renderLedgers(),
+    });
+    const LOCK_NAME = `${engine.storageKey}:single-target`;
+
+    // ---------- 실행기 상태 ----------
+    async function checkRunner({ quiet = false } = {}) {
+      const base = runnerBase();
+      els.runnerStatus.textContent = 'RUNNER: CHECKING...';
+      els.runnerStatus.style.color = '';
+      try {
+        const res = await fetch(base + '/health', { cache: 'no-store', signal: AbortSignal.timeout(4000) });
+        const d = await res.json().catch(() => null);
+        if (d && d.name === 'darkcode-runner') {
+          runnerInfo = d;
+          let port = ''; try { port = new URL(base).port; } catch { /* 표시용 */ }
+          els.runnerStatus.textContent = `RUNNER: ONLINE (${port || base}) · 승인 ${d.approval === 'ask' ? '콘솔 y/N' : d.approval} · 격리 ${d.permissionModel || '없음'}`;
+          els.runnerStatus.style.color = '#86efac';
+          if (!quiet) log(`[RUNNER] 연결됨 · v${d.version} · 언어 ${(d.languages || []).join(', ')}${d.busy ? ' · 지금 다른 실행 중' : ''}`);
+          return true;
+        }
+        runnerInfo = null;
+        if (d && d.name === 'darkcode-core') {
+          els.runnerStatus.textContent = 'RUNNER: 주소 확인 (8787은 게이트웨이 · 실행기는 8797)';
+          els.runnerStatus.style.color = '#fde68a';
+          if (!quiet) log('[RUNNER] 이 주소는 darkcode-core 게이트웨이입니다. 코드 실행기는 http://127.0.0.1:8797 (start-runner.bat)');
+          return false;
+        }
+        els.runnerStatus.textContent = `RUNNER: 실행기 아님 (HTTP ${res.status})`;
+        els.runnerStatus.style.color = '#fde68a';
+        if (!quiet) log(`[RUNNER] ${base}/health 응답이 darkcode-runner 형식이 아닙니다`);
+        return false;
+      } catch {
+        runnerInfo = null;
+        els.runnerStatus.textContent = 'RUNNER: OFFLINE (start-runner.bat 필요)';
+        els.runnerStatus.style.color = '#fde68a';
+        if (!quiet) log(`[RUNNER] ${base}/health 응답 없음 → darkcode-core 폴더의 start-runner.bat 실행 (브라우저가 로컬 접근 허용을 물으면 허용)`);
+        return false;
+      }
+    }
+
+    // ---------- 모델 어댑터 (브라우저 → Ollama / OpenAI 호환 직접 호출) ----------
+    function modelKind(url) {
+      const u = String(url || '').trim().replace(/\/+$/, '');
+      if (/\/api\/generate$/.test(u)) return 'ollama-generate';
+      if (/\/api\/chat$/.test(u)) return 'ollama-chat';
+      if (/\/chat\/completions$/.test(u)) return 'openai';
+      if (/\/v1$/.test(u)) return 'openai-base';
+      return 'unknown';
+    }
+    const stripThink = (t) => String(t || '').replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/^[\s\S]*?<\/think>/i, '').trim();
+    const authHeaders = () => { const k = els.apiKey.value.trim(); return k ? { Authorization: `Bearer ${k}` } : {}; };
+
+    async function listModels() {
+      const ep = els.llmEndpoint.value.trim().replace(/\/+$/, '');
+      const kind = modelKind(ep);
+      let origin = '';
+      try { origin = new URL(ep).origin; } catch { return { ok: false, kind, error: '엔드포인트 URL 형식 오류' }; }
+      try {
+        if (kind.startsWith('ollama')) {
+          const r = await fetch(origin + '/api/tags', { cache: 'no-store', signal: AbortSignal.timeout(4000) });
+          const j = await r.json();
+          return { ok: true, kind, names: (j.models || []).map((m) => m.name) };
+        }
+        if (kind.startsWith('openai')) {
+          const base = kind === 'openai' ? ep.replace(/\/chat\/completions$/, '') : ep;
+          const r = await fetch(base + '/models', { headers: authHeaders(), cache: 'no-store', signal: AbortSignal.timeout(6000) });
+          if (!r.ok) return { ok: false, kind, error: `HTTP ${r.status}` };
+          const j = await r.json();
+          return { ok: true, kind, names: (j.data || []).map((m) => m.id) };
+        }
+        return { ok: false, kind, error: '지원 형식: .../api/generate · .../api/chat · .../v1/chat/completions' };
+      } catch (e) {
+        return { ok: false, kind, error: e && e.name === 'TimeoutError' ? '응답 시간 초과' : (e && e.message) || String(e) };
+      }
+    }
+
+    async function checkModel() {
+      const r = await listModels();
+      els.modelList.innerHTML = (r.names || []).map((n) => `<option value="${esc(n)}"></option>`).join('');
+      if (!r.ok) {
+        els.modelHint.className = 'hint warn';
+        els.modelHint.innerHTML = r.kind.startsWith('ollama')
+          ? `모델 서버 연결 실패 (${esc(r.error)}) · Ollama 실행과 이 사이트 허용(OLLAMA_ORIGINS)이 필요합니다 → <a href="./connect/DARKCODE-Ollama-Connect.bat" download>원클릭 연결 파일</a>`
+          : `모델 서버 확인 실패 (${esc(r.error)})`;
+        return false;
+      }
+      const cur = els.llmModel.value.trim();
+      const has = r.names.includes(cur) || r.names.includes(cur + ':latest');
+      if (!has && r.kind.startsWith('ollama') && !modelTouched && r.names.length) {
+        const pick = r.names.find((n) => /^ai-dev(:latest)?$/.test(n)) || r.names.find((n) => /coder/i.test(n)) || r.names.find((n) => n === 'qwen3:8b') || r.names[0];
+        els.llmModel.value = pick.replace(/:latest$/, '');
+        log(`[MODEL] ${cur} 은(는) 설치돼 있지 않아 설치된 ${els.llmModel.value} 을(를) 골랐습니다 (직접 바꿔도 됩니다)`);
+      }
+      const ok = r.names.includes(els.llmModel.value.trim()) || r.names.includes(els.llmModel.value.trim() + ':latest');
+      els.modelHint.className = ok ? 'hint ok' : 'hint warn';
+      els.modelHint.textContent = ok
+        ? `모델 서버 연결됨 · 모델 ${r.names.length}개 (모델명 칸에서 선택 가능)`
+        : `연결됨 · 하지만 "${els.llmModel.value.trim()}" 이(가) 목록에 없습니다 (모델명 칸에서 선택)`;
+      return true;
+    }
+
+    async function callModel(prompt) {
+      const ep = els.llmEndpoint.value.trim().replace(/\/+$/, '');
+      const kind = modelKind(ep);
+      const model = els.llmModel.value.trim();
+      if (!model) throw new Error('MODEL_NAME_EMPTY');
+      const headers = { 'Content-Type': 'application/json', ...authHeaders() };
+      let url = ep;
+      let body;
+      if (kind === 'ollama-generate') body = { model, prompt, stream: false, think: false };
+      else if (kind === 'ollama-chat') body = { model, messages: [{ role: 'user', content: prompt }], stream: false, think: false };
+      else if (kind === 'openai' || kind === 'openai-base') {
+        if (kind === 'openai-base') url = ep + '/chat/completions';
+        body = { model, messages: [{ role: 'user', content: prompt }], stream: false, temperature: 0.2 };
+      } else throw new Error('ENDPOINT_UNKNOWN: .../api/generate · .../api/chat · .../v1/chat/completions 중 하나');
+      const post = async (b) => {
+        const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(b), signal: AbortSignal.timeout(MODEL_TIMEOUT_MS) });
+        const txt = await res.text();
+        let data = null; try { data = JSON.parse(txt); } catch { /* 아래에서 처리 */ }
+        return { res, txt, data };
+      };
+      let { res, txt, data } = await post(body);
+      if (!res.ok && 'think' in body && /think/i.test(txt)) { delete body.think; ({ res, txt, data } = await post(body)); } // think 미지원 모델
+      if (!res.ok) {
+        const m = (data && data.error && (data.error.message || data.error)) || txt;
+        throw new Error(`MODEL_HTTP_${res.status}: ${String(m).slice(0, 160)}`);
+      }
+      const out = kind === 'ollama-generate' ? data && data.response
+        : kind === 'ollama-chat' ? data && data.message && data.message.content
+        : data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      if (typeof out !== 'string' || !out.trim()) throw new Error('MODEL_EMPTY_RESPONSE');
+      return stripThink(out);
+    }
+
+    const callModelFn = async (prompt, ctx) => {
+      const t0 = performance.now();
+      try {
+        const text = await callModel(prompt);
+        log(`[MODEL] 응답 ${Math.round(performance.now() - t0)}ms · ${text.length}자 (${ctx && ctx.attempt > 1 ? '수정본' : '초안'})`);
+        return text;
+      } catch (e) {
+        const msg = e && e.name === 'TimeoutError' ? `MODEL_TIMEOUT (${MODEL_TIMEOUT_MS / 1000}초)` : (e && e.message) || String(e);
+        const net = /Failed to fetch|NetworkError|Load failed/i.test(msg);
+        log(`[MODEL] 호출 실패: ${msg}${net ? ' → 모델 서버가 꺼져 있거나 이 사이트가 허용되지 않음(OLLAMA_ORIGINS)' : ''}`);
+        throw new Error(msg);
+      }
+    };
+
+    // ---------- 진행 · 결과 표시 ----------
+    function onProgress(ev) {
+      log(`[${String(ev.stage || '').toUpperCase()}] ${ev.message || ''}`);
+      if (ev.stage === 'build' && ev.fallbackUsed) log(`${UNV} 모델 코드가 아닌 0원 스텁입니다. 실행돼도 VERIFIED 로 확정하지 않습니다.`);
+      if (ev.stage === 'execute' && runnerInfo && runnerInfo.approval === 'ask') log('[APPROVE] 실행기 창에서 코드를 확인하고 y 를 누르세요 (60초 안에 응답 없으면 거부)');
+      if (ev.stage === 'observe') {
+        if (ev.outputPreview) log('         stdout │ ' + ev.outputPreview.split('\n').join('\n         stdout │ '), true);
+        if (ev.errorPreview) log('         error  │ ' + ev.errorPreview.split('\n').join('\n         error  │ '), true);
+      }
+    }
+
+    function resetGate() {
+      els.gatePill.textContent = 'UNVERIFIED_NEEDS_LOCAL_RUN';
+      els.gatePill.className = 'pill warn';
+      els.stopPill.textContent = 'STOP: -';
+      els.stopPill.className = 'pill';
+      els.sourcePill.textContent = 'SOURCE: -';
+      els.codeLabel.textContent = '실행된 코드 · 진행 중...';
+      els.codeLabel.className = '';
+      els.finalCode.value = '';
+      els.finalCode.className = 'code';
+    }
+
+    function showResult(res, modelUsed) {
+      const verified = trulyVerified(res);
+      const stop = res.stopReason || res.status || '-';
+      els.gatePill.textContent = verified ? 'VERIFIED' : 'UNVERIFIED_NEEDS_LOCAL_RUN';
+      els.gatePill.className = `pill ${verified ? 'ok' : 'warn'}`;
+      els.stopPill.textContent = `STOP: ${stop}`;
+      els.stopPill.className = `pill ${verified ? 'ok' : 'warn'}`;
+      els.sourcePill.textContent = `SOURCE: ${res.source === 'model' ? modelUsed : (res.source || '-')}`;
+
+      els.finalCode.value = res.code || '';
+      els.finalCode.className = `code ${verified ? 'ok' : 'unv'}`;
+      els.codeLabel.className = verified ? 'ok' : 'unv';
+      els.codeLabel.textContent = verified ? `실행된 코드 · VERIFIED · 실행기 실측 exit 0${res.tests ? ` · 테스트 ${res.tests.passed}/${res.tests.total}` : ''} · hash ${res.codeHash}`
+        : !res.code ? `${UNV} 코드 없음`
+        : res.fallbackUsed ? `${UNV} 0원 스텁 (모델 코드 아님 · 확정 불가)`
+        : res.executed ? `${UNV} 실행됐지만 실패 (exit ${res.exitCode}) · 마지막 시도 코드`
+        : `${UNV} 생성만 됨 · 실행 안 됨`;
+
+      log('', true);
+      log(verified ? `[GATE] VERIFIED · ${stopText('OK')}${res.tests ? ` · 테스트 ${res.tests.passed}/${res.tests.total} 통과` : ' · 테스트 없음(출력 확인)'} · ${res.committed ? 'committed 반영' : 'committed 미반영'}` : `[GATE] ${UNV} · ${stop} · ${stopText(stop)}${res.tests ? ` · 테스트 ${res.tests.passed}/${res.tests.total}` : ''}`);
+      if (verified) { log('--- 관측 출력 (stdout · 실행기 실측) ---', true); log(res.observedOutput || '', true); }
+      else if (res.lastError || res.error) { log('--- 마지막 에러 ---', true); log(String(res.lastError || res.error), true); }
+      if (res.ledgerWarning) log(`[LEDGER] ${res.ledgerWarning}`);
+      const { code, ...rest } = res;
+      log('\n--- FINAL RESULT (code 는 위 코드 창) ---', true);
+      log(JSON.stringify(rest, null, 2), true);
+    }
+
+    function renderLedgers() {
+      const L = engine.ledger;
+      const committed = L.committed || [];
+      const runs = L.runs || [];
+      els.committedBox.innerHTML = committed.length ? committed.map((r) => {
+        const ok = trulyVerified(r);
+        return `<div class="item">
+            <div><b>[${esc(r.targetModule)}]</b> ${esc(r.runId)} · ${ok ? '<span class="tag-ok">VERIFIED</span>' : `<span class="tag-unv">${UNV} 예전 형식 기록 · 재검증 필요</span>`}</div>
+            <div class="sub">attempts=${esc(r.attempts)} | exit=${esc(r.exitCode ?? '-')} | hash=${esc(r.codeHash || '-')} | ${esc(fmtTime(r.timestamp))}</div>
+            <div class="sub">out=${esc(String(r.observedOutput || '').slice(0, 160))}</div>
+            ${r.code ? `<button type="button" class="act" data-run="${esc(r.runId)}">코드 보기</button>` : ''}
+          </div>`;
+      }).join('') : '<div class="sub">실구동 검증(VERIFIED)을 통과한 항목이 아직 없습니다.</div>';
+
+      els.runsBox.innerHTML = runs.length ? runs.map((r) => {
+        const ok = trulyVerified(r);
+        return `<div class="item">
+            <div><b>[${esc(r.targetModule)}]</b> ${esc(r.runId)} · ${ok ? '<span class="tag-ok">VERIFIED</span>' : `<span class="tag-unv">${UNV} ${esc(r.stopReason || r.status)}</span>`}</div>
+            <div class="sub">source=${esc(r.source)} | attempts=${esc(r.attempts)} | exit=${esc(r.exitCode ?? '-')} | ${esc(fmtTime(r.timestamp))}</div>
+            ${ok ? '' : `<div class="sub">${esc(stopText(r.stopReason))}</div>`}
+          </div>`;
+      }).join('') : '<div class="sub">실행 이력이 없습니다.</div>';
+      refreshLock();
+    }
+
+    async function refreshLock() {
+      if (running) {
+        els.lockStatus.textContent = `LOCK: RUNNING · ${currentTarget}`;
+        els.lockStatus.style.color = '#fde68a';
+        return;
+      }
+      let held = false;
+      try {
+        if (navigator.locks && navigator.locks.query) {
+          const q = await navigator.locks.query();
+          held = (q.held || []).some((l) => l.name === LOCK_NAME);
+        }
+      } catch { /* 표시용 */ }
+      if (running) return;
+      if (held) {
+        let info = null;
+        try { info = JSON.parse(localStorage.getItem(engine.storageKey + ':active') || 'null'); } catch { /* 표시용 */ }
+        els.lockStatus.textContent = `LOCK: 다른 탭 실행 중${info && info.targetModule ? ' · ' + info.targetModule : ''}`;
+        els.lockStatus.style.color = '#fde68a';
+      } else {
+        els.lockStatus.textContent = 'LOCK: IDLE';
+        els.lockStatus.style.color = '';
+      }
+    }
+
+    // ---------- 이벤트 ----------
+    els.startBtn.addEventListener('click', async () => {
+      if (running) return;
+      const userPrompt = els.userPrompt.value.trim();
+      const targetModule = els.targetModule.value.trim() || 'live_task_module';
+      if (!userPrompt) { log('[INPUT] 작업 프롬프트를 입력하세요'); return; }
+      running = true;
+      currentTarget = targetModule;
+      els.startBtn.disabled = true;
+      els.clearBtn.disabled = true;
+      lines = [];
+      resetGate();
+      refreshLock();
+      const modelUsed = els.llmModel.value.trim();
+      log(`[START] 타겟 [${targetModule}] · 모델 ${modelUsed} · 최대 ${retries()}회`);
+      const online = await checkRunner({ quiet: true });
+      if (!online) log(`${UNV} 실행기 응답 없음: 코드는 생성되지만 실행 단계에서 멈추고 확정되지 않습니다`);
+      engine.runnerUrl = runnerBase() + '/run';
+      engine.maxRetries = retries();
+      let res;
+      try {
+        res = await engine.runTask({ targetModule, userPrompt, callModelFn, onProgress });
+      } catch (e) {
+        res = { ok: false, status: 'ENGINE_ERROR', verified: false, committed: false, error: (e && e.message) || String(e) };
+      } finally {
+        running = false;
+        els.startBtn.disabled = false;
+        els.clearBtn.disabled = false;
+      }
+      showResult(res, modelUsed);
+      renderLedgers();
+    });
+
+    els.pingBtn.addEventListener('click', async () => {
+      els.pingBtn.disabled = true;
+      try { await checkRunner(); await checkModel(); } finally { els.pingBtn.disabled = false; }
+    });
+
+    els.clearBtn.addEventListener('click', () => {
+      if (running) return;
+      if (!confirm('runs · committed 원장을 모두 지울까요? committed 에 저장된 코드도 함께 지워집니다.')) return;
+      try { localStorage.removeItem(engine.storageKey); } catch { /* 저장소 접근 불가 */ }
+      engine.reloadLedger();
+      renderLedgers();
+      lines = [];
+      log('[LEDGER] 원장이 초기화되었습니다.');
+    });
+
+    els.committedBox.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-run]');
+      if (!b) return;
+      const r = (engine.ledger.committed || []).find((x) => x.runId === b.dataset.run);
+      if (!r) return;
+      const ok = trulyVerified(r);
+      els.finalCode.value = r.code || '';
+      els.finalCode.className = `code ${ok ? 'ok' : 'unv'}`;
+      els.codeLabel.className = ok ? 'ok' : 'unv';
+      els.codeLabel.textContent = ok ? `committed 저장본 · VERIFIED · ${r.runId} · hash ${r.codeHash}` : `${UNV} 예전 형식 기록 · ${r.runId}`;
+    });
+
+    els.llmModel.addEventListener('input', () => { modelTouched = true; });
+    els.llmEndpoint.addEventListener('change', () => checkModel());
+    els.runnerBase.addEventListener('change', () => checkRunner({ quiet: true }));
+    window.addEventListener('storage', (e) => { if (e.key === engine.storageKey + ':active') refreshLock(); });
+
+    window.__astraConsoleReady = true;
+    renderLedgers();
+    checkRunner({ quiet: true });
+    checkModel();
+  </script>
+</body>
+</html>

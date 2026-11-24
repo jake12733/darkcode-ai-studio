@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DARK CODE AI · 원격 지원 요청</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#09090b">
+<link rel="icon" href="assets/logo-clean.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="assets/consent.css?v=20261124clean1">
+</head>
+<body>
+  <canvas id="bgStream" class="bg-stream" aria-hidden="true"></canvas>
+  <div class="bg-overlay"></div>
+  <div class="bg-scan"></div>
+  <div class="topline"><span class="dot"></span> DARK CODE AI <span class="dim">· Secure Remote Support</span><span class="clock" id="clock">--:--:--</span></div>
+
+  <main class="wrap">
+    <section class="card" id="card" aria-live="polite">
+      <header class="term-head">
+        <div class="th-row"><span class="lights"><i></i><i></i><i></i></span><b>원격 지원 요청 확인</b></div>
+        <div class="th-meta">
+          <span>SESSION <code id="sid">--------</code></span>
+          <span>REQUESTER <code id="req">확인 중…</code></span>
+          <span>EXPIRES <code id="timer" class="timer">--:--</code></span>
+        </div>
+        <div class="tbar"><i id="tbar"></i></div>
+      </header>
+
+      <div class="body">
+        <img class="emblem" src="assets/logo-clean.svg" alt="DARK CODE AI">
+        <div class="state" id="state">
+          <div class="loading"><span class="spin"></span> 요청 정보를 불러오는 중…</div>
+        </div>
+      </div>
+    </section>
+    <p class="foot">DARK CODE는 비밀번호·인증번호·결제 정보를 절대 묻지 않습니다 · 이 창을 닫으면 응답하지 않은 것으로 처리되어 만료되고, 수락 후 닫으면 화면·입력 채널이 즉시 끊깁니다</p>
+  </main>
+
+<script src="assets/stream.js?v=20261122r"></script>
+<script type="module" src="assets/consent.js?v=20261122t"></script>
+</body>
+</html>

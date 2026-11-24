@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8CFFC0"/>
+      <stop offset=".55" stop-color="#00FF66"/>
+      <stop offset="1" stop-color="#16A34A"/>
+    </linearGradient>
+    <radialGradient id="core" cx=".5" cy=".55" r=".5">
+      <stop offset="0" stop-color="#063d1c"/>
+      <stop offset="1" stop-color="#010a04"/>
+    </radialGradient>
+    <filter id="gl" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- hex shield -->
+  <path d="M64 5 L115 34.5 V93.5 L64 123 L13 93.5 V34.5 Z" fill="url(#core)" stroke="url(#g)" stroke-width="4" stroke-linejoin="round" filter="url(#gl)"/>
+  <path d="M64 15 L106 39.5 V88.5 L64 113 L22 88.5 V39.5 Z" fill="none" stroke="#00FF66" stroke-opacity=".45" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <!-- circuit traces -->
+  <g stroke="#00FF66" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".8">
+    <path d="M22 60 H30 L34 56"/><path d="M22 70 H31"/><path d="M106 60 H98 L94 56"/><path d="M106 70 H97"/>
+    <path d="M48 106 V98 L52 94"/><path d="M80 106 V98 L76 94"/>
+  </g>
+  <g fill="#00FF66"><circle cx="34" cy="56" r="1.8"/><circle cx="31" cy="70" r="1.8"/><circle cx="94" cy="56" r="1.8"/><circle cx="97" cy="70" r="1.8"/><circle cx="52" cy="94" r="1.8"/><circle cx="76" cy="94" r="1.8"/></g>
+  <!-- hood -->
+  <path d="M64 24 C45 24 35 41 35 60 C35 74 39 84 45 92 L83 92 C89 84 93 74 93 60 C93 41 83 24 64 24 Z" fill="#010d05" stroke="url(#g)" stroke-width="3.2" stroke-linejoin="round" filter="url(#gl)"/>
+  <path d="M64 24 C58 34 56 40 56 46" fill="none" stroke="#00FF66" stroke-opacity=".5" stroke-width="1.4"/>
+  <!-- face void -->
+  <path d="M64 38 C52.5 38 46.5 49 46.5 61 C46.5 72 52 82 64 84.5 C76 82 81.5 72 81.5 61 C81.5 49 75.5 38 64 38 Z" fill="#000"/>
+  <!-- visor eyes -->
+  <path d="M50.5 58.5 L61 56.5 L61 63 L52 63.5 Z" fill="#00FF66" filter="url(#gl)"/>
+  <path d="M77.5 58.5 L67 56.5 L67 63 L76 63.5 Z" fill="#00FF66" filter="url(#gl)"/>
+  <!-- </> glyph -->
+  <g stroke="#00FF66" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#gl)">
+    <path d="M57 70 L52 74 L57 78"/><path d="M71 70 L76 74 L71 78"/><path d="M66.5 68.5 L61.5 79.5"/>
+  </g>
+</svg>

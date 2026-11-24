@@ -794,7 +794,8 @@ function composeAnswer(run, sec, snapshotYaml) {
 
 /* ---------- 실사 미디어 자동 삽입 (Pexels 고화질 사진·영상 우선) ---------- */
 const MEDIA_RULE = '\n\n[Pexels 미디어 규칙] 모든 사진은 외부 임의 URL 대신 Pexels 자동 매칭 표식 <img data-dc-img="구체적 영문 Pexels 검색어" alt="한국어 설명"> 을 쓰십시오. 인물은 기본 korean 을 포함하고 카드·섹션마다 서로 다른 영문 검색어를 지정하십시오. 동영상 요청 시 <video data-dc-video="영문 Pexels 영상 검색어" autoplay muted loop playsinline></video> 를 배치하십시오.';
-const WEB_RE = /(홈페이지|웹사이트|사이트|랜딩|웹페이지|쇼핑몰|포트폴리오|대시보드|웹앱|웹\s*앱|UI|화면|website|landing|homepage|web\s?page|\bhtml\b)/i;
+const WEB_RE = /(홈페이지|웹사이트|사이트|랜딩|상세페이지|웹페이지|쇼핑몰|스토어|포트폴리오|대시보드|웹앱|웹\s*앱|UI|화면|website|landing|homepage|web\s?page|\bhtml\b)/i;
+const BIZ_MAKE_RE = /(성형외과|피부과|치과|병원|클리닉|한의원|카페|베이커리|호텔|리조트|인테리어|건축|패션|아틀리에|쇼핑몰|기업|회사|SaaS|스타트업)/i;
 const withMediaRule = (prompt) => (WEB_RE.test(prompt) ? prompt + MEDIA_RULE : prompt);
 
 /* ---------- 멀티 도메인 최상위 AI 워크플로우 자동 분류 ---------- */
@@ -804,7 +805,7 @@ function detectDomain(prompt, hasActiveHtml) {
   if (/^\/(video|promo|영상|동영상|홍보|광고|뮤비)\b/i.test(p)) return 'video';
   if (/^\/(music|음악|노래|song)\b/i.test(p)) return 'music';
   if (hasActiveHtml && !/^(새로|별도로)/.test(p) && /(바꿔|수정|고쳐|추가|변경|넣어|빼줘|색상|폰트|배경|버튼|메뉴|사진|영상|동영상)/i.test(p)) return 'web';
-  if (WEB_RE.test(p)) return 'web';
+  if (WEB_RE.test(p) || (BIZ_MAKE_RE.test(p) && /(만들|제작|생성|구축|디자인|짜줘)/i.test(p))) return 'web';
   if (/(동영상|홍보\s*영상|광고\s*영상|프로모션\s*영상|모션\s*영상|모션그래픽|쇼츠|릴스|video|reel|motion\s*graphic)/i.test(p) && /(만들|제작|생성|뽑아|만들어|create|make|generate)/i.test(p) && !/(기획서|대본만|스크립트만|아이디어만)/.test(p)) return 'video';
   if (/(이미지|사진|포스터|배너|일러스트|로고|썸네일|화보|그림|캐릭터|photo|image|poster|illustration)/i.test(p) && /(그려|만들|생성|뽑아|제작|디자인해|draw|generate|create)/i.test(p)) return 'image';
   if (/(노래|음악|작곡|배경음악|bgm|브금|로파이|비트|멜로디|사운드트랙|song|music)/i.test(p) && /(만들|작곡|생성|제작|뽑아|compose|create|make)/i.test(p)) return 'music';
@@ -837,9 +838,11 @@ async function execute(prompt, { noCache = false } = {}) {
   if (state.running) return;
   let thread = curThread() || newThread();
   const currentActiveCode = artifacts?.files?.find((f) => f.lang === 'html')?.code || '';
-  const isFollowUp = Boolean(currentActiveCode && thread.messages.length > 0 && !/data-ill-player="true"/i.test(currentActiveCode));
-  const domain = detectDomain(prompt, isFollowUp);
-  const useEditorialWeb = Boolean(domain === 'web' && !isFollowUp && ['fast', 'council'].includes(state.mode) && window.ILLMeridian);
+  const hasSite = Boolean(currentActiveCode && thread.messages.length > 0 && !/data-ill-player="true"/i.test(currentActiveCode));
+  const domain = detectDomain(prompt, hasSite);
+  const isNewSiteAsk = /(만들어|제작해|새로|생성해|구축해|홈페이지|웹사이트|쇼핑몰|랜딩|상세페이지)/i.test(prompt) && !/(바꿔|수정|고쳐|추가|변경|빼줘|삭제)/i.test(prompt);
+  const isFollowUp = Boolean(hasSite && !isNewSiteAsk);
+  const useEditorialWeb = Boolean(domain === 'web' && !['local6', 'core', 'exec'].includes(state.mode) && window.ILLMeridian);
   const mode = domain === 'image' ? 'image' : domain === 'video' ? 'video' : domain === 'music' ? 'music' : useEditorialWeb ? 'website' : state.mode;
   if (thread.messages.length === 0) thread.title = prompt.replace(/^\/\S+\s+/, '').slice(0, 40) || '새 작업';
   thread.messages.push({ role: 'user', content: prompt, t: Date.now() });
@@ -854,11 +857,11 @@ async function execute(prompt, { noCache = false } = {}) {
   state.running = run;
   setRunning(true);
   try {
-    const key = fnv(JSON.stringify({ v: 10, mode, domain, route: state.route, p: prompt.trim().toLowerCase(), ctx: thread.messages.slice(-5, -1).map((m) => (m.modelText || m.content).slice(0, 400)) }));
+    const key = fnv(JSON.stringify({ v: 11, mode, domain, isFollowUp, route: state.route, p: prompt.trim().toLowerCase(), ctx: thread.messages.slice(-5, -1).map((m) => (m.modelText || m.content).slice(0, 400)) }));
     run.stage('CACHE');
     run.log(`cache  lookup key=${key} ttl=${opts.ttl}s`, 'k');
     const execMode = mode === 'exec';
-    const hit = noCache || execMode ? null : cacheGet(key);
+    const hit = noCache || execMode || isFollowUp ? null : cacheGet(key);
     if (noCache) run.log('cache  bypass (다시 실행)', 't');
     else if (execMode) run.log('cache  bypass (EXEC: 내 PC 실행 검증)', 't');
     let modelText, sec, snap;
@@ -868,10 +871,17 @@ async function execute(prompt, { noCache = false } = {}) {
       run.rain(hit.modelText);
       await sleep(500);
       modelText = hit.modelText; run.calls = hit.calls || [];
+      if (hit.siteState) run.siteState = hit.siteState;
       run.skipStages();
     } else {
       if (!execMode) { run.log('cache  MISS', 't'); TEL()?.cache(false); }
-      if (mode === 'website') modelText = await window.ILLMeridian.runWebsitePipeline(prompt, run, callTracked);
+      if (mode === 'website') {
+        if (isFollowUp && thread.lastSite && window.ILLMeridian.reviseWebsiteBlueprint) {
+          modelText = await window.ILLMeridian.reviseWebsiteBlueprint(prompt, thread.lastSite, run, callTracked);
+        } else {
+          modelText = await window.ILLMeridian.runWebsitePipeline(prompt, run, callTracked);
+        }
+      }
       else if (mode === 'image') modelText = await runImage(prompt, run);
       else if (mode === 'video') modelText = await runVideoMotion(prompt, run);
       else if (mode === 'music') modelText = window.ILLSound ? await window.ILLSound.runMusicPipeline(prompt, run, callTracked) : await runMusicStudio(prompt, run);
@@ -882,40 +892,12 @@ async function execute(prompt, { noCache = false } = {}) {
         run.stage('CONTEXT');
         const ctx = await buildContext({ ...thread, messages: thread.messages.slice(0, -1) }, run);
         if (ctx.compressed) { run.compressed = true; const real = curThread(); if (real) real.summary = thread.summary; }
-
-        const isVideoReq = /(동영상|영상|비디오|video)/i.test(prompt);
-        let execPrompt = domain === 'web' ? withMediaRule(prompt) : prompt;
-        if (domain === 'web' && isVideoReq) {
-          execPrompt += '\n\n[비디오 삽입 지침]: 히어로 섹션 또는 메인 비주얼에 <video data-dc-video="luxury modern architecture cinematic motion" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;border-radius:16px;"></video> 를 배치하십시오.';
-        }
-        if (isFollowUp && domain === 'web') {
-          const isKoreanPhotoReq = /(한국\s*사람|한국인|동양인|외국인.*바꿔|사진.*바꿔|인물.*바꿔|의사.*바꿔|원장.*바꿔|여의사)/i.test(prompt);
-          if (isKoreanPhotoReq && window.DCMedia && window.DCMedia.patchKoreanPhotos) {
-            const quickPatched = window.DCMedia.patchKoreanPhotos(currentActiveCode);
-            if (quickPatched !== currentActiveCode) {
-              const htmlFile = artifacts?.files?.find((f) => f.lang === 'html');
-              if (htmlFile) htmlFile.code = quickPatched;
-              applyArtifacts(artifacts, true);
-              run.log('media  한국인 인물 실사 사진 즉시 교체 반영 완료', 'ok');
-            }
-          }
-          execPrompt = `[사용자 세부 수정 요청]:\n${prompt}\n\n` +
-            (isKoreanPhotoReq ? `[인물 사진 교체 지침]: 모든 인물 <img> 태그의 data-dc-img 속성을 'ai:korean [역할] [상황], photorealistic, 8k' 로 교체하십시오.\n\n` : '') +
-            (isVideoReq ? `[동영상 삽입 지침]: 히어로 영역에 <video data-dc-video="구체적 영문 프롬프트" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;"></video> 를 배치하십시오.\n\n` : '') +
-            `[현재 활성 HTML 코드 (이 코드를 기반으로 요청 사항을 완벽 반영해 완성본 출력)]:\n\`\`\`html\n${currentActiveCode.slice(0, 28000)}\n\`\`\``;
-        }
-
         const sysOverride = DOMAIN_SYSTEMS[domain] || SYSTEM_CORE;
-        if (isFollowUp && domain === 'web') {
-          run.log('stage  TURBO REVISE · 초고속 연속 수정 모드 가동', 'ok');
-          modelText = await runTurboRevise(execPrompt, ctx.messages, run, thread);
-        } else {
-          modelText = mode === 'fast' ? await runFast(execPrompt, ctx.messages, run, thread, sysOverride) : await runCouncil(execPrompt, ctx.messages, run, thread, mode === 'claude', sysOverride);
-        }
+        modelText = mode === 'fast' ? await runFast(prompt, ctx.messages, run, thread, sysOverride) : await runCouncil(prompt, ctx.messages, run, thread, mode === 'claude', sysOverride);
       }
       if (!['website', 'image', 'video', 'music', 'core', 'exec'].includes(mode)) modelText = await completeHtml(run, prompt, modelText);
       if (!['website', 'image', 'video', 'music', 'exec'].includes(mode)) modelText = await resolveMedia(modelText, run);
-      if (!execMode) { cachePut(key, { modelText, calls: run.calls }); run.log(`cache  store key=${key}`, 't'); }
+      if (!execMode && !isFollowUp) { cachePut(key, { modelText, calls: run.calls, siteState: run.siteState || null }); run.log(`cache  store key=${key}`, 't'); }
     }
     run.stage('RENDER');
     sec = splitSections(modelText);
@@ -924,6 +906,7 @@ async function execute(prompt, { noCache = false } = {}) {
     const answer = composeAnswer(run, sec, snap);
     const msg = { role: 'assistant', content: answer, modelText, snapshot: snap, t: Date.now(), meta: { ms: run.ms, route: 'ILL AI', lines: run.lines, mode, cached: !!run.cacheHit, local6State: run.local6State || null, coreState: run.coreState || null, execState: run.execState || null } };
     thread = curThread() || thread;
+    if (run.siteState) thread.lastSite = run.siteState;
     thread.messages.push(msg);
     thread.artifacts = buildArtifacts(sec, snap, thread, run);
     thread.updated = Date.now();

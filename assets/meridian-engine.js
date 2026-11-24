@@ -1045,17 +1045,104 @@
     return { key: 'default', ...SPECIALTIES.default };
   }
 
-  /* ================= BESPOKE VISUAL RESOLVER (AI KEY OR GENERATIVE STUDIO ART) ================= */
-  function bespokeImgUrl(prompt, seed, w = 1200, h = 840) {
-    // Only call external AI image endpoint when an authenticated pollen key is configured;
-    // otherwise synthesize bespoke art directly in-browser (zero "Free Limit" banners, instant 60fps).
+  /* ================= HIGH-RES EDITORIAL VISUAL RESOLVER ================= */
+  const PHOTO_BANK = {
+    plastic: [
+      'https://images.pexels.com/photos/3757942/pexels-photo-3757942.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3997989/pexels-photo-3997989.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3985329/pexels-photo-3985329.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      'https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      'https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    ],
+    derma: [
+      'https://images.pexels.com/photos/3985329/pexels-photo-3985329.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3757942/pexels-photo-3757942.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3997989/pexels-photo-3997989.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      'https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      'https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    ],
+    dental: [
+      'https://images.pexels.com/photos/3845810/pexels-photo-3845810.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3845766/pexels-photo-3845766.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3779705/pexels-photo-3779705.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/6812561/pexels-photo-6812561.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      'https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      'https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    ],
+    hospital: [
+      'https://images.pexels.com/photos/247786/pexels-photo-247786.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/236380/pexels-photo-236380.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3845810/pexels-photo-3845810.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      'https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=1200',
+      'https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    ],
+    fashion: [
+      'https://images.pexels.com/photos/3997989/pexels-photo-3997989.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3757942/pexels-photo-3757942.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=1600',
+    ],
+    architecture: [
+      'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=1600',
+    ],
+    luxury: [
+      'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1600',
+    ],
+    cafe: [
+      'https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1813466/pexels-photo-1813466.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/2074130/pexels-photo-2074130.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1600',
+    ],
+    corporate: [
+      'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=1600',
+    ],
+    commerce: [
+      'https://images.pexels.com/photos/3997989/pexels-photo-3997989.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3757942/pexels-photo-3757942.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3985329/pexels-photo-3985329.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1600',
+    ],
+    default: [
+      'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1600',
+    ],
+  };
+
+  function bespokeImgUrl(prompt, seed, w = 1200, h = 840, specKey = 'default', idx = 0) {
     if (window.DCMedia && window.DCMedia.has && window.DCMedia.has('pollinations')) {
       const clean = String(prompt || 'luxury minimalist Korean architectural studio interior, soft daylight, editorial photography, 8k')
         .replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 240);
       const enc = encodeURIComponent(clean + ', ultra detailed, editorial photography, no text, no watermark');
       return `https://image.pollinations.ai/prompt/${enc}?width=${w}&height=${h}&seed=${seed}&nologo=true&enhance=true`;
     }
-    return '';
+    const pool = PHOTO_BANK[specKey] || PHOTO_BANK.default;
+    return pool[idx % pool.length];
   }
 
   /* ================= LLM BLUEPRINT SYSTEM PROMPT ================= */
@@ -1253,7 +1340,7 @@ JSON 스키마:
     const P = bp.palette;
     const baseSeed = Math.floor((Date.now() / 1000) % 89000) + 1000;
     let sIdx = 0;
-    const nextUrl = (prompt, w = 1200, h = 840) => bespokeImgUrl(prompt, baseSeed + (++sIdx) * 37, w, h);
+    const nextUrl = (prompt, w = 1200, h = 840) => bespokeImgUrl(prompt, baseSeed + (++sIdx) * 37, w, h, specKey, sIdx - 1);
 
     const heroImg = nextUrl(bp.heroPrompt, 960, 1200);
     const revealImg = nextUrl(bp.revealPrompt, 1600, 1000);
@@ -2260,18 +2347,23 @@ crmDrawer.onclick=e=>{if(e.target===crmDrawer)crmDrawer.classList.remove('open')
 
     run.stage('MOTION');
     run.log(`motion 업종 특화 인터랙션 모듈 및 반응형 완성본 조립`, 'ok');
-    const A = window.ILLArchetypes || {};
-    let html;
-    if (arch === 'atelier' && A.renderAtelier) html = A.renderAtelier(bp);
-    else if (arch === 'architecture' && A.renderArchitecture) html = A.renderArchitecture(bp);
-    else if (arch === 'luxury' && A.renderLuxury) html = A.renderLuxury(bp);
-    else if (arch === 'cafe' && A.renderCafe) html = A.renderCafe(bp);
-    else if (arch === 'saas' && A.renderSaaS) html = A.renderSaaS(bp);
-    else if (arch === 'corporate' && A.renderCorporate) html = A.renderCorporate(bp);
-    else if (arch === 'commerce' && A.renderCommerce) html = A.renderCommerce(bp);
-    else if (arch === 'landing' && A.renderLanding) html = A.renderLanding(bp);
-    else html = renderMeridianSite(bp, spec.key);
-    run.calls.push({ label: 'editorial-engine', provider: 'ILL Multi-Archetype Engine', short: arch.toUpperCase(), pid: 'media', model: 'v3' });
+    function dispatchRender(bp, specKey, arch) {
+      const A = window.ILLArchetypes || {};
+      const photos = PHOTO_BANK[specKey] || PHOTO_BANK.default;
+      const bpWithPhotos = { ...bp, _photos: photos };
+      if (arch === 'atelier' && A.renderAtelier) return A.renderAtelier(bpWithPhotos);
+      if (arch === 'architecture' && A.renderArchitecture) return A.renderArchitecture(bpWithPhotos);
+      if (arch === 'luxury' && A.renderLuxury) return A.renderLuxury(bpWithPhotos);
+      if (arch === 'cafe' && A.renderCafe) return A.renderCafe(bpWithPhotos);
+      if (arch === 'saas' && A.renderSaaS) return A.renderSaaS(bpWithPhotos);
+      if (arch === 'corporate' && A.renderCorporate) return A.renderCorporate(bpWithPhotos);
+      if (arch === 'commerce' && A.renderCommerce) return A.renderCommerce(bpWithPhotos);
+      if (arch === 'landing' && A.renderLanding) return A.renderLanding(bpWithPhotos);
+      return renderMeridianSite(bpWithPhotos, specKey);
+    }
+    const html = dispatchRender(bp, spec.key, arch);
+    run.siteState = { bp, specKey: spec.key, arch, specialtyLabel: bp.specialtyLabel };
+    run.calls.push({ label: 'editorial-engine', provider: 'ILL Multi-Archetype Engine', short: arch.toUpperCase(), pid: 'media', model: 'v4' });
 
     const benchMd = bp.benchmarkNotes.map((b) => `- ${b}`).join('\n');
     return `## 합의 요약
@@ -2279,7 +2371,7 @@ crmDrawer.onclick=e=>{if(e.target===crmDrawer)crmDrawer.classList.remove('open')
   - 적용 아키타입: **${archNames[arch]}**
 ${benchMd}
 - **브랜드 & 디자인 시스템**: **${bp.brand} (${bp.brandSub})** · 업종 전용 팔레트(\`${bp.palette.paper}\` / \`${bp.palette.brand}\` / \`${bp.palette.accent}\`) 적용
-- **직접 생성 비주얼 & 인터랙션**: 외부 스톡·한도 배너 없이 업종과 카피에 맞춰 직접 합성한 비주얼·60fps 모션 캔버스와 실전 인터랙션(견적 계산기·요금 엔진·라이브 콘솔·메뉴/컬렉션 필터·CRM 예약)을 통합 구현했습니다.
+- **고화질 에디토리얼 비주얼 & 인터랙션**: 업종 맞춤 고화질 실사 비주얼·60fps 모션 히어로와 실전 인터랙션(견적 계산기·요금 엔진·라이브 콘솔·장바구니·Before/After 슬라이더·CRM 예약)을 통합 구현했습니다.
 
 ## 자율 실행 산출물
 \`\`\`html
@@ -2292,10 +2384,71 @@ user_goal: "${String(prompt).slice(0, 70).replace(/"/g, "'")}"
 specialty: "${bp.specialtyLabel}"
 archetype: "${arch}"
 brand: "${bp.brand}"
-completed_steps: ["상위 1% 업종 벤치마크 및 아키타입 선정", "업종 전용 레이아웃·맞춤 카피 설계", "직접 생성 비주얼·60fps 모션 합성", "업종 특화 인터랙션·예약/견적 모듈 빌드"]
+completed_steps: ["상위 1% 업종 벤치마크 및 아키타입 선정", "업종 전용 레이아웃·맞춤 카피 설계", "고화질 에디토리얼 비주얼·60fps 모션 합성", "업종 특화 인터랙션·예약/견적 모듈 빌드"]
 active_artifacts: ["index.html"]
 \`\`\``;
   }
 
-  window.ILLMeridian = { runWebsitePipeline, detectSpecialty, renderMeridianSite };
+  /* ================= CLEAN JSON-PATCH FOLLOW-UP REVISION (NEVER CHOPS HTML / ZERO BROKEN CSS) ================= */
+  async function reviseWebsiteBlueprint(prompt, lastSite, run, callTracked) {
+    run.stage('BENCHMARK');
+    run.log(`revise 기존 [${lastSite.bp.brand}] 블루프린트 기반 정밀 수정 분석`, 'k');
+    run.stage('ARCHITECTURE');
+    let patched = null;
+    try {
+      const r = await callTracked(run, {
+        role: 'general',
+        label: 'revise-json',
+        system: '당신은 웹 디자인 JSON 편집기입니다. 사용자의 수정 요청을 반영해 변경이 필요한 필드만 담은 순수 JSON 패치 객체만 출력하십시오(코드펜스·설명 금지). palette 변경 요청 시 paper/paper2/ink/ink2/mute/brand/brand2/accent/dark HEX 값을 모두 조화롭게 갱신하십시오.',
+        messages: [{ role: 'user', content: `현재 블루프린트:\n${JSON.stringify(lastSite.bp).slice(0, 6000)}\n\n사용자 수정 요청:\n${prompt}\n\n수정할 JSON 패치만 출력:` }],
+        maxTokens: 2400,
+        temperature: 0.4,
+      });
+      const jm = r.text.match(/\{[\s\S]*\}/);
+      if (jm) patched = JSON.parse(jm[0]);
+    } catch (e) {
+      if (e.kind === 'abort') throw e;
+    }
+    const nextBp = {
+      ...lastSite.bp,
+      ...(patched && typeof patched === 'object' ? patched : {}),
+      palette: { ...lastSite.bp.palette, ...(patched?.palette || {}) },
+    };
+    run.stage('VISUALS');
+    run.log('visual 수정된 디자인 시스템에 맞춰 고화질 비주얼 재매핑', 'ok');
+    run.stage('MOTION');
+    const A = window.ILLArchetypes || {};
+    const photos = PHOTO_BANK[lastSite.specKey] || PHOTO_BANK.default;
+    const bpWithPhotos = { ...nextBp, _photos: photos };
+    const arch = lastSite.arch || 'meridian';
+    let html;
+    if (arch === 'atelier' && A.renderAtelier) html = A.renderAtelier(bpWithPhotos);
+    else if (arch === 'architecture' && A.renderArchitecture) html = A.renderArchitecture(bpWithPhotos);
+    else if (arch === 'luxury' && A.renderLuxury) html = A.renderLuxury(bpWithPhotos);
+    else if (arch === 'cafe' && A.renderCafe) html = A.renderCafe(bpWithPhotos);
+    else if (arch === 'saas' && A.renderSaaS) html = A.renderSaaS(bpWithPhotos);
+    else if (arch === 'corporate' && A.renderCorporate) html = A.renderCorporate(bpWithPhotos);
+    else if (arch === 'commerce' && A.renderCommerce) html = A.renderCommerce(bpWithPhotos);
+    else if (arch === 'landing' && A.renderLanding) html = A.renderLanding(bpWithPhotos);
+    else html = renderMeridianSite(bpWithPhotos, lastSite.specKey);
+    run.siteState = { ...lastSite, bp: nextBp };
+    run.calls.push({ label: 'revise-engine', provider: 'ILL Multi-Archetype Engine', short: 'REVISE', pid: 'media', model: 'v4' });
+    return `## 합의 요약
+- 요청하신 수정 사항(**"${String(prompt).slice(0, 50)}"**)을 **${nextBp.brand}** 전체 디자인 시스템과 레이아웃 손상 없이 깔끔하게 반영했습니다.
+
+## 자율 실행 산출물
+\`\`\`html
+${html}
+\`\`\`
+
+## 세션 상태 스냅샷
+\`\`\`yaml
+user_goal: "${String(prompt).slice(0, 70).replace(/"/g, "'")}"
+brand: "${nextBp.brand}"
+archetype: "${arch}"
+active_artifacts: ["index.html"]
+\`\`\``;
+  }
+
+  window.ILLMeridian = { runWebsitePipeline, reviseWebsiteBlueprint, detectSpecialty, renderMeridianSite };
 })();

@@ -122,20 +122,76 @@
     peaks.forEach((p, i) => { const h = Math.max(2 * dpr, p * H * 0.92); g.fillStyle = i / peaks.length < prog ? '#00FF66' : '#1f4a32'; g.fillRect(i * bw + 1, (H - h) / 2, Math.max(1, bw - 2), h); });
   }
 
-  /* ================= AI 작곡 ================= */
-  const CHIPS = ['비 오는 밤 로파이', '운동할 때 신나는 EDM', '새벽 코딩 신스웨이브', '카페 재즈 브금', '첫사랑 감성 발라드', '게임 보스전 오케스트라', '여름 바다 시티팝', '사이버펑크 해커 테마'];
+  /* ================= AI 작곡 (CORE 연동 + 브라우저 100% 무료 ILL Sound A/B 2곡 생성) ================= */
+  const CHIPS = ['비 오는 밤 로파이', '운동할 때 신나는 EDM', '새벽 코딩 신스웨이브', '카페 재즈 브금', '첫사랑 감성 발라드', '게임 보스전 오케스트라', '여름 바다 시티팝', '808 감성 R&B 트랩'];
   $('#mChips').innerHTML = CHIPS.map((c) => `<button type="button">${esc(c)}</button>`).join('');
   $$('#mChips button').forEach((b) => (b.onclick = () => { $('#mPrompt').value = b.textContent; $('#mPrompt').focus(); }));
   let vocal = 'vocal';
   $$('#mVocal button').forEach((b) => (b.onclick = () => { vocal = b.dataset.v; $$('#mVocal button').forEach((x) => x.classList.toggle('on', x === b)); }));
+  $$('#mMode button').forEach((b) => (b.onclick = () => {
+    $$('#mMode button').forEach((x) => x.classList.toggle('on', x === b));
+    const custom = b.dataset.md === 'custom';
+    if ($('#mCustomBox')) $('#mCustomBox').hidden = !custom;
+    if (custom) $('#mLyrics').hidden = false;
+  }));
+  if ($('#mDice')) $('#mDice').onclick = () => {
+    const pick = CHIPS[Math.floor(Math.random() * CHIPS.length)];
+    $('#mPrompt').value = pick; $('#mPrompt').focus();
+  };
+  $$('#metaChips button').forEach((b) => (b.onclick = () => {
+    const ta = $('#mLyrics'); ta.hidden = false;
+    ta.value = (ta.value ? ta.value.trimEnd() + '\n\n' : '') + b.textContent + '\n';
+    ta.focus();
+  }));
   $('#mLyricsToggle').onclick = () => { $('#mLyrics').hidden = !$('#mLyrics').hidden; };
   $('#mPrompt').addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); create(); } });
   $('#mCreate').onclick = () => create();
 
+  async function createBrowserAB(input) {
+    const S = window.ILLSound;
+    if (!S) return toast('음악 합성 엔진을 불러오는 중입니다.');
+    const g = S.detectGenre(input);
+    const dur = Math.min(60, Math.max(20, Number($('#mDur').value) || 30));
+    const customStyle = ($('#mStyle')?.value || '').trim();
+    const customExcl = ($('#mExclude')?.value || '').trim();
+    const customLyr = !$('#mLyrics').hidden && $('#mLyrics').value.trim() ? $('#mLyrics').value.trim() : g.lyrics;
+    $('#mCreate').disabled = true;
+    try {
+      const createdIds = [];
+      for (const take of [0, 1]) {
+        const id = uid();
+        const title = `${input.slice(0, 22)} (${take === 0 ? 'Take A' : 'Take B'})`;
+        const song = {
+          title, bpm: take === 0 ? g.bpm : Math.max(66, g.bpm + (take ? 4 : 0)), key: g.key,
+          caption: customStyle || g.style, exclude: customExcl || g.exclude,
+          instrumental: vocal === 'inst', lyrics: customLyr,
+        };
+        const rec = { id, title, song, created: Date.now() + take, state: 'pending', prompt: input };
+        const card = trackCard(rec); $('#trackList').prepend(card);
+        const stEl = $('.trk-status', card);
+        if (stEl) stEl.innerHTML = `<b>●</b> ILL Sound 5-Stem 스테레오 WAV 렌더링 중 (${take === 0 ? 'Take A' : 'Take B'})…`;
+        const wav = await S.renderWavTrack({
+          chords: take === 0 ? g.chordsA : g.chordsB,
+          bpm: song.bpm, drumStyle: g.drumStyle, duration: dur, take, instrumental: vocal === 'inst',
+        });
+        const pk = await peaksOf(wav.blob);
+        Object.assign(rec, { blob: wav.blob, mime: 'audio/wav', peaks: pk.peaks, duration: pk.duration || wav.duration, state: 'ready', engine: 'ILL Sound V6 · 5-Stem' });
+        await DB.put('tracks', rec);
+        card.replaceWith(trackCard(rec));
+        createdIds.push(id);
+      }
+      updateCounts();
+      if (createdIds[0]) play(createdIds[0]);
+      toast('Take A / Take B 2곡 변주가 완성되었습니다!');
+    } catch (e) {
+      toast('음원 생성 실패: ' + e.message);
+    } finally { $('#mCreate').disabled = false; }
+  }
+
   async function create(promptOverride) {
     const input = (promptOverride || $('#mPrompt').value).trim();
     if (!input) { $('#mPrompt').focus(); return toast('한 줄만 써 주세요. 대충 써도 됩니다'); }
-    if (!(await checkCore())) { needCore('AI 작곡은 내 PC의 darkcode-core 가 처리합니다. 아래 순서대로 켜면 이 화면이 저절로 연결돼요.'); return; }
+    if (!(await checkCore())) { return createBrowserAB(input); }
     const id = uid();
     const rec = { id, title: '작곡 설계 중…', song: { caption: input }, created: Date.now(), state: 'pending', prompt: input };
     const card = trackCard(rec); $('#trackList').prepend(card);
@@ -161,7 +217,7 @@
       }
       await DB.put('tracks', rec);
       card.replaceWith(trackCard(rec));
-      if (rec.state === 'ready') { play(rec.id); toast(`"${rec.title}" 완성!`); } else toast('작곡안 완성 · 음악 엔진이 꺼져 있어 Suno 로 넘길 수 있어요');
+      if (rec.state === 'ready') { play(rec.id); toast(`"${rec.title}" 완성!`); } else toast('작곡안이 완성되었습니다');
       updateCounts();
     } catch (e) {
       card.classList.remove('pending'); card.classList.add('nopath');
@@ -181,7 +237,7 @@
     el.innerHTML = `<div class="trk-cover"><canvas width="192" height="192"></canvas>${t.state === 'ready' ? '<button type="button" aria-label="재생">▶</button>' : ''}</div>
       <div class="trk-main"><h3 class="trk-title">${esc(t.title)}</h3><div class="trk-tags">${tagsHtml(t.song || {})}</div>
       ${t.state === 'ready' ? '<canvas class="trk-wave"></canvas>' : ''}
-      <div class="trk-status">${t.state === 'ready' ? `${fmt(t.duration)} · ${esc(t.engine || 'ACE-Step')} · ${new Date(t.created).toLocaleString('ko-KR')}` : t.state === 'plan' ? `작곡안만 완성 — ${esc(t.reason || '음악 엔진 꺼짐')}` : ''}</div></div>
+      <div class="trk-status">${t.state === 'ready' ? `${fmt(t.duration)} · ${esc(t.engine || 'ILL Sound')} · ${new Date(t.created).toLocaleString('ko-KR')}` : t.state === 'plan' ? `작곡안만 완성 — ${esc(t.reason || '오디오 대기')}` : ''}</div></div>
       <div class="trk-acts"></div>`;
     drawCover($('.trk-cover canvas', el), t.title);
     const acts = $('.trk-acts', el);
@@ -190,15 +246,11 @@
       $('.trk-cover button', el).onclick = () => play(t.id);
       const wave = $('.trk-wave', el); wave._peaks = t.peaks; requestAnimationFrame(() => drawWave(wave, t.peaks, 0));
       wave.onclick = (e) => { if (nowId !== t.id) { play(t.id).then(() => seekWave(e, wave)); } else seekWave(e, wave); };
-      const a = document.createElement('a'); a.textContent = '다운로드'; a.href = urlFor(t); a.download = `${t.title}.mp3`; acts.append(a);
+      const a = document.createElement('a'); a.textContent = 'WAV 저장'; a.href = urlFor(t); a.download = `${t.title}.${t.mime === 'audio/wav' ? 'wav' : 'mp3'}`; acts.append(a);
       btn('영상 만들기', async () => { setTab('video'); await fillTrackSelect(); $('#vTrack').value = t.id; loadVideoAudio(t.id); });
     }
-    if (t.song?.lyrics || t.song?.caption) btn('가사·스타일', () => { const pre = $('.trk-lyrics', el); if (pre) return pre.remove(); const p = document.createElement('pre'); p.className = 'trk-lyrics'; p.textContent = `스타일: ${t.song.caption || ''}\n\n${t.song.lyrics || '(인스트)'}`; el.append(p); });
-    if (t.state === 'plan' || t.state === 'ready') btn('Suno로 보내기', async () => {
-      const style = t.handoff?.style || `${t.song.caption}, ${t.song.bpm} BPM`; const lyr = t.handoff?.lyrics || t.song.lyrics || '';
-      try { await navigator.clipboard.writeText(`[Style]\n${style}\n\n[Lyrics]\n${lyr}`); } catch {}
-      window.open('https://suno.com/create', '_blank', 'noopener'); toast('스타일·가사를 복사했어요. Suno 커스텀 모드에 붙여넣으세요');
-    });
+    if (t.song?.lyrics || t.song?.caption) btn('가사·스타일', () => { const pre = $('.trk-lyrics', el); if (pre) return pre.remove(); const p = document.createElement('pre'); p.className = 'trk-lyrics'; p.textContent = `스타일: ${t.song.caption || ''}\n${t.song.exclude ? '제외: ' + t.song.exclude + '\n' : ''}\n${t.song.lyrics || '(인스트)'}`; el.append(p); });
+    if (t.state === 'ready') btn('리믹스 변주', () => { createBrowserAB((t.prompt || t.title) + ' 리믹스'); });
     if (t.state !== 'pending') btn('삭제', async () => { if (nowId === t.id) { audio.pause(); nowId = null; } await DB.del('tracks', t.id); el.remove(); updateCounts(); });
     return el;
   }

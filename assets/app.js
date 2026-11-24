@@ -854,7 +854,7 @@ async function execute(prompt, { noCache = false } = {}) {
   state.running = run;
   setRunning(true);
   try {
-    const key = fnv(JSON.stringify({ v: 9, mode, domain, route: state.route, p: prompt.trim().toLowerCase(), ctx: thread.messages.slice(-5, -1).map((m) => (m.modelText || m.content).slice(0, 400)) }));
+    const key = fnv(JSON.stringify({ v: 10, mode, domain, route: state.route, p: prompt.trim().toLowerCase(), ctx: thread.messages.slice(-5, -1).map((m) => (m.modelText || m.content).slice(0, 400)) }));
     run.stage('CACHE');
     run.log(`cache  lookup key=${key} ttl=${opts.ttl}s`, 'k');
     const execMode = mode === 'exec';
@@ -874,7 +874,7 @@ async function execute(prompt, { noCache = false } = {}) {
       if (mode === 'website') modelText = await window.ILLMeridian.runWebsitePipeline(prompt, run, callTracked);
       else if (mode === 'image') modelText = await runImage(prompt, run);
       else if (mode === 'video') modelText = await runVideoMotion(prompt, run);
-      else if (mode === 'music') modelText = await runMusicStudio(prompt, run);
+      else if (mode === 'music') modelText = window.ILLSound ? await window.ILLSound.runMusicPipeline(prompt, run, callTracked) : await runMusicStudio(prompt, run);
       else if (mode === 'local6') modelText = await runLocal6(prompt, run, thread);
       else if (mode === 'core') modelText = await runCore(prompt, run, thread);
       else if (mode === 'exec') modelText = await runExec(prompt, run, thread);

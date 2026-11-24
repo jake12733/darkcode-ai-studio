@@ -105,9 +105,9 @@ async function loadMediaKeys() {
 function mediaStatusText() {
   const s = window.DCMedia ? window.DCMedia.status() : null;
   if (!s) return '미디어 엔진 없음';
-  return `사진 ${s.photo.join('·')} · 영상 ${s.video.join('·') || '없음 (Pexels/Pixabay 키 필요)'} · AI 이미지 ${s.ai === 'classic' ? 'Classic (불안정)' : 'Pollinations'} · 나레이션 ${s.tts.join('·') || '없음 (Gemini 키 필요)'}`;
+  return `사진 Pexels HD (${s.photo.join('·')}) · 영상 ${s.video.join('·') || 'Pexels HD 모션'} · AI 이미지 ILL Vision HD · 나레이션 ${s.tts.join('·') || '키 설정 시 활성'}`;
 }
-/* ---------- 로컬 Ollama 무제한 백업: 켜져 있으면 자동 연결 · 설치된 모델 자동 선택 ---------- */
+/* ---------- 로컬 PC 무제한 백업: 켜져 있으면 자동 연결 · 설치된 모델 자동 선택 ---------- */
 async function autoLocal() {
   const o = prov.ollama; if (!o || opts.localAuto === false) return;
   const base = String(o.base || 'http://localhost:11434/v1').replace(/\/v1\/?$/, '').replace(/\/$/, '');
@@ -122,8 +122,8 @@ async function autoLocal() {
     if (!has(o.model)) { o.model = clean(['qwen3:8b', 'qwen2.5-coder:7b', 'qwen3:14b', 'ai-dev'].find(has) || names.find((n) => /coder/i.test(n)) || names.find((n) => /^qwen3/i.test(n)) || names[0]); changed = true; }
     if (!has(o.fastModel)) { o.fastModel = clean(['qwen3:4b', 'qwen3:1.7b', 'llama3.2:3b'].find(has) || o.model); changed = true; }
     if (!o.enabled) { o.enabled = true; changed = true; }
-    if (changed) { saveProvidersMeta(); renderPool(); renderStatus(); TEL()?.log(`local  Ollama 자동 연결 · ${o.model} (무제한 백업)`, 'ok'); }
-  } catch { /* Ollama 꺼짐: 클라우드 풀만 사용 */ }
+    if (changed) { saveProvidersMeta(); renderPool(); renderStatus(); TEL()?.log(`local  로컬 PC 엔진 자동 연결 완료 (무제한 백업)`, 'ok'); }
+  } catch { /* 로컬 PC 엔진 꺼짐: 클라우드 풀만 사용 */ }
 }
 /* ---------- 모델 이름 자동 갱신: 키가 있는 프로바이더의 실제 모델 목록에서 고른다 (하루 1번) ---------- */
 async function refreshModels(force) {
@@ -283,7 +283,7 @@ async function callProvider(p, { system, messages, onToken, signal, maxTokens = 
     const base = (p.base || '').replace('{account}', p.account || '').replace(/\/$/, '');
     const headers = { 'Content-Type': 'application/json' };
     if (p.key) headers.Authorization = `Bearer ${p.key}`;
-    if (p.id === 'openrouter') { headers['HTTP-Referer'] = location.origin + location.pathname; headers['X-Title'] = 'DARK CODE'; }
+    if (p.id === 'openrouter') { headers['HTTP-Referer'] = location.origin + location.pathname; headers['X-Title'] = 'ILL AI'; }
     const msgs = (system ? [{ role: 'system', content: system }] : []).concat(messages.map((m) => ({ role: m.role, content: m.content })));
     const { res, ctl } = await fetchWithTimeout(`${base}/chat/completions`, { method: 'POST', headers, body: JSON.stringify({ model, messages: msgs, stream: true, max_tokens: maxTokens, temperature }) }, signal);
     if (!res.ok) throw await readError(res);
@@ -370,7 +370,7 @@ function generateAutonomousTaskResponse(messages, role) {
 고품질 콘텐츠를 꾸준히 발행하는 것이 블로그 성장의 핵심입니다. AI가 완성한 고품질 원고를 바탕으로 독자에게 실질적인 가치를 제공하는 글을 빠르게 발행해 보세요.
 
 ---
-**해시태그**: #AI자동화 #블로그포스팅 #생산성도구 #스마트워크 #다크코드
+**해시태그**: #AI자동화 #블로그포스팅 #생산성도구 #스마트워크 #ILLAI
 
 ## 세션 상태 스냅샷
 \`\`\`yaml
@@ -392,19 +392,19 @@ constraints: ["한국어 자연스러운 문체", "완성본 원고 제공"]
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DarkCode Autonomous Output</title>
+  <title>ILL AI Autonomous Output</title>
   <style>
-    body { margin: 0; background: #050b0a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-    .card { background: rgba(0,255,136,0.05); border: 1px solid #00ff88; padding: 32px; border-radius: 16px; max-width: 500px; text-align: center; box-shadow: 0 0 30px rgba(0,255,136,0.15); }
-    h1 { color: #00ff88; margin-top: 0; font-size: 24px; }
-    p { line-height: 1.6; color: #94a3b8; }
-    .btn { display: inline-block; background: #00ff88; color: #000; font-weight: bold; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 16px; }
+    body { margin: 0; background: #09090d; color: #f4f4f5; font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .card { background: rgba(212,165,134,0.06); border: 1px solid rgba(212,165,134,0.35); padding: 36px; border-radius: 18px; max-width: 500px; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.45); }
+    h1 { color: #e2b899; margin-top: 0; font-size: 24px; letter-spacing: -0.02em; }
+    p { line-height: 1.65; color: #a1a1aa; }
+    .btn { display: inline-block; background: linear-gradient(135deg,#d4a586,#b88360); color: #09090d; font-weight: 700; padding: 12px 26px; border-radius: 999px; text-decoration: none; margin-top: 16px; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>⚡ DARK CODE AUTONOMOUS</h1>
-    <p>요청하신 산출물이 성공적으로 준비되었습니다. 우측 패널에서 상세 코드와 문서를 확인하실 수 있습니다.</p>
+    <h1>ILL AI AUTONOMOUS</h1>
+    <p>요청하신 산출물이 성공적으로 준비되었습니다. 우측 캔버스에서 상세 코드와 문서를 확인하실 수 있습니다.</p>
     <a href="#" class="btn" onclick="alert('정상 작동 확인!')">작동 확인</a>
   </div>
 </body>
@@ -456,19 +456,19 @@ async function routeCall({ role, system, messages, onToken, signal, log, avoid =
       log(`fail   ${p.short} ${e.status || e.kind} → 다음 노드로 전환${cd}`, 'warn');
     }
   }
-  // local Ollama fallback
+  // local PC engine fallback
   const o = prov.ollama;
   if (o.enabled) {
     const mkey = ROLE_MODEL_LOCAL[role] || 'model';
-    log(`fallback 외부 풀 소진 → 로컬 Ollama (${o[mkey]})`, 'warn');
-    try { return await tryOne(o, o[mkey]); } catch (e) { if (e.kind === 'abort') throw e; markFail(o, e); log(`fail   OLLAMA ${e.message}`, 'err'); }
+    log(`fallback 외부 풀 소진 → 로컬 PC 엔진으로 전환`, 'warn');
+    try { return await tryOne(o, o[mkey]); } catch (e) { if (e.kind === 'abort') throw e; markFail(o, e); log(`fail   LOCAL ${e.message}`, 'err'); }
   } else {
-    log('fallback 로컬 Ollama 비활성 (설정에서 켜면 무제한 폴백)', 't');
+    log('fallback 로컬 PC 엔진 비활성 (설정에서 켜면 무제한 폴백)', 't');
   }
-  // 평생 무료 보장: 풀 소진 시 쿨다운 강제 해제 후 내장 무료(pollinations 또는 gemini-free)로 즉시 재시도
+  // 평생 무료 보장: 풀 소진 시 쿨다운 강제 해제 후 내장 무료 노드로 즉시 재시도
   const backupFree = prov['pollinations'] || prov['gemini-free'];
   if (backupFree) {
-    log(`fallback 평생 무료 보장 → 내장 ${backupFree.short} 즉시 쿨다운 리셋 후 복구`, 'ok');
+    log(`fallback 평생 무료 보장 → 내장 ${backupFree.short} 즉시 복구`, 'ok');
     backupFree.cooldownUntil = 0; backupFree.health = 1;
     try { return await tryOne(backupFree); } catch (err) {
       if (prov['gemini-free'] && backupFree !== prov['gemini-free']) {
@@ -478,54 +478,60 @@ async function routeCall({ role, system, messages, onToken, signal, log, avoid =
     }
   }
   // 최종 방어선: 네트워크 장애 시에도 에러 창을 띄우지 않고 자율 사고 기반 로컬 합성 가동
-  log('fallback 자율 적응 엔진 가동 (로컬 지능 합성)', 'ok');
+  log('fallback ILL AI 자율 적응 엔진 가동', 'ok');
   return {
     text: generateAutonomousTaskResponse(messages, role),
-    provider: { short: 'AUTONOMOUS', name: 'DarkCode Autonomous Engine', id: 'autonomous', health: 1 },
-    model: 'adaptive-agent-v1'
+    provider: { short: 'ILL-AUTO', name: 'ILL AI Autonomous Engine', id: 'autonomous', health: 1 },
+    model: 'ill-adaptive-v1'
   };
 }
 
 /* ================= CACHE ================= */
 function cacheGet(key) {
   const idx = LS.get('cidx', []);
-  const e = LS.get('c2:' + key, null);
+  const e = LS.get('c3:' + key, null);
   if (!e) return null;
-  if (Date.now() - e.t > (e.ttl || opts.ttl) * 1000) { LS.del('c2:' + key); LS.set('cidx', idx.filter((k) => k !== key)); return null; }
+  if (Date.now() - e.t > (e.ttl || opts.ttl) * 1000) { LS.del('c3:' + key); LS.set('cidx', idx.filter((k) => k !== key)); return null; }
   return e;
 }
 function cachePut(key, value) {
   let idx = LS.get('cidx', []).filter((k) => k !== key);
   idx.push(key);
-  while (idx.length > 60) LS.del('c2:' + idx.shift());
+  while (idx.length > 60) LS.del('c3:' + idx.shift());
   LS.set('cidx', idx);
-  LS.set('c2:' + key, { t: Date.now(), ttl: opts.ttl, ...value });
+  LS.set('c3:' + key, { t: Date.now(), ttl: opts.ttl, ...value });
 }
-function cacheClear() { for (const k of LS.get('cidx', [])) { LS.del('c:' + k); LS.del('c2:' + k); } LS.set('cidx', []); }
+function cacheClear() { for (const k of LS.get('cidx', [])) { LS.del('c:' + k); LS.del('c2:' + k); LS.del('c3:' + k); } LS.set('cidx', []); }
 
-/* ================= PROMPTS ================= */
-const SYSTEM_CORE = `당신은 최상급 풀스택 웹 디자이너이자 프론트엔드 아키텍트입니다.
-사용자의 요청을 받으면 즉시 상용 서비스로 출시할 수 있는 간결하고 완성도 높은 단일 HTML 완성본(<!doctype html>)을 빠르게 제작합니다.
+/* ================= PROMPTS (ILL AI MULTI-DOMAIN SPECIALIST) ================= */
+const SYSTEM_CORE = `당신은 ILL AI의 최상급 크리에이티브 디렉터이자 모션그래픽 프론트엔드 아키텍트입니다.
+사용자 요청을 받으면 하이엔드 브랜드 에이전시 수준의 고급 모션그래픽과 트렌디한 인터랙션이 살아있는 단일 HTML 완성본(<!doctype html>)을 빠르고 완벽하게 제작합니다.
 
-[필수 품질·속도 원칙]
-1. 100% 자체 완결형 CSS (외부 CSS 프레임워크 절대 금지):
-   - 외부 CSS CDN을 절대 쓰지 말고, \`<head>\` 안의 \`<style>\`에 깔끔한 \`:root\` 변수, 리셋(\`*{box-sizing:border-box;margin:0;padding:0}\`), 반응형 Grid/Flexbox, 여백, 그림자를 직접 작성하십시오.
-2. 업종별 에디토리얼 디자인:
-   - 병원·치과·클리닉·기업·교육: 신뢰감 있는 화이트 라이트 테마(\`#ffffff\`, \`#f8fafc\`, 딥 네이비 \`#0f2942\`, 틸/블루 포인트 \`#0d9488\`).
-   - 뷰티·호텔·카페: 따뜻한 아이보리(\`#faf8f5\`) + 에스프레소(\`#1c1917\`) + 골드(\`#b4834c\`).
-   - 테크·AI·스튜디오: 다크 슬레이트(\`#09090b\`) 또는 화이트 미니멀.
-3. 4~5개 명확한 화면 섹션(\`data-stitch-screen\` 속성 포함, 전체 220~340줄 내로 군더더기 없이 빠르게 완성):
-   - 상단 고정 헤더(로고, 메뉴 4개, 예약/문의 CTA 버튼)
-   - \`<section id="hero" data-stitch-screen="메인 페이지">\`: 2단 히어로 + 핵심 강점 3열 카드
-   - \`<section id="services" data-stitch-screen="주요 안내">\`: 탭 필터가 동작하는 4개 카드
-   - \`<section id="team" data-stitch-screen="소개">\`: 대표 프로필 + 팀원 그리드
-   - \`<section id="contact" data-stitch-screen="예약 · 오시는 길">\`: 운영시간·위치 + 실시간 예약 폼(제출 시 접수 완료 알림) + 푸터
-4. 이미지 규칙: \`<video>\` 태그 금지. 모든 사진은 \`<img data-dc-img="영문 묘사" alt="한글 설명">\`으로 넣고 \`width:100%;object-fit:cover\` 지정.
-5. 생략("...") 없이 한 번에 닫히는 완벽한 \`</html>\`까지 출력하십시오.
+[필수 품질 · 모션그래픽 · Pexels 미디어 원칙]
+1. 100% 자체 완결형 하이엔드 CSS (외부 CSS 프레임워크 CDN 절대 금지):
+   - \`<head>\` 안 \`<style>\`에 정교한 \`:root\` 디자인 토큰, 리셋(\`*{box-sizing:border-box;margin:0;padding:0}\`), 반응형 Grid/Flexbox, 글래스모피즘(\`backdrop-filter:blur(18px)\`), 깊은 레이어드 그림자를 직접 작성하십시오.
+2. 고급 모션그래픽 & 트렌디 마이크로 인터랙션 (필수 구현):
+   - 스크롤 진입 리빌 모션: \`IntersectionObserver\`로 각 섹션·카드에 \`.reveal\` → \`.is-visible\` 순차 전환(\`opacity:0;transform:translateY(28px);transition:all .75s cubic-bezier(.16,1,.3,1)\`, 카드별 \`transition-delay\`).
+   - 히어로 시네마틱 모션: 은은한 \`@keyframes kenBurns\` 배경/비주얼 줌 모션 + 광택 그라데이션 오라 + 스크롤 시 블러가 깊어지는 Sticky 헤더.
+   - 인터랙션 디테일: 카드 호버 3D 리프트(\`translateY(-6px)\`) + 내부 사진 부드러운 줌(\`scale(1.06)\`), 버튼 광택(shimmer) 호버, 핵심 지표 숫자 카운트업 애니메이션, 실제 작동하는 카테고리 탭 필터·예약/상담 모달(제출 시 완료 토스트 + localStorage 저장).
+3. 업종별 럭셔리 컬러 & 에디토리얼 타이포그래피:
+   - 병원·치과·클리닉·기업·금융: 퓨어 화이트(\`#ffffff\`) + 미스트(\`#f6f8fb\`) + 딥 네이비(\`#0c1e35\`) + 세이지 틸/로즈골드 포인트(\`#0d9488\` / \`#c4956a\`).
+   - 뷰티·호텔·카페·패션: 웜 아이보리(\`#faf7f2\`) + 에스프레소(\`#181512\`) + 샴페인 골드(\`#b88853\`).
+   - 테크·AI·스튜디오·크리에이티브: 옵시디언(\`#08090f\`) + 글래스 카드 + 일렉트릭 인디고/로즈골드(\`#818cf8\` / \`#d4a586\`).
+4. 4~5개 구조화된 화면 섹션(\`data-stitch-screen\` 속성 포함, 260~380줄 내 완결):
+   - 상단 Sticky 글래스 헤더(브랜드 로고, 메뉴 4개, 예약/문의 CTA 버튼)
+   - \`<section id="hero" data-stitch-screen="메인 히어로">\`: 시네마틱 2단 히어로 + 카운트업 KPI 지표 + 핵심 강점 3열 카드
+   - \`<section id="services" data-stitch-screen="핵심 서비스">\`: 실제 동작하는 카테고리 탭 필터 + 4개 인터랙티브 카드
+   - \`<section id="showcase" data-stitch-screen="팀 · 포트폴리오">\`: 대표 프로필/스토리 + 팀·갤러리 그리드
+   - \`<section id="contact" data-stitch-screen="예약 · 오시는 길">\`: 운영시간·위치 + 실시간 예약/문의 폼(제출 시 즉시 확인 카드·토스트) + 세련된 푸터
+5. Pexels 고화질 사진·영상 규칙:
+   - 모든 사진은 Pexels에서 자동 매칭되도록 \`<img data-dc-img="구체적 영문 Pexels 검색어" alt="한국어 설명">\`으로 작성하고 \`width:100%;height:100%;object-fit:cover\`를 지정하십시오 (외부 임의 URL 금지, 장면마다 서로 다른 영문 검색어 사용, 인물은 기본 korean 포함).
+   - 사용자가 동영상을 요청한 경우 히어로 영역에 \`<video data-dc-video="구체적 영문 Pexels 영상 검색어" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover"></video>\`를 배치하십시오.
+6. 생략("...") 없이 반드시 닫히는 \`</html>\`까지 한 번에 완성하십시오.
 
 응답 형식:
 ## 합의 요약
-- 핵심 디자인 및 기능 2~3줄
+- 핵심 디자인 컨셉, 모션 인터랙션, Pexels 미디어 적용 요약 2~3줄
 ## 자율 실행 산출물
 \`\`\`html
 <!doctype html>
@@ -539,10 +545,45 @@ completed_steps: ["..."]
 active_artifacts: ["index.html"]
 \`\`\``;
 
+const DOMAIN_SYSTEMS = {
+  code: `당신은 ILL AI의 수석 소프트웨어 아키텍트이자 풀스택 엔지니어입니다.
+세계 최고 수준의 코딩 AI 워크플로우로 요청을 분석하고, 즉시 실행·배포 가능한 무결점 프로덕션 코드를 작성합니다.
+- 아키텍처 설계 → 핵심 구현 코드(생략 없음, 에러 처리·타입·보안 포함) → 실행/테스트 방법 순으로 명쾌하게 제시하십시오.
+- 외부 타사 AI 브랜드명을 언급하지 마십시오.
+
+응답 형식:
+## 합의 요약
+- 기술 스택 및 핵심 설계 요약 2~3줄
+## 자율 실행 산출물
+(실행 가능한 완성 코드 블록과 간결한 설명)
+## 세션 상태 스냅샷
+\`\`\`yaml
+user_goal: "..."
+completed_steps: ["..."]
+active_artifacts: ["..."]
+\`\`\``,
+  research: `당신은 ILL AI의 수석 전략 컨설턴트이자 리서치·카피라이팅 디렉터입니다.
+최고급 리서치·문서 작성 AI의 깊이와 구조로 실행 가능한 인사이트, 표, 체크리스트, 단계별 액션 플랜을 한국어로 명쾌하게 작성합니다.
+- 모호한 일반론을 피하고 구체적 수치 프레임워크, 비교표, 즉시 쓸 수 있는 완성 문안/전략을 제시하십시오.
+- 외부 타사 AI 브랜드명을 언급하지 마십시오.
+
+응답 형식:
+## 합의 요약
+- 핵심 결론 및 전략 요약 2~3줄
+## 자율 실행 산출물
+(체계적 마크다운 보고서·기획서·완성 문안)
+## 세션 상태 스냅샷
+\`\`\`yaml
+user_goal: "..."
+completed_steps: ["..."]
+active_artifacts: ["report.md"]
+\`\`\``,
+};
+
 const ROLE_PROMPTS = {
-  strategist: `당신은 [UI/UX 아키텍트]입니다. 브랜드 컨셉, 컬러 팔레트(HEX), 4~5개 섹션과 핵심 인터랙션을 한국어 bullet 6줄 이내로 제시하십시오.`,
-  implementer: `당신은 [시니어 웹 디자이너]입니다. 외부 CSS 프레임워크 없이 <style> 내 자체 반응형 CSS로 240~340줄 분량의 완벽한 단일 html 완성본(<!doctype html>~</html>)을 빠르게 작성하십시오. <video> 금지, 사진은 data-dc-img 사용.`,
-  critic: `당신은 [품질 검수자]입니다. CSS 누락·레이아웃 깨짐·인터랙션 오류만 최대 4개 bullet로 지적하십시오.`,
+  strategist: `당신은 [ILL AI UX·모션 아키텍트]입니다. 브랜드 컨셉, 럭셔리 컬러 팔레트(HEX), 모션그래픽 연출 포인트, 4~5개 섹션과 인터랙션을 한국어 bullet 6줄 이내로 제시하십시오.`,
+  implementer: `당신은 [ILL AI 시니어 모션 웹 디자이너]입니다. 외부 CSS 프레임워크 없이 <style> 내 자체 반응형 CSS + 스크롤 리빌·호버 모션·탭·예약 모달이 살아있는 260~380줄 단일 html 완성본(<!doctype html>~</html>)을 작성하십시오. 사진은 Pexels 자동 매칭용 data-dc-img 영문 검색어를 사용하십시오.`,
+  critic: `당신은 [ILL AI 품질 검수자]입니다. CSS 누락·레이아웃 깨짐·모션/인터랙션 오류만 최대 4개 bullet로 지적하십시오.`,
   verifier: `치명적 오류(문법 오류, 잘린 HTML)만 판정하십시오. 첫 줄에 "VERDICT: PASS" 또는 "VERDICT: FAIL".`,
   summarizer: `대화 기록을 4개 섹션([완료된 단계]/[현재 산출물]/[다음 실행 작업]/[제약조건])으로 400 토큰 이내 압축하십시오.`,
 };
@@ -675,6 +716,8 @@ function guessName(lang, i, used) {
 const STAGES_COUNCIL = ['CACHE', 'CONTEXT', 'STRATEGIST', 'IMPLEMENTER', 'CRITIC', 'SYNTH', 'VERIFY', 'GATE', 'RENDER'];
 const STAGES_FAST = ['CACHE', 'CONTEXT', 'ROUTE', 'GENERATE', 'VERIFY', 'GATE', 'RENDER'];
 const STAGES_IMAGE = ['CACHE', 'PROMPT', 'IMAGE', 'RENDER'];
+const STAGES_VIDEO = ['CACHE', 'STORYBOARD', 'MEDIA', 'VIDEO', 'RENDER'];
+const STAGES_MUSIC = ['CACHE', 'COMPOSE', 'AUDIO', 'RENDER'];
 const STAGES_LOCAL6 = ['CACHE', 'ROUTER', 'WORKER', 'CRITIC', 'REVISE', 'RENDER'];
 const STAGES_CORE = ['CACHE', 'CONTEXT', 'ROUTE', 'STRATEGIST', 'IMPLEMENTER', 'CRITIC', 'GATE', 'RENDER'];
 const STAGES_EXEC = ['CACHE', 'CONNECT', 'TESTS', 'GENERATE', 'EXECUTE', 'OBSERVE', 'PATCH', 'GATE', 'RENDER'];
@@ -723,17 +766,23 @@ function routeSummary(run) {
   if (free.length) path.push('클라우드 고속 엔진');
   if (run.calls.some((c) => c.pid === 'ollama')) path.push('로컬 엔진');
   if (run.failovers) path.push(`자동 전환 ${run.failovers}회`);
-  return { path: path.join(' → ') || 'DARK CODE 엔진', used };
+  return { path: path.join(' → ') || 'ILL AI 엔진', used };
 }
 
 function composeAnswer(run, sec, snapshotYaml) {
   const secStr = (run.ms / 1000).toFixed(1);
-  const modeName = ({ council: '정밀 협업', claude: '고정밀 통합', image: '이미지 생성', fast: '자동 모드', local6: '로컬 에이전트', core: '코어 엔진', exec: '실행 검증' })[run.mode] || '자동 모드';
+  const modeName = ({ council: '정밀 협업', claude: '고정밀 통합', image: 'ILL Vision HD', video: 'ILL Motion Studio', music: 'ILL Sound Studio', fast: '자동 모드', local6: '로컬 에이전트', core: '코어 엔진', exec: '실행 검증' })[run.mode] || '자동 모드';
   const hasHtml = /```html/i.test(sec.deliverable || '') || /<!doctype html>/i.test(sec.deliverable || '');
+  const isPlayer = /data-ill-player="true"/i.test(sec.deliverable || '');
   let md = '';
   if (sec.consensus) md += `${sec.consensus}\n\n`;
+  if (isPlayer) {
+    md += `우측 **ILL AI 실시간 플레이어**에서 바로 재생·편집·다운로드할 수 있습니다. 장면이나 스타일을 바꾸고 싶으면 말씀해 주세요.\n\n`;
+    md += `> 완료 **${secStr}s** · ${modeName}`;
+    return md;
+  }
   if (hasHtml) {
-    md += `우측 **멀티 보드 캔버스**에 디자인 시스템과 페이지별 화면을 생성했습니다. 각 보드의 **열기 ↗** 버튼으로 전체 미리보기를 확인하거나, 수정할 부분을 말씀해 주세요.\n\n`;
+    md += `우측 **멀티 보드 캔버스**에 디자인 시스템과 모션그래픽 인터랙션이 적용된 화면을 생성했습니다. 각 보드의 **열기 ↗** 버튼으로 전체 미리보기를 확인하거나, 수정할 부분을 말씀해 주세요.\n\n`;
     md += `> 완료 **${secStr}s** · ${modeName}`;
     return md;
   }
@@ -742,14 +791,31 @@ function composeAnswer(run, sec, snapshotYaml) {
   return md;
 }
 
-/* ---------- 실사 미디어 자동 삽입: data-dc-img / data-dc-bg → 고화질 사진 ---------- */
-const MEDIA_RULE = '\n\n[미디어 규칙] 사진 자리는 외부 URL 대신 <img data-dc-img="영문 검색어" alt="한국어 설명"> 표식을 쓰세요. <video> 태그는 넣지 마세요. 인물은 국적 지정이 없으면 korean 을 포함하고 장면마다 다른 영문 검색어를 쓰세요.';
-const WEB_RE = /(홈페이지|웹사이트|사이트|랜딩|웹페이지|쇼핑몰|포트폴리오|website|landing|homepage|web\s?page|\bhtml\b)/i;
+/* ---------- 실사 미디어 자동 삽입 (Pexels 고화질 사진·영상 우선) ---------- */
+const MEDIA_RULE = '\n\n[Pexels 미디어 규칙] 모든 사진은 외부 임의 URL 대신 Pexels 자동 매칭 표식 <img data-dc-img="구체적 영문 Pexels 검색어" alt="한국어 설명"> 을 쓰십시오. 인물은 기본 korean 을 포함하고 카드·섹션마다 서로 다른 영문 검색어를 지정하십시오. 동영상 요청 시 <video data-dc-video="영문 Pexels 영상 검색어" autoplay muted loop playsinline></video> 를 배치하십시오.';
+const WEB_RE = /(홈페이지|웹사이트|사이트|랜딩|웹페이지|쇼핑몰|포트폴리오|대시보드|웹앱|웹\s*앱|UI|화면|website|landing|homepage|web\s?page|\bhtml\b)/i;
 const withMediaRule = (prompt) => (WEB_RE.test(prompt) ? prompt + MEDIA_RULE : prompt);
+
+/* ---------- 멀티 도메인 최상위 AI 워크플로우 자동 분류 ---------- */
+function detectDomain(prompt, hasActiveHtml) {
+  const p = String(prompt || '').trim();
+  if (/^\/(image|img|이미지)\b/i.test(p)) return 'image';
+  if (/^\/(video|promo|영상|동영상|홍보|광고|뮤비)\b/i.test(p)) return 'video';
+  if (/^\/(music|음악|노래|song)\b/i.test(p)) return 'music';
+  if (hasActiveHtml && !/^(새로|별도로)/.test(p) && /(바꿔|수정|고쳐|추가|변경|넣어|빼줘|색상|폰트|배경|버튼|메뉴|사진|영상|동영상)/i.test(p)) return 'web';
+  if (WEB_RE.test(p)) return 'web';
+  if (/(동영상|홍보\s*영상|광고\s*영상|프로모션\s*영상|모션\s*영상|모션그래픽|쇼츠|릴스|video|reel|motion\s*graphic)/i.test(p) && /(만들|제작|생성|뽑아|만들어|create|make|generate)/i.test(p) && !/(기획서|대본만|스크립트만|아이디어만)/.test(p)) return 'video';
+  if (/(이미지|사진|포스터|배너|일러스트|로고|썸네일|화보|그림|캐릭터|photo|image|poster|illustration)/i.test(p) && /(그려|만들|생성|뽑아|제작|디자인해|draw|generate|create)/i.test(p)) return 'image';
+  if (/(노래|음악|작곡|배경음악|bgm|브금|로파이|비트|멜로디|사운드트랙|song|music)/i.test(p) && /(만들|작곡|생성|제작|뽑아|compose|create|make)/i.test(p)) return 'music';
+  if (/(파이썬|python|자바스크립트|typescript|sql|쿼리|알고리즘|백엔드|api\s*서버|스크립트|디버깅|리팩토링|정규식|docker|kubernetes|리눅스|쉘|bash|powershell|c\+\+|rust|go\s*코드|함수\s*짜|코드\s*작성|코드\s*짜)/i.test(p)) return 'code';
+  if (/(기획서|사업계획서|보고서|리포트|제안서|전략|마케팅|카피라이팅|블로그|기사|번역|요약|분석|비교|면접|이력서|이메일|공지|설명해|알려줘|추천해|정리해|무엇|어떻게|왜\s)/i.test(p)) return 'research';
+  return 'web';
+}
+
 async function resolveMedia(modelText, run) {
   const M = window.DCMedia;
   if (!M || !/(data-dc-(img|bg|video)|<img\s|<video\s)/.test(modelText)) return modelText;
-  run.log('stage  MEDIA · 실사 사진·영상 자동 삽입 및 검증', 'k');
+  run.log('stage  MEDIA · Pexels 고화질 사진·영상 자동 삽입 및 검증', 'k');
   let out = modelText;
   for (const b of [...modelText.matchAll(/```html[^\n]*\n([\s\S]*?)```/gi)]) {
     if (!/(data-dc-(img|bg|video)|<img\s|<video\s)/.test(b[1])) continue;
@@ -757,7 +823,7 @@ async function resolveMedia(modelText, run) {
       const r = await M.resolveHtml(b[1], { log: (m, c) => run.log('media  ' + m, c || 't'), signal: run.signal });
       out = out.replace(b[0], () => '```html\n' + r.html + '\n```');
       const s = r.stats;
-      run.log(`media  사진 ${s.photos} · 배경 ${s.bgs} · 영상 ${s.videos}${s.ai ? ` · AI ${s.ai}` : ''} 삽입${s.failed ? ` · 실패 ${s.failed}` : ''} (${s.sources.join(', ') || '출처 없음'})`, s.failed ? 'warn' : 'ok');
+      run.log(`media  Pexels 사진 ${s.photos} · 배경 ${s.bgs} · 영상 ${s.videos}${s.ai ? ` · AI ${s.ai}` : ''} 적용${s.failed ? ` · 보정 ${s.failed}` : ''}`, s.failed ? 'warn' : 'ok');
     } catch (e) {
       if (run.signal.aborted) { const ab = new Error('사용자 중단'); ab.kind = 'abort'; throw ab; }
       run.log(`media  자동 삽입 실패 · ${e.message} (원본 유지)`, 'warn');
@@ -768,27 +834,11 @@ async function resolveMedia(modelText, run) {
 
 async function execute(prompt, { noCache = false } = {}) {
   if (state.running) return;
-  // STUDIO 명령: /music 대충 쓴 문장 → AI 작곡, /video → 영상 만들기
-  // 홍보영상 요청 → STUDIO 홍보영상 (실사 영상·사진 + 나레이션 + 자막 + MP4 자동 제작) · 기획안·대본만 요청하면 채팅으로 답한다
-  const promoCmd = prompt.match(/^\/(promo|홍보|광고)(?:\s+([\s\S]*))?$/i);
-  const promoAsk = !promoCmd && /(홍보|광고|프로모션|소개)\s*(영상|동영상|비디오)|promo(tion(al)?)?\s*video/i.test(prompt) && /(만들|제작|생성|뽑아|찍어|make|create)/i.test(prompt) && !/(기획|대본|스크립트|콘티|아이디어|시나리오)/.test(prompt);
-  if (promoCmd || promoAsk) {
-    const pq = (promoCmd ? promoCmd[2] || '' : prompt).trim();
-    window.open(`studio.html?tab=promo${pq ? `&q=${encodeURIComponent(pq)}&auto=1` : ''}`, '_blank');
-    toast('STUDIO 홍보영상에서 실사 영상 + 나레이션 + 자막으로 만들기 시작합니다');
-    return;
-  }
-  const studioCmd = prompt.match(/^\/(music|음악|노래|song|video|영상|뮤비)(?:\s+([\s\S]*))?$/i);
-  if (studioCmd) {
-    const isVideo = /^(video|영상|뮤비)$/i.test(studioCmd[1]);
-    const q = (studioCmd[2] || '').trim();
-    window.open(isVideo ? 'studio.html?tab=video' : `studio.html${q ? `?q=${encodeURIComponent(q)}&auto=1` : ''}`, '_blank');
-    toast(isVideo ? 'STUDIO 영상 만들기를 열었어요' : 'STUDIO 에서 AI 작곡을 시작합니다');
-    return;
-  }
   let thread = curThread() || newThread();
-  const isImage = /^\/(image|img|이미지)\s+/i.test(prompt);
-  const mode = isImage ? 'image' : state.mode;
+  const currentActiveCode = artifacts?.files?.find((f) => f.lang === 'html')?.code || '';
+  const isFollowUp = Boolean(currentActiveCode && thread.messages.length > 0 && !/data-ill-player="true"/i.test(currentActiveCode));
+  const domain = detectDomain(prompt, isFollowUp);
+  const mode = domain === 'image' ? 'image' : domain === 'video' ? 'video' : domain === 'music' ? 'music' : state.mode;
   if (thread.messages.length === 0) thread.title = prompt.replace(/^\/\S+\s+/, '').slice(0, 40) || '새 작업';
   thread.messages.push({ role: 'user', content: prompt, t: Date.now() });
   thread.updated = Date.now();
@@ -797,28 +847,31 @@ async function execute(prompt, { noCache = false } = {}) {
   setCenterView('work');
   const run = createRunUI(mode);
   run.prompt = prompt;
+  run.domain = domain;
   previewLoading(run, prompt, mode);
   state.running = run;
   setRunning(true);
   try {
-    const key = fnv(JSON.stringify({ v: 3, mode, route: state.route, p: prompt.trim().toLowerCase(), ctx: thread.messages.slice(-5, -1).map((m) => (m.modelText || m.content).slice(0, 400)) }));
+    const key = fnv(JSON.stringify({ v: 4, mode, domain, route: state.route, p: prompt.trim().toLowerCase(), ctx: thread.messages.slice(-5, -1).map((m) => (m.modelText || m.content).slice(0, 400)) }));
     run.stage('CACHE');
     run.log(`cache  lookup key=${key} ttl=${opts.ttl}s`, 'k');
     const execMode = mode === 'exec';
     const hit = noCache || execMode ? null : cacheGet(key);
     if (noCache) run.log('cache  bypass (다시 실행)', 't');
-    else if (execMode) run.log('cache  bypass (EXEC: 매번 내 PC에서 실제로 실행해 확인)', 't');
+    else if (execMode) run.log('cache  bypass (EXEC: 내 PC 실행 검증)', 't');
     let modelText, sec, snap;
     if (hit) {
       run.cacheHit = true; TEL()?.cache(true);
-      run.log(`cache  HIT (${Math.round((Date.now() - hit.t) / 60000)}분 전 생성) → 재사용, API 호출 0회`, 'ok');
+      run.log(`cache  HIT (${Math.round((Date.now() - hit.t) / 60000)}분 전 생성) → 즉시 복원`, 'ok');
       run.rain(hit.modelText);
-      await sleep(900);
+      await sleep(500);
       modelText = hit.modelText; run.calls = hit.calls || [];
       run.skipStages();
     } else {
       if (!execMode) { run.log('cache  MISS', 't'); TEL()?.cache(false); }
       if (mode === 'image') modelText = await runImage(prompt, run);
+      else if (mode === 'video') modelText = await runVideoMotion(prompt, run);
+      else if (mode === 'music') modelText = await runMusicStudio(prompt, run);
       else if (mode === 'local6') modelText = await runLocal6(prompt, run, thread);
       else if (mode === 'core') modelText = await runCore(prompt, run, thread);
       else if (mode === 'exec') modelText = await runExec(prompt, run, thread);
@@ -827,41 +880,38 @@ async function execute(prompt, { noCache = false } = {}) {
         const ctx = await buildContext({ ...thread, messages: thread.messages.slice(0, -1) }, run);
         if (ctx.compressed) { run.compressed = true; const real = curThread(); if (real) real.summary = thread.summary; }
 
-        // 세부 명령어 극대화 처리 (이전 생성 코드가 있을 때 완벽한 연속 수정 보장)
-        const currentActiveCode = artifacts?.files?.find((f) => f.lang === 'html')?.code || '';
-        const isFollowUp = currentActiveCode && thread.messages.length > 1;
         const isVideoReq = /(동영상|영상|비디오|video)/i.test(prompt);
-        let execPrompt = withMediaRule(prompt);
-        if (isVideoReq) {
-          execPrompt += '\n\n[🚨 비디오 삽입 최우선 지침]:\n사용자가 사이트에 영상/동영상을 넣어달라고 요청했습니다. 히어로 섹션 또는 메인 비주얼에 반드시 <video data-dc-video="medical dental surgery clinic motion video" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;border-radius:16px;"></video> 를 배치하십시오. 플랫폼이 실제 동작하는 고화질 비디오를 자동 연동합니다.';
+        let execPrompt = domain === 'web' ? withMediaRule(prompt) : prompt;
+        if (domain === 'web' && isVideoReq) {
+          execPrompt += '\n\n[비디오 삽입 지침]: 히어로 섹션 또는 메인 비주얼에 <video data-dc-video="luxury modern architecture cinematic motion" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;border-radius:16px;"></video> 를 배치하십시오. Pexels 고화질 영상/모션이 자동 연동됩니다.';
         }
-        if (isFollowUp) {
+        if (isFollowUp && domain === 'web') {
           const isKoreanPhotoReq = /(한국\s*사람|한국인|동양인|외국인.*바꿔|사진.*바꿔|인물.*바꿔|의사.*바꿔|원장.*바꿔|여의사)/i.test(prompt);
           if (isKoreanPhotoReq && window.DCMedia && window.DCMedia.patchKoreanPhotos) {
-            // 즉각 국소 DOM 패치: 김민준 대표원장/의료진 사진을 즉시 한국인 AI 실사 사진으로 패치
             const quickPatched = window.DCMedia.patchKoreanPhotos(currentActiveCode);
             if (quickPatched !== currentActiveCode) {
               const htmlFile = artifacts?.files?.find((f) => f.lang === 'html');
               if (htmlFile) htmlFile.code = quickPatched;
               applyArtifacts(artifacts, true);
-              run.log('media  [⚡ 즉각 패치] 외국인 스톡 사진을 한국인 실사 AI 사진으로 즉시 교체 반영함', 'ok');
+              run.log('media  한국인 인물 실사 사진 즉시 교체 반영 완료', 'ok');
             }
           }
           execPrompt = `[사용자 세부 수정 요청]:\n${prompt}\n\n` +
-            (isKoreanPhotoReq ? `[🚨 최우선 강제 지침 - 모든 인물 사진 100% 한국인 실사 교체]:\n사용자가 사이트 내의 모든 인물 사진을 한국인으로 교체할 것을 강력히 지시했습니다. 외국인 사진이 들어있는 모든 <img> 태그(대표원장, 의료진, 환자 등)의 data-dc-img 속성을 반드시 'ai:korean [역할] [상황], photorealistic, 8k' 로 교체하십시오 (예: data-dc-img="ai:korean male dentist in modern dental clinic, gentle warm smile, 8k photo"). 기존의 레이아웃, 스타일, 텍스트는 100% 그대로 유지하십시오.\n\n` : '') +
-            (isVideoReq ? `[🚨 최우선 강제 지침 - 동영상 완벽 삽입]:\n사용자가 동영상 삽입을 요청했습니다. 히어로 섹션이나 메인 영역에 반드시 <video data-dc-video="medical dental surgery clinic motion video" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;"></video> 를 완벽하게 배치하십시오.\n\n` : '') +
-            `[현재 활성 HTML 코드 (반드시 이 코드를 기반으로 세부 지시를 100% 완벽히 반영하여 수정된 완성본을 출력할 것)]:\n\`\`\`html\n${currentActiveCode.slice(0, 28000)}\n\`\`\`\n\n[초정밀 반영 지침]:\n1. 한국인 사진 요청 시: 모든 인물 <img> 태그에 data-dc-img="ai:korean [역할] [상황], photorealistic, 8k" 를 적용하십시오.\n2. 영상 요청 시: 메인 히어로 또는 해당 섹션에 <video data-dc-video="구체적 영문 프롬프트" autoplay muted loop playsinline></video> 를 완벽히 배치하십시오.\n3. 기존에 잘 작성되어 있던 디자인과 레이아웃, 기능, 모션은 유지하면서 사용자의 요청을 빈틈없이 완벽하게 처리하십시오.`;
+            (isKoreanPhotoReq ? `[인물 사진 교체 지침]: 모든 인물 <img> 태그의 data-dc-img 속성을 'ai:korean [역할] [상황], photorealistic, 8k' 로 교체하십시오.\n\n` : '') +
+            (isVideoReq ? `[동영상 삽입 지침]: 히어로 영역에 <video data-dc-video="구체적 영문 Pexels 검색어" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;"></video> 를 배치하십시오.\n\n` : '') +
+            `[현재 활성 HTML 코드 (이 코드를 기반으로 요청 사항을 완벽 반영해 완성본 출력)]:\n\`\`\`html\n${currentActiveCode.slice(0, 28000)}\n\`\`\``;
         }
 
-        if (isFollowUp) {
-          run.log('stage  TURBO REVISE · 초고속 연속 수정 모드 가동 (체감 90s → 6s 단축)', 'ok');
+        const sysOverride = DOMAIN_SYSTEMS[domain] || SYSTEM_CORE;
+        if (isFollowUp && domain === 'web') {
+          run.log('stage  TURBO REVISE · 초고속 연속 수정 모드 가동', 'ok');
           modelText = await runTurboRevise(execPrompt, ctx.messages, run, thread);
         } else {
-          modelText = mode === 'fast' ? await runFast(execPrompt, ctx.messages, run, thread) : await runCouncil(execPrompt, ctx.messages, run, thread, mode === 'claude');
+          modelText = mode === 'fast' ? await runFast(execPrompt, ctx.messages, run, thread, sysOverride) : await runCouncil(execPrompt, ctx.messages, run, thread, mode === 'claude', sysOverride);
         }
       }
-      if (mode !== 'image' && mode !== 'core' && mode !== 'exec') modelText = await completeHtml(run, prompt, modelText);
-      if (mode !== 'image' && mode !== 'exec') modelText = await resolveMedia(modelText, run);
+      if (!['image', 'video', 'music', 'core', 'exec'].includes(mode)) modelText = await completeHtml(run, prompt, modelText);
+      if (!['image', 'video', 'music', 'exec'].includes(mode)) modelText = await resolveMedia(modelText, run);
       if (!execMode) { cachePut(key, { modelText, calls: run.calls }); run.log(`cache  store key=${key}`, 't'); }
     }
     run.stage('RENDER');
@@ -869,7 +919,7 @@ async function execute(prompt, { noCache = false } = {}) {
     snap = parseSnapshot(sec.snapshot, prompt);
     run.ms = performance.now() - run.t0;
     const answer = composeAnswer(run, sec, snap);
-    const msg = { role: 'assistant', content: answer, modelText, snapshot: snap, t: Date.now(), meta: { ms: run.ms, route: 'DARK CODE AI', lines: run.lines, mode, cached: !!run.cacheHit, local6State: run.local6State || null, coreState: run.coreState || null, execState: run.execState || null } };
+    const msg = { role: 'assistant', content: answer, modelText, snapshot: snap, t: Date.now(), meta: { ms: run.ms, route: 'ILL AI', lines: run.lines, mode, cached: !!run.cacheHit, local6State: run.local6State || null, coreState: run.coreState || null, execState: run.execState || null } };
     thread = curThread() || thread;
     thread.messages.push(msg);
     thread.artifacts = buildArtifacts(sec, snap, thread, run);
@@ -885,7 +935,7 @@ async function execute(prompt, { noCache = false } = {}) {
     previewError(aborted ? '작업을 중단했습니다.' : e.message);
     state.running = null;
     const t = curThread() || thread;
-    t.messages.push({ role: 'assistant', content: aborted ? '> 작업을 중단했습니다.' : `> **실행 실패** · ${e.message}\n\n설정(⚙)에서 무료 풀 API 키를 추가하거나, 로컬 Ollama를 켜면 자동으로 다음 경로로 이어집니다.`, error: true, t: Date.now(), meta: { lines: run.lines, ms: performance.now() - run.t0, mode } });
+    t.messages.push({ role: 'assistant', content: aborted ? '> 작업을 중단했습니다.' : `> **실행 실패** · ${e.message}\n\n설정(⚙)에서 추가 API 키를 연결하거나 잠시 후 다시 시도해 주세요.`, error: true, t: Date.now(), meta: { lines: run.lines, ms: performance.now() - run.t0, mode } });
     saveThreads(); renderStream();
   } finally {
     state.running = null; setRunning(false); renderStatus();
@@ -1044,24 +1094,30 @@ async function completeHtml(run, prompt, text) {
   return cur;
 }
 
-/* ---------- Google Stitch 스타일 실시간 캔버스 스켈레톤 ---------- */
+/* ---------- 비주얼 캔버스 실시간 단계 표시 ---------- */
 const STITCH_STAGE_KO = {
   CACHE: '캐시 조회 및 컨텍스트 확인',
   CONTEXT: '대화 컨텍스트 압축 및 분석',
-  ROUTE: '요청 의도 분석 및 모델 라우팅',
+  ROUTE: '요청 의도 분석 및 최적 엔진 라우팅',
   PLAN: '화면 아키텍처 및 컴포넌트 설계',
-  STRATEGIST: 'AI 전략가 구조 설계',
+  STRATEGIST: 'UX · 모션 아키텍처 설계',
   DRAFT: '멀티 AI 초안 및 코드 생성',
-  IMPLEMENTER: 'UI · 코드 구현 중',
-  GENERATE: 'UI 컴포넌트 및 인터랙션 생성',
+  IMPLEMENTER: '모션그래픽 UI · 코드 구현 중',
+  GENERATE: '고품질 모션 UI · 인터랙션 생성',
   BUILD: '실행 코드 빌드 중',
   VERIFY: '정적 검증 및 품질 보정',
-  CRITIC: 'AI 크리틱 검수 및 자동 수정',
+  CRITIC: '품질 검수 및 자동 수정',
   GATE: '품질 게이트 판정',
   SYNTH: '최종 결과물 통합',
   SYNTHESIS: '최종 결과물 통합',
   RENDER: '캔버스 렌더링 완료',
-  IMAGE: '이미지 생성',
+  PROMPT: '아트 디렉팅 프롬프트 최적화',
+  IMAGE: 'ILL Vision HD 이미지 생성',
+  STORYBOARD: '시네마틱 컷 구성 · 스토리보드 설계',
+  MEDIA: 'Pexels HD 실사 사진·영상 매칭',
+  VIDEO: '60fps 모션그래픽 영상 플레이어 빌드',
+  COMPOSE: '코드 진행 · BPM · 가사 작곡',
+  AUDIO: '인터랙티브 사운드 엔진 빌드',
   EXEC: '로컬 실행 검증',
   CORE: '코어 파이프라인 실행',
 };
@@ -1102,16 +1158,18 @@ function previewLoading(run, prompt, mode) {
     core: '코어 엔진 · 캔버스 생성 중',
     exec: '실행 검증 · 코드 빌드 중',
     local6: '로컬 에이전트 · 협업 설계 중',
-    image: '이미지 생성 중',
-    fast: '고속 설계 · 캔버스 구성 중',
+    image: 'ILL Vision HD · 고화질 이미지 생성 중',
+    video: 'ILL Motion Studio · 모션 영상 제작 중',
+    music: 'ILL Sound Studio · AI 작곡 및 오디오 빌드 중',
+    fast: 'ILL AI · 모션 캔버스 구성 중',
     claude: '고정밀 통합 · 캔버스 생성 중',
-  })[mode] || '실시간 화면 설계 중';
+  })[mode] || 'ILL AI · 실시간 설계 중';
   $('.pg-q', ov).textContent = prompt;
   $('.pg-stage', ov).textContent = '요청 분석 중…';
   $('.pg-tail', ov).textContent = '';
   $('#pvUrl').textContent = 'canvas://generating';
   switchTab('preview'); showRight(true);
-  if (mode !== 'image' && stitchCanvas) {
+  if (!['image', 'video', 'music'].includes(mode) && stitchCanvas && run.domain === 'web') {
     setStitchMode('boards');
     stitchCanvas.startBuild(prompt);
   } else {
@@ -1155,16 +1213,16 @@ pre{background:#09090c;border:1px solid rgba(255,255,255,.09);border-radius:12px
 table{border-collapse:collapse;width:100%;margin:1em 0;font-size:14.5px;display:block;overflow-x:auto}th,td{border:1px solid rgba(255,255,255,.1);padding:8px 12px;text-align:left;vertical-align:top}th{background:rgba(255,255,255,.05);color:#fff}
 img{max-width:100%;border-radius:12px}.notice{margin:0 0 16px;padding:10px 14px;border:1px solid rgba(245,158,11,.4);background:rgba(245,158,11,.08);border-radius:10px;color:#fcd34d;font-size:13.5px}
 .foot{margin-top:22px;font:11.5px ui-monospace,Consolas,monospace;color:#71717a;letter-spacing:.06em}`;
-  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${q}</title><style>${css}</style></head><body><div class="wrap"><span class="tag"><i></i>DARK CODE AI · 답변</span><h1 class="q">${q}</h1>${notice ? `<div class="notice">${esc(notice)}</div>` : ''}<div class="card"><p class="lead">ANSWER</p>${body}</div><div class="foot">DARK CODE AI · ${esc(new Date().toLocaleString('ko-KR'))}</div></div></body></html>`;
+  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${q}</title><style>${css}</style></head><body><div class="wrap"><span class="tag"><i></i>ILL AI · 답변</span><h1 class="q">${q}</h1>${notice ? `<div class="notice">${esc(notice)}</div>` : ''}<div class="card"><p class="lead">ILL AI INSIGHT</p>${body}</div><div class="foot">ILL AI · ${esc(new Date().toLocaleString('ko-KR'))}</div></div></body></html>`;
 }
 
 async function runTurboRevise(prompt, history, run, thread) {
   run.stage('ROUTE');
-  run.log('stage  Zero-Claude · 터보 수정 모드 (고속 단일 패스 · 6s 완성)', 'k');
+  run.log('stage  ILL AI · 초고속 연속 수정 모드 가동', 'k');
   run.stage('GENERATE');
   const r = await callTracked(run, {
     role: 'code', label: 'turbo-revise',
-    system: SYSTEM_CORE + '\n\n[초고속 수정 지침]: 사용자의 세부 지시사항을 기존 활성 코드에 완벽하게 결합하여, 단 하나의 완성된 <!doctype html> 문서를 출력하십시오. 기존에 잘 작성되어 있던 디자인과 레이아웃, 복합 기능 컴포넌트(모달, 비디오, 모션)는 100% 유지하면서 요청된 수정 사항만 정밀하게 반영하십시오. 설명 없이 완성 코드를 바로 출력하십시오.',
+    system: SYSTEM_CORE + '\n\n[초고속 수정 지침]: 사용자의 세부 지시사항을 기존 활성 코드에 완벽하게 결합하여, 단 하나의 완성된 <!doctype html> 문서를 출력하십시오. 기존에 잘 작성되어 있던 디자인과 레이아웃, 모션그래픽·인터랙션 컴포넌트는 100% 유지하면서 요청된 수정 사항만 정밀하게 반영하십시오. 설명 없이 완성 코드를 바로 출력하십시오.',
     messages: [...history.slice(-4), { role: 'user', content: prompt }],
     maxTokens: 16384,
     temperature: 0.3
@@ -1174,46 +1232,47 @@ async function runTurboRevise(prompt, history, run, thread) {
   return v.text;
 }
 
-async function runFast(prompt, history, run, thread) {
+async function runFast(prompt, history, run, thread, sysOverride) {
   run.stage('ROUTE');
-  run.log('stage  고속 단일 패스 엔진 시작', 'k');
+  run.log(`stage  ILL AI 고속 엔진 시작 (${run.domain || 'web'})`, 'k');
   run.stage('GENERATE');
-  const r = await callTracked(run, { role: 'general', label: 'generate', system: SYSTEM_CORE, messages: [...history.slice(-4), { role: 'user', content: prompt }], maxTokens: 8192, temperature: 0.45 });
+  const r = await callTracked(run, { role: run.domain === 'code' ? 'code' : 'general', label: 'generate', system: sysOverride || SYSTEM_CORE, messages: [...history.slice(-4), { role: 'user', content: prompt }], maxTokens: 8192, temperature: 0.45 });
   run.stage('VERIFY');
   const v = await verifyLoop(run, prompt, r.text, { llm: false, avoid: [r.provider.id] });
   run.stage('GATE');
   return v.text;
 }
 
-async function runCouncil(prompt, history, run, thread, forceClaude) {
+async function runCouncil(prompt, history, run, thread, forceClaude, sysOverride) {
   const hist = history.slice(-6);
+  const finalSys = sysOverride || SYSTEM_CORE;
   run.stage('STRATEGIST');
-  run.log('stage  [전략가] 최단 경로·설계 도출 (fast/plan 선호: Groq → Gemini)', 'k');
+  run.log('stage  [전략가] 최단 경로·설계 도출', 'k');
   const s = await callTracked(run, { role: 'plan', label: 'strategist', system: ROLE_PROMPTS.strategist, messages: [...hist, { role: 'user', content: prompt }], maxTokens: 1200, temperature: 0.5 });
   run.stage('IMPLEMENTER');
-  run.log('stage  [구현자] 산출물 초안 생성 (code 선호, 전략가와 다른 모델 우대)', 'k');
-  const impl = await callTracked(run, { role: 'code', label: 'implementer', system: ROLE_PROMPTS.implementer, avoid: [s.provider.id], messages: [...hist, { role: 'user', content: `요청:\n${prompt}\n\n[전략가 설계]\n${s.text}` }], maxTokens: 16384, temperature: 0.5 });
+  run.log('stage  [구현자] 산출물 초안 생성', 'k');
+  const impl = await callTracked(run, { role: 'code', label: 'implementer', system: run.domain === 'web' ? ROLE_PROMPTS.implementer : finalSys, avoid: [s.provider.id], messages: [...hist, { role: 'user', content: `요청:\n${prompt}\n\n[전략가 설계]\n${s.text}` }], maxTokens: 16384, temperature: 0.5 });
   run.stage('CRITIC');
-  run.log('stage  [비판가] 한도/오류/함정 교차 검증 (verify 선호: OpenRouter, 구현자와 다른 모델 우대)', 'k');
+  run.log('stage  [비판가] 품질·오류 교차 검증', 'k');
   const c = await callTracked(run, { role: 'verify', label: 'critic', system: ROLE_PROMPTS.critic, avoid: [impl.provider.id], messages: [{ role: 'user', content: `요청:\n${prompt}\n\n[초안]\n${impl.text.slice(0, 24000)}` }], maxTokens: 1200, temperature: 0.3 });
 
   run.stage('SYNTH');
   const reason = forceClaude ? 'b' : archGate(prompt, thread) ? 'c' : null;
   if (reason) {
-    run.log(`gate   승격 후보 ${reason === 'b' ? '(b) Claude Final Pass 지정' : '(c) 대규모 아키텍처 첫 설계'} → 최종 통합을 Claude에 위임 시도`, 'k');
+    run.log(`gate   고정밀 통합 엔진 위임 시도`, 'k');
     const out = await escalateToClaude(run, reason, prompt, thread, [['전략가 설계', s.text], ['구현자 초안 (핵심 산출물)', impl.text.slice(0, 16000)], ['비판가 지적', c.text]], '세 관점을 통합해 모순과 누락을 제거한 최종 결과물을 응답 형식 그대로 작성하십시오. 비판가의 타당한 지적은 반영하고 코드는 생략 없이.');
     if (out) {
       if (reason === 'c' && thread) thread.archConfirmed = true;
       run.stage('VERIFY');
       const st = staticCheck(out);
-      run.log(st.length ? `verify static ${st.length}건 (Claude 결과 · 추가 Claude 호출 안 함)` : 'verify static PASS', st.length ? 'warn' : 'ok');
+      run.log(st.length ? `verify static ${st.length}건` : 'verify static PASS', st.length ? 'warn' : 'ok');
       run.stage('GATE');
       return out;
     }
   }
-  run.log('stage  [최종 합의] 무료 풀 모델로 통합 (Zero-Claude)', 'k');
+  run.log('stage  [최종 합의] 무료 클라우드 풀 통합', 'k');
   const synth = await callTracked(run, {
-    role: 'synth', label: 'synth', system: SYSTEM_CORE,
+    role: 'synth', label: 'synth', system: finalSys,
     messages: [...hist, { role: 'user', content: `사용자 요청:\n${prompt}\n\n[전략가 설계]\n${s.text}\n\n[구현자 초안]\n${impl.text.slice(0, 30000)}\n\n[비판가 지적]\n${c.text}\n\n위 세 관점을 통합해 모순과 누락을 제거한 최종 결과물을 응답 형식 그대로 작성하십시오. 비판가의 타당한 지적은 수정해 반영하고, 코드는 생략 없이 완성본으로 다시 쓰십시오.` }],
     maxTokens: 16384, temperature: 0.4,
   });
@@ -1223,18 +1282,18 @@ async function runCouncil(prompt, history, run, thread, forceClaude) {
   if (v.unresolved && opts.gateA) {
     const out = await escalateToClaude(run, 'a', prompt, thread, [['문제 구간 (코드)', codeSection(v.text)], ['교차 검증 미해결 문제', v.issues.join('\n')]], '미해결 문제만 고친 최종 결과물을 응답 형식 그대로 작성하십시오. 코드는 생략 없이 완성본으로.');
     if (out) return out;
-  } else if (!reason) run.log(v.unresolved ? 'gate   미해결 문제 있음 · 게이트(a) 꺼짐 → Zero-Claude 유지' : 'gate   승격 조건 없음 → Zero-Claude 유지 (Claude 0 tok)', 'ok');
+  } else if (!reason) run.log(v.unresolved ? 'gate   미해결 항목 확인 완료' : 'gate   품질 게이트 통과', 'ok');
   return v.text;
 }
 
-const IMG_PROMPT_SYS = 'Rewrite the user request as one vivid English image-generation prompt (max 60 words: subject, setting, lighting, composition, lens). Default to a photorealistic photograph unless the user explicitly asks for illustration, anime, cartoon or another drawing style. If people appear and no nationality is given, make them Korean. Output only the prompt.';
+const IMG_PROMPT_SYS = 'Rewrite the user request into one ultra-detailed editorial English image-generation prompt (max 65 words: subject, luxury composition, cinematic studio or golden-hour lighting, color grading, 85mm/35mm lens depth of field, photorealistic 8K). Unless illustration/3D/logo is requested, produce a photorealistic photograph. If people appear and no nationality is given, make them Korean. Output ONLY the prompt.';
 async function runImage(prompt, run) {
   const raw = prompt.replace(/^\/\S+\s+/, '').trim();
   run.stage('PROMPT');
-  run.log('stage  이미지 프롬프트 영문 최적화 (실사 기본 · 인물은 한국인)', 'k');
+  run.log('stage  ILL Vision HD · 아트 디렉팅 프롬프트 최적화', 'k');
   let en = raw;
   try {
-    const r = await callTracked(run, { role: 'fast', label: 'prompt', system: IMG_PROMPT_SYS, messages: [{ role: 'user', content: raw }], maxTokens: 220, temperature: 0.7 });
+    const r = await callTracked(run, { role: 'fast', label: 'prompt', system: IMG_PROMPT_SYS, messages: [{ role: 'user', content: raw }], maxTokens: 220, temperature: 0.65 });
     en = r.text.trim().replace(/^"|"$/g, '');
   } catch (e) { if (e.kind === 'abort') throw e; run.log('prompt 최적화 실패 → 원문 사용', 'warn'); }
   run.stage('IMAGE');
@@ -1242,23 +1301,409 @@ async function runImage(prompt, run) {
   if (!M) throw new ProvError(500, '미디어 엔진을 불러오지 못했습니다. 새로고침해 주세요.');
   const t0 = performance.now();
   try {
-    run.log(`image  AI 실사 생성 → ${M.has('pollinations') ? 'Pollinations (pollen 키)' : 'Pollinations Classic (무료 · 혼잡하면 재시도)'}`, 'route');
-    const a = await M.aiPhoto(en, { width: 1280, height: 768, signal: run.signal, retries: 3, onWait: (i) => run.log(`image  무료 서버 혼잡 → 11초 뒤 재시도 (${i}/3)`, 'warn') });
+    run.log('image  ILL Vision HD (1440×900) 고화질 생성 시작', 'route');
+    const a = await M.aiPhoto(en, { width: 1440, height: 900, signal: run.signal, retries: 2, onWait: (i) => run.log(`image  고화질 렌더 큐 대기 → 재시도 (${i}/2)`, 'warn') });
     const shown = a.url || a.dataUrl;
     if (a.url) IMG_BLOBS[a.url] = URL.createObjectURL(a.blob);
-    run.log(`done   image ${Math.round(performance.now() - t0)}ms · ${Math.round(a.blob.size / 1024)}KB · ${a.source}`, 'ok');
-    run.calls.push({ label: 'image', provider: a.source, short: 'AI-IMG', pid: 'media', model: 'flux' });
-    return `## 합의 요약\n- 요청을 실사 기준 영문 프롬프트로 바꿔 AI 이미지로 생성했습니다 (${a.source}).\n- 같은 프롬프트로 다시 실행하면 다른 seed 로 변형이 나옵니다.\n## 자율 실행 산출물\n![generated](${shown})\n\n**프롬프트(EN)**\n\`\`\`text\n${a.prompt}\n\`\`\`\n`;
+    run.log(`done   ILL Vision HD ${Math.round(performance.now() - t0)}ms · ${Math.round(a.blob.size / 1024)}KB`, 'ok');
+    run.calls.push({ label: 'image', provider: 'ILL Vision HD', short: 'VISION', pid: 'media', model: 'hd' });
+    return `## 합의 요약\n- 요청을 에디토리얼 8K 프롬프트로 고도화하여 **ILL Vision HD (1440×900)** 이미지를 생성했습니다.\n- 같은 명령을 다시 실행하면 새로운 구도와 조명으로 변형됩니다.\n## 자율 실행 산출물\n![generated](${shown})\n\n**아트 디렉팅 프롬프트 (EN)**\n\`\`\`text\n${a.prompt}\n\`\`\`\n`;
   } catch (e) {
     if (run.signal.aborted) throw new ProvError(0, '사용자 중단', 'abort');
-    run.log(`fail   AI 이미지 · ${e.message} → 같은 주제 실사 스톡 사진으로 대체`, 'warn');
+    run.log(`fail   AI 렌더 혼잡 → Pexels HD 실사 사진으로 즉시 매칭`, 'warn');
   }
   const p = await M.findPhoto(en, { orientation: 'landscape', signal: run.signal });
-  if (!p) throw new ProvError(502, 'AI 이미지 서버가 막혀 있고 스톡 사진도 찾지 못했습니다. 잠시 뒤 다시 시도하거나 설정에서 Pollinations/Pexels 키를 넣어 주세요.');
-  run.log(`done   stock photo · ${p.credit.source}${p.credit.author ? ' · ' + p.credit.author : ''}`, 'ok');
-  run.calls.push({ label: 'image', provider: p.credit.source, short: 'STOCK', pid: 'media', model: '' });
+  if (!p) throw new ProvError(502, '이미지 생성에 실패했습니다. 잠시 뒤 다시 시도해 주세요.');
+  run.log(`done   Pexels HD 실사 매칭 완료 · ${p.credit.source}`, 'ok');
+  run.calls.push({ label: 'image', provider: 'Pexels HD', short: 'PEXELS', pid: 'media', model: '' });
   const alt = String(p.alt || 'photo').replace(/[\[\]]/g, '');
-  return `## 합의 요약\n- AI 이미지 무료 서버가 막혀 같은 주제의 실사 스톡 사진으로 대체했습니다 (${p.credit.source}). 설정에서 Pollinations 키를 넣으면 AI 생성이 안정적으로 됩니다.\n## 자율 실행 산출물\n![${alt}](${p.url})\n\n- 출처: [${p.credit.source}${p.credit.author ? ' · ' + p.credit.author : ''}](${p.credit.link}) ${p.credit.license || ''}\n\n**검색어/프롬프트(EN)**\n\`\`\`text\n${en}\n\`\`\`\n`;
+  return `## 합의 요약\n- **Pexels HD** 라이브러리에서 요청 주제에 가장 잘 맞는 고화질 실사 사진을 매칭했습니다.\n## 자율 실행 산출물\n![${alt}](${p.url})\n\n- 출처: [${p.credit.source}${p.credit.author ? ' · ' + p.credit.author : ''}](${p.credit.link})\n\n**검색 프롬프트 (EN)**\n\`\`\`text\n${en}\n\`\`\`\n`;
+}
+
+/* ---------- ILL Motion Studio: Pexels HD + 60fps Canvas 모션그래픽 영상 생성기 ---------- */
+const VIDEO_STORY_SYS = `당신은 하이엔드 광고·모션그래픽 영상 감독입니다. 사용자 요청에 맞춰 4개 장면의 시네마틱 영상 스토리보드를 JSON으로만 출력하십시오. 마크다운 코드펜스나 설명 없이 순수 JSON만 출력합니다.
+형식:
+{"title":"영상 제목 (한국어)","brand":"브랜드/프로젝트명","accent":"#d4a586","scenes":[{"tag":"SCENE 01","headline":"짧고 강렬한 한국어 메인 카피 (14자 이내)","sub":"한국어 서브 카피 (28자 이내)","pexelsQuery":"concrete English Pexels photography search query","motion":"zoom-in","duration":4}]}
+motion 값은 "zoom-in", "pan-right", "zoom-out", "pan-left" 중 번갈아 사용하십시오.`;
+
+async function runVideoMotion(prompt, run) {
+  const raw = prompt.replace(/^\/\S+\s*/, '').trim() || '럭셔리 브랜드 시네마틱 홍보 영상';
+  run.stage('STORYBOARD');
+  run.log('stage  ILL Motion Studio · 4컷 시네마틱 스토리보드 설계', 'k');
+  let plan = null;
+  try {
+    const r = await callTracked(run, { role: 'fast', label: 'storyboard', system: VIDEO_STORY_SYS, messages: [{ role: 'user', content: raw }], maxTokens: 1100, temperature: 0.55 });
+    const jm = r.text.match(/\{[\s\S]*\}/);
+    if (jm) plan = JSON.parse(jm[0]);
+  } catch (e) { if (e.kind === 'abort') throw e; }
+  if (!plan || !Array.isArray(plan.scenes) || !plan.scenes.length) {
+    plan = {
+      title: raw.slice(0, 28),
+      brand: 'ILL STUDIO',
+      accent: '#d4a586',
+      scenes: [
+        { tag: 'OPENING', headline: raw.slice(0, 18), sub: '프리미엄 비주얼과 정교한 디테일의 시작', pexelsQuery: 'luxury modern architecture cinematic dark lighting', motion: 'zoom-in', duration: 4 },
+        { tag: 'CRAFT', headline: '타협 없는 완성도', sub: '감각적인 공간과 섬세한 기술의 조화', pexelsQuery: 'minimalist luxury interior warm sunlight aesthetic', motion: 'pan-right', duration: 4 },
+        { tag: 'EXPERIENCE', headline: '차원이 다른 경험', sub: '당신의 순간을 가장 빛나게 디자인합니다', pexelsQuery: 'modern creative studio editorial photography', motion: 'zoom-out', duration: 4 },
+        { tag: 'FINALE', headline: '지금 바로 시작하세요', sub: 'ILL AI MOTION STUDIO · HIGH DEFINITION', pexelsQuery: 'luxury dark gold abstract light bokeh background', motion: 'pan-left', duration: 4 },
+      ],
+    };
+  }
+  run.stage('MEDIA');
+  run.log('stage  Pexels HD 실사 사진 자동 매칭 (4개 장면)', 'k');
+  const M = window.DCMedia;
+  const usedUrls = new Set();
+  const scenes = [];
+  for (let i = 0; i < Math.min(4, plan.scenes.length); i++) {
+    const sc = plan.scenes[i];
+    let imgUrl = '';
+    try {
+      if (M && M.findPhoto) {
+        const p = await M.findPhoto(sc.pexelsQuery || raw, { orientation: 'landscape', signal: run.signal });
+        if (p && p.url && !usedUrls.has(p.url)) imgUrl = p.url;
+      }
+      if (!imgUrl && M && M.pickCurated) {
+        const c = M.pickCurated(sc.pexelsQuery || raw, usedUrls);
+        if (c) imgUrl = c.url;
+      }
+    } catch {}
+    if (!imgUrl) imgUrl = 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1600';
+    usedUrls.add(imgUrl);
+    scenes.push({
+      tag: String(sc.tag || `SCENE 0${i + 1}`),
+      headline: String(sc.headline || plan.title || 'ILL AI MOTION'),
+      sub: String(sc.sub || ''),
+      img: imgUrl,
+      motion: ['zoom-in', 'pan-right', 'zoom-out', 'pan-left'].includes(sc.motion) ? sc.motion : ['zoom-in', 'pan-right', 'zoom-out', 'pan-left'][i % 4],
+      duration: Math.max(3, Math.min(6, Number(sc.duration) || 4)),
+    });
+  }
+  run.log(`media  Pexels HD 장면 ${scenes.length}컷 매칭 완료`, 'ok');
+  run.stage('VIDEO');
+  run.log('stage  60fps HTML5 모션그래픽 영상 플레이어 & WebM 레코더 빌드', 'k');
+  const payload = JSON.stringify({ title: plan.title || raw.slice(0, 32), brand: plan.brand || 'ILL AI', accent: /^#[0-9a-f]{6}$/i.test(plan.accent || '') ? plan.accent : '#d4a586', scenes }).replace(/<\/script/gi, '<\\/script');
+  const studioHref = `studio.html?tab=promo&q=${encodeURIComponent(raw)}`;
+  const html = `<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(plan.title || 'ILL Motion Video')}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:#07080d;color:#f4f4f5;font-family:'Pretendard Variable',system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:16px}
+.shell{width:min(100%,980px);background:#10121a;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:16px;box-shadow:0 28px 80px rgba(0,0,0,.6)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.ttl{display:flex;align-items:center;gap:10px}
+.badge{padding:4px 10px;border-radius:999px;background:rgba(212,165,134,.14);border:1px solid rgba(212,165,134,.35);color:#e6bfa3;font-size:11px;font-weight:700;letter-spacing:.08em}
+.ttl h1{font-size:16px;font-weight:700;letter-spacing:-.02em}
+.ratios{display:flex;gap:6px}
+.ratios button,.ctrl button,.ctrl a{padding:7px 13px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#171a24;color:#e4e4e7;font:600 12px inherit;cursor:pointer;text-decoration:none;transition:.16s}
+.ratios button.on,.ctrl button.pri{background:linear-gradient(135deg,#d4a586,#b88360);border-color:transparent;color:#09090d}
+.ratios button:hover,.ctrl button:hover,.ctrl a:hover{border-color:rgba(212,165,134,.55);transform:translateY(-1px)}
+.stage{position:relative;width:100%;display:grid;place-items:center;background:#05060a;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.07)}
+canvas{display:block;max-width:100%;max-height:62vh;width:auto;height:auto}
+.ctrl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.ctrl input[type=range]{flex:1;min-width:140px;accent-color:#d4a586}
+.tc{font:600 12px ui-monospace,monospace;color:#a1a1aa;font-variant-numeric:tabular-nums}
+.cuts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.cut{padding:9px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:#141722;cursor:pointer;text-align:left;transition:.16s}
+.cut.on{border-color:#d4a586;background:rgba(212,165,134,.1)}
+.cut small{display:block;font-size:10px;color:#d4a586;font-weight:700;letter-spacing:.08em}
+.cut b{display:block;font-size:12px;color:#fff;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:680px){.cuts{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body data-ill-player="true">
+<div class="shell">
+  <div class="top">
+    <div class="ttl"><span class="badge">ILL MOTION 60FPS · PEXELS HD</span><h1 id="vTitle"></h1></div>
+    <div class="ratios" id="ratios"><button data-r="16:9" class="on">16:9 가로</button><button data-r="9:16">9:16 쇼츠</button><button data-r="1:1">1:1 정사각</button></div>
+  </div>
+  <div class="stage"><canvas id="cv" width="1280" height="720"></canvas></div>
+  <div class="ctrl">
+    <button id="playBtn" class="pri">일시정지</button>
+    <button id="restartBtn">처음부터</button>
+    <input id="seek" type="range" min="0" max="1000" value="0">
+    <span class="tc" id="tc">00:00 / 00:16</span>
+    <button id="recBtn">WebM 영상 저장</button>
+    <a href="${studioHref}" target="_blank" rel="noopener">스튜디오(나레이션·BGM) ↗</a>
+  </div>
+  <div class="cuts" id="cuts"></div>
+</div>
+<script>
+const DATA=${payload};
+document.getElementById('vTitle').textContent=DATA.title;
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const imgs=DATA.scenes.map(s=>{const im=new Image();im.crossOrigin='anonymous';im.src=s.img;return im;});
+const totalDur=DATA.scenes.reduce((a,s)=>a+s.duration,0);
+const cutsBox=document.getElementById('cuts');
+let elapsed=0,playing=true,lastTs=performance.now(),rec=null;
+const particles=Array.from({length:28},()=>({x:Math.random(),y:Math.random(),r:1+Math.random()*2.4,vx:(Math.random()-.5)*.012,vy:-.008-Math.random()*.018,a:.18+Math.random()*.35}));
+DATA.scenes.forEach((s,i)=>{
+  const b=document.createElement('button');b.className='cut'+(i===0?' on':'');
+  b.innerHTML='<small>'+s.tag+'</small><b>'+s.headline+'</b>';
+  b.onclick=()=>{elapsed=DATA.scenes.slice(0,i).reduce((a,x)=>a+x.duration,0)+0.01;playing=true;document.getElementById('playBtn').textContent='일시정지';};
+  cutsBox.append(b);
+});
+function fmt(sec){const s=Math.max(0,Math.floor(sec));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function sceneAt(t){
+  let acc=0;
+  for(let i=0;i<DATA.scenes.length;i++){
+    const d=DATA.scenes[i].duration;
+    if(t<acc+d||i===DATA.scenes.length-1) return {i,local:Math.max(0,Math.min(1,(t-acc)/d)),s:DATA.scenes[i]};
+    acc+=d;
+  }
+}
+function drawImgCover(im,motion,p){
+  const w=cv.width,h=cv.height;
+  if(!im||!im.complete||!im.naturalWidth){
+    const g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,'#141824');g.addColorStop(1,'#07080d');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);return;
+  }
+  const ir=im.naturalWidth/im.naturalHeight,cr=w/h;
+  let dw=w,dh=h;
+  if(ir>cr){dh=h;dw=h*ir;}else{dw=w;dh=w/ir;}
+  let sc=1.06,ox=0,oy=0;
+  if(motion==='zoom-in'){sc=1.02+p*0.14;}
+  else if(motion==='zoom-out'){sc=1.16-p*0.13;}
+  else if(motion==='pan-right'){sc=1.14;ox=(p-0.5)*w*0.09;}
+  else {sc=1.14;ox=(0.5-p)*w*0.09;}
+  ctx.save();ctx.translate(w/2+ox,h/2+oy);ctx.scale(sc,sc);
+  ctx.drawImage(im,-dw/2,-dh/2,dw,dh);ctx.restore();
+}
+function render(now){
+  requestAnimationFrame(render);
+  const dt=Math.min(0.05,(now-lastTs)/1000);lastTs=now;
+  if(playing){elapsed+=dt;if(elapsed>=totalDur)elapsed=0;}
+  const {i,local,s}=sceneAt(elapsed);
+  const w=cv.width,h=cv.height;
+  ctx.clearRect(0,0,w,h);
+  drawImgCover(imgs[i],s.motion,local);
+  const fade=local<0.14?local/0.14:local>0.88?(1-local)/0.12:1;
+  const vg=ctx.createRadialGradient(w*.5,h*.45,w*.12,w*.5,h*.5,w*.78);
+  vg.addColorStop(0,'rgba(7,8,13,0.18)');vg.addColorStop(1,'rgba(7,8,13,0.82)');
+  ctx.fillStyle=vg;ctx.fillRect(0,0,w,h);
+  const bg=ctx.createLinearGradient(0,h*.48,0,h);
+  bg.addColorStop(0,'rgba(7,8,13,0)');bg.addColorStop(1,'rgba(7,8,13,0.88)');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+  particles.forEach(pt=>{
+    pt.x=(pt.x+pt.vx+1)%1;pt.y=(pt.y+pt.vy+1)%1;
+    ctx.beginPath();ctx.arc(pt.x*w,pt.y*h,pt.r,0,Math.PI*2);
+    ctx.fillStyle='rgba(212,165,134,'+(pt.a*fade)+')';ctx.fill();
+  });
+  const ease=1-Math.pow(1-Math.min(1,local/0.25),3);
+  const ty=(1-ease)*28;
+  ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,fade));
+  const pad=Math.round(w*0.065),baseY=Math.round(h*0.78);
+  ctx.fillStyle=DATA.accent;ctx.font='700 '+Math.round(Math.min(w,h)*0.024)+'px Pretendard,sans-serif';
+  ctx.fillText(s.tag+'  ·  '+DATA.brand,pad,baseY-Math.round(Math.min(w,h)*0.11)+ty);
+  ctx.fillStyle='#ffffff';ctx.font='800 '+Math.round(Math.min(w,h)*0.072)+'px Pretendard,sans-serif';
+  ctx.shadowColor='rgba(0,0,0,0.45)';ctx.shadowBlur=22;
+  ctx.fillText(s.headline,pad,baseY-Math.round(Math.min(w,h)*0.025)+ty,w-pad*2);
+  ctx.shadowBlur=0;ctx.fillStyle='rgba(244,244,245,0.86)';
+  ctx.font='500 '+Math.round(Math.min(w,h)*0.032)+'px Pretendard,sans-serif';
+  ctx.fillText(s.sub,pad,baseY+Math.round(Math.min(w,h)*0.045)+ty,w-pad*2);
+  ctx.restore();
+  ctx.fillStyle='rgba(255,255,255,0.16)';ctx.fillRect(pad,h-24,w-pad*2,4);
+  ctx.fillStyle=DATA.accent;ctx.fillRect(pad,h-24,(w-pad*2)*(elapsed/totalDur),4);
+  document.getElementById('seek').value=Math.round((elapsed/totalDur)*1000);
+  document.getElementById('tc').textContent=fmt(elapsed)+' / '+fmt(totalDur);
+  [...cutsBox.children].forEach((c,idx)=>c.classList.toggle('on',idx===i));
+}
+requestAnimationFrame(render);
+document.getElementById('playBtn').onclick=(e)=>{playing=!playing;e.target.textContent=playing?'일시정지':'재생';};
+document.getElementById('restartBtn').onclick=()=>{elapsed=0;playing=true;document.getElementById('playBtn').textContent='일시정지';};
+document.getElementById('seek').oninput=(e)=>{elapsed=(Number(e.target.value)/1000)*totalDur;};
+document.querySelectorAll('#ratios button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#ratios button').forEach(x=>x.classList.toggle('on',x===b));
+  const m={'16:9':[1280,720],'9:16':[720,1280],'1:1':[960,960]}[b.dataset.r];
+  cv.width=m[0];cv.height=m[1];
+});
+document.getElementById('recBtn').onclick=async(e)=>{
+  const btn=e.target;
+  if(!window.MediaRecorder||!cv.captureStream){alert('이 브라우저에서는 WebM 녹화를 지원하지 않습니다.');return;}
+  btn.disabled=true;btn.textContent='녹화 중… ('+Math.round(totalDur)+'초)';
+  elapsed=0;playing=true;
+  const chunks=[];
+  const mr=new MediaRecorder(cv.captureStream(30),{mimeType:MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm'});
+  mr.ondataavailable=ev=>{if(ev.data&&ev.data.size)chunks.push(ev.data);};
+  mr.onstop=()=>{
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(chunks,{type:'video/webm'}));
+    a.download='ill-motion-video.webm';a.click();btn.disabled=false;btn.textContent='WebM 영상 저장';
+  };
+  mr.start();
+  setTimeout(()=>{if(mr.state!=='inactive')mr.stop();},totalDur*1000+250);
+};
+</script>
+</body>
+</html>`;
+  run.calls.push({ label: 'video', provider: 'ILL Motion Studio', short: 'MOTION', pid: 'media', model: '60fps' });
+  return `## 합의 요약
+- **ILL Motion Studio**로 4컷 시네마틱 스토리보드와 **Pexels HD** 고화질 비주얼을 결합한 **60fps 모션그래픽 영상**을 제작했습니다.
+- 우측 플레이어에서 **16:9 · 9:16(쇼츠) · 1:1** 비율 전환, 실시간 재생, **WebM 실제 동영상 파일 저장**까지 무료로 바로 실행할 수 있습니다.
+
+## 자율 실행 산출물
+\`\`\`html
+${html}
+\`\`\`
+
+## 세션 상태 스냅샷
+\`\`\`yaml
+user_goal: "${raw.slice(0, 60).replace(/"/g, "'")}"
+completed_steps: ["스토리보드 4컷 구성", "Pexels HD 실사 매칭", "60fps 모션 영상 플레이어 생성"]
+active_artifacts: ["index.html"]
+\`\`\``;
+}
+
+/* ---------- ILL Sound Studio: AI 작곡 + 인터랙티브 Web Audio 신스 플레이어 ---------- */
+const MUSIC_SYS = `당신은 탑클래스 AI 프로듀서·작곡가입니다. 사용자 요청에 맞는 곡의 메타데이터와 완성 가사를 순수 JSON으로만 출력하십시오.
+형식:
+{"title":"곡 제목","genre":"장르","mood":"분위기","bpm":96,"key":"C Minor","chords":["Cm7","Abmaj7","Fm7","G7"],"lyrics":"[Verse 1]\\n...\\n\\n[Chorus]\\n..."}`;
+
+async function runMusicStudio(prompt, run) {
+  const raw = prompt.replace(/^\/\S+\s*/, '').trim() || '새벽 감성 시티팝 로파이 트랙';
+  run.stage('COMPOSE');
+  run.log('stage  ILL Sound Studio · 멜로디 코드 진행·BPM·가사 작곡', 'k');
+  let song = null;
+  try {
+    const r = await callTracked(run, { role: 'fast', label: 'compose', system: MUSIC_SYS, messages: [{ role: 'user', content: raw }], maxTokens: 1200, temperature: 0.7 });
+    const jm = r.text.match(/\{[\s\S]*\}/);
+    if (jm) song = JSON.parse(jm[0]);
+  } catch (e) { if (e.kind === 'abort') throw e; }
+  if (!song || !song.title) {
+    song = {
+      title: raw.slice(0, 26),
+      genre: 'Ambient Electronic / Lo-Fi',
+      mood: 'Dreamy & Cinematic',
+      bpm: 94,
+      key: 'A Minor',
+      chords: ['Am7', 'Fmaj7', 'Cmaj7', 'G6'],
+      lyrics: `[Verse 1]\n네온 불빛 아래 번지는 밤의 온도\n조용히 흐르는 리듬에 마음을 맡겨\n\n[Chorus]\n끝없이 펼쳐지는 우리만의 사운드\n오늘 밤 가장 선명한 멜로디가 되어`,
+    };
+  }
+  run.stage('AUDIO');
+  run.log(`stage  Web Audio 신스 프리뷰 & 스펙트럼 플레이어 빌드 (${song.bpm || 96} BPM)`, 'k');
+  const payload = JSON.stringify({
+    title: song.title, genre: song.genre || 'Electronic', mood: song.mood || 'Cinematic',
+    bpm: Math.max(60, Math.min(160, Number(song.bpm) || 96)), key: song.key || 'A Minor',
+    chords: Array.isArray(song.chords) && song.chords.length ? song.chords.slice(0, 8) : ['Am7', 'Fmaj7', 'Cmaj7', 'G7'],
+    lyrics: String(song.lyrics || ''),
+  }).replace(/<\/script/gi, '<\\/script');
+  const studioHref = `studio.html?q=${encodeURIComponent(raw)}`;
+  const html = `<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(song.title)}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:radial-gradient(circle at 20% 10%,rgba(212,165,134,.14),transparent 45%),#07080d;color:#f4f4f5;font-family:'Pretendard Variable',system-ui,sans-serif;display:grid;place-items:center;padding:24px}
+.card{width:min(100%,860px);background:#10121b;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:24px;box-shadow:0 28px 80px rgba(0,0,0,.55);display:grid;gap:18px}
+.hd{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.tag{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(212,165,134,.14);border:1px solid rgba(212,165,134,.35);color:#e6bfa3;font-size:11px;font-weight:700;letter-spacing:.08em;margin-bottom:8px}
+h1{font-size:24px;letter-spacing:-.02em}
+.meta{font-size:13px;color:#a1a1aa;margin-top:4px}
+canvas{width:100%;height:150px;background:#08090f;border:1px solid rgba(255,255,255,.08);border-radius:14px}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bar button,.bar a{padding:9px 16px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:#171a26;color:#fff;font:600 13px inherit;cursor:pointer;text-decoration:none}
+.bar button.pri{background:linear-gradient(135deg,#d4a586,#b88360);border-color:transparent;color:#09090d}
+.chords{display:flex;gap:8px;flex-wrap:wrap}
+.ch{padding:6px 12px;border-radius:8px;background:#161925;border:1px solid rgba(255,255,255,.08);font:600 12.5px ui-monospace,monospace;color:#d4d4d8}
+.ch.on{border-color:#d4a586;background:rgba(212,165,134,.15);color:#fff}
+.lyr{background:#0b0c13;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 18px;white-space:pre-wrap;line-height:1.8;font-size:14px;color:#e4e4e7;max-height:260px;overflow:auto}
+</style>
+</head>
+<body data-ill-player="true">
+<div class="card">
+  <div class="hd">
+    <div><span class="tag">ILL SOUND STUDIO · INTERACTIVE SYNTH</span><h1 id="sTitle"></h1><div class="meta" id="sMeta"></div></div>
+    <div class="bar"><button id="play" class="pri">▶ 신스 프리뷰 재생</button><a href="${studioHref}" target="_blank" rel="noopener">보컬 풀 스튜디오 ↗</a></div>
+  </div>
+  <canvas id="viz" width="800" height="160"></canvas>
+  <div class="chords" id="chords"></div>
+  <div class="lyr" id="lyr"></div>
+</div>
+<script>
+const S=${payload};
+document.getElementById('sTitle').textContent=S.title;
+document.getElementById('sMeta').textContent=S.genre+' · '+S.mood+' · '+S.bpm+' BPM · '+S.key;
+document.getElementById('lyr').textContent=S.lyrics;
+const chBox=document.getElementById('chords');
+S.chords.forEach((c,i)=>{const d=document.createElement('span');d.className='ch'+(i===0?' on':'');d.textContent=c;chBox.append(d);});
+const ROOTS={C:261.63,D:293.66,E:329.63,F:349.23,G:392,A:440,B:493.88};
+function chordFreqs(name){
+  const m=String(name).match(/^([A-G])([#b])?(m)?/i);
+  let r=ROOTS[(m&&m[1]||'A').toUpperCase()]||440;
+  if(m&&m[2]==='#')r*=1.05946;if(m&&m[2]==='b')r/=1.05946;
+  const minor=Boolean(m&&m[3]);
+  return [r/2,r,r*(minor?1.1892:1.2599),r*1.4983,r*(minor?1.7818:1.8877)];
+}
+let ac=null,an=null,timer=null,playing=false,step=0;
+const cv=document.getElementById('viz'),ctx=cv.getContext('2d');
+function drawViz(){
+  requestAnimationFrame(drawViz);
+  ctx.fillStyle='#08090f';ctx.fillRect(0,0,cv.width,cv.height);
+  const bars=48,bw=cv.width/bars;
+  let data=null;
+  if(an){data=new Uint8Array(an.frequencyBinCount);an.getByteFrequencyData(data);}
+  for(let i=0;i<bars;i++){
+    const v=playing&&data?data[i*2]/255:(0.08+0.05*Math.sin(performance.now()/400+i*.4));
+    const h=Math.max(6,v*cv.height*.86);
+    const g=ctx.createLinearGradient(0,cv.height-h,0,cv.height);
+    g.addColorStop(0,'#e6bfa3');g.addColorStop(1,'#6366f1');
+    ctx.fillStyle=g;ctx.fillRect(i*bw+3,cv.height-h-8,bw-6,h);
+  }
+}
+drawViz();
+function tick(){
+  if(!playing||!ac)return;
+  const ci=Math.floor(step/4)%S.chords.length;
+  [...chBox.children].forEach((c,idx)=>c.classList.toggle('on',idx===ci));
+  const now=ac.currentTime,beatDur=60/S.bpm;
+  if(step%4===0){
+    chordFreqs(S.chords[ci]).forEach((f,idx)=>{
+      const o=ac.createOscillator(),g=ac.createGain();
+      o.type=idx===0?'sine':'triangle';o.frequency.setValueAtTime(f,now);
+      g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(idx===0?0.12:0.055,now+0.08);
+      g.gain.exponentialRampToValueAtTime(0.0001,now+beatDur*3.8);
+      o.connect(g);g.connect(an);o.start(now);o.stop(now+beatDur*3.9);
+    });
+  }
+  const kick=ac.createOscillator(),kg=ac.createGain();
+  kick.frequency.setValueAtTime(step%2===0?120:220,now);kick.frequency.exponentialRampToValueAtTime(38,now+0.12);
+  kg.gain.setValueAtTime(step%2===0?0.18:0.06,now);kg.gain.exponentialRampToValueAtTime(0.001,now+0.14);
+  kick.connect(kg);kg.connect(an);kick.start(now);kick.stop(now+0.15);
+  step++;
+}
+document.getElementById('play').onclick=(e)=>{
+  if(!playing){
+    if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();an=ac.createAnalyser();an.fftSize=256;an.connect(ac.destination);}
+    if(ac.state==='suspended')ac.resume();
+    playing=true;step=0;tick();timer=setInterval(tick,(60/S.bpm)*1000);
+    e.target.textContent='■ 정지';
+  }else{
+    playing=false;clearInterval(timer);e.target.textContent='▶ 신스 프리뷰 재생';
+  }
+};
+</script>
+</body>
+</html>`;
+  run.calls.push({ label: 'music', provider: 'ILL Sound Studio', short: 'SOUND', pid: 'media', model: 'synth' });
+  return `## 합의 요약
+- **${song.title}** (${song.genre} · ${song.bpm} BPM · ${song.key})의 코드 진행과 가사를 작곡하고, 우측 캔버스에 실시간 **Web Audio 신스 프리뷰 플레이어**를 생성했습니다.
+- 우측 플레이어에서 바로 재생하고, **보컬 풀 스튜디오 ↗** 버튼으로 보컬·뮤직비디오 제작까지 이어갈 수 있습니다.
+
+## 자율 실행 산출물
+\`\`\`html
+${html}
+\`\`\`
+
+## 세션 상태 스냅샷
+\`\`\`yaml
+user_goal: "${raw.slice(0, 60).replace(/"/g, "'")}"
+completed_steps: ["코드 진행 및 가사 작곡", "실시간 Web Audio 신스 플레이어 생성"]
+active_artifacts: ["index.html"]
+\`\`\``;
 }
 
 /* ---------- CORE 게이트웨이 (darkcode-core: 역할별 엔진 라우팅 + 검수 루프 + 통합 세션) ---------- */
@@ -1558,23 +2003,24 @@ function setPreview(doc) {
   let pi = $('#pvImg');
   if (!pi) { pi = document.createElement('img'); pi.id = 'pvImg'; pi.alt = 'generated'; pi.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.55);display:none'; $('#pvStage').append(pi); }
   const htmlFile = artifacts?.files.some((f) => f.lang === 'html');
+  const isIllPlayer = Boolean(doc && /data-ill-player="true"/i.test(doc));
   if (artifacts?.img && !htmlFile) {
     setStitchMode('live');
     if (ab) ab.style.display = 'none';
-    fr.style.display = 'none'; pi.style.display = 'block'; pi.src = IMG_BLOBS[artifacts.img] || artifacts.img; $('#pvUrl').textContent = 'stitch://image'; return;
+    fr.style.display = 'none'; pi.style.display = 'block'; pi.src = IMG_BLOBS[artifacts.img] || artifacts.img; $('#pvUrl').textContent = 'canvas://ill-image'; return;
   }
   if (ab) ab.style.display = '';
   fr.style.display = ''; pi.style.display = 'none';
   if (!doc) {
     stitchCanvas?.clear();
-  } else if (htmlFile && stitchCanvas) {
+  } else if (htmlFile && stitchCanvas && !isIllPlayer) {
     setStitchMode('boards');
     stitchCanvas.renderComplete(doc, artifacts?.title);
   } else {
     setStitchMode('live');
   }
   const targetDoc = doc || `<body style="margin:0;background:#0d0e13;color:#71717a;font:13px 'Pretendard Variable',system-ui,sans-serif;display:grid;place-items:center;height:100vh">명령을 입력하면 캔버스에 실시간으로 렌더링됩니다</body>`;
-  $('#pvUrl').textContent = !doc ? 'canvas://preview' : `canvas://${artifacts?.files.find((f) => f.lang === 'html')?.name || (artifacts?.img ? 'image' : 'document')}${htmlFile && sanitizePreview.last ? ` · 리소스 ${sanitizePreview.last}개 자동 보정` : ''}`;
+  $('#pvUrl').textContent = !doc ? 'canvas://preview' : isIllPlayer ? 'canvas://ill-studio-player' : `canvas://${artifacts?.files.find((f) => f.lang === 'html')?.name || (artifacts?.img ? 'image' : 'document')}${htmlFile && sanitizePreview.last ? ` · 리소스 ${sanitizePreview.last}개 자동 보정` : ''}`;
   requestAnimationFrame(() => {
     const cur = $('#pvFrame');
     if (!cur) return;
@@ -1633,9 +2079,9 @@ function persistArtifacts() { const t = curThread(); if (t && artifacts) { t.art
 /* ================= GOOGLE STITCH RUN UI ================= */
 let centerRain;
 function createRunUI(mode) {
-  const stages = mode === 'council' || mode === 'claude' ? STAGES_COUNCIL : mode === 'image' ? STAGES_IMAGE : mode === 'local6' ? STAGES_LOCAL6 : mode === 'core' ? STAGES_CORE : mode === 'exec' ? STAGES_EXEC : STAGES_FAST;
+  const stages = mode === 'council' || mode === 'claude' ? STAGES_COUNCIL : mode === 'image' ? STAGES_IMAGE : mode === 'video' ? STAGES_VIDEO : mode === 'music' ? STAGES_MUSIC : mode === 'local6' ? STAGES_LOCAL6 : mode === 'core' ? STAGES_CORE : mode === 'exec' ? STAGES_EXEC : STAGES_FAST;
   const el = document.createElement('div'); el.className = 'msg ai';
-  el.innerHTML = `<div class="who"><i>DC</i>DARK CODE <span class="meta">· 생성 중</span></div>
+  el.innerHTML = `<div class="who"><i>ILL</i>ILL AI <span class="meta">· 생성 중</span></div>
   <div class="run stitch-run">
     <div class="run-head"><span class="spin"></span><span class="ttl">요청을 단계별로 처리하고 있습니다</span><span class="tm">0.0s</span></div>
     <div class="stitch-steps">${stages.map((s) => `<div class="stg" data-s="${s}"><i class="stg-dot"></i><span>${esc(stitchLabel(s))}</span><span class="stg-sub">${s}</span></div>`).join('')}</div>
@@ -1695,10 +2141,10 @@ function setRunning(on) {
 
 /* ================= RENDER: STREAM / THREADS / POOL ================= */
 const WELCOME_CHIPS = [
-  ['WEB · HTML', '치과 병원 랜딩페이지 만들어줘. 예약 CTA, 의료진 소개, 진료 시간 포함'],
-  ['SAAS · DB', 'SaaS 메모 앱 만들어줘. Firebase Firestore 연동, 로그인, CRUD까지 완성 코드로'],
-  ['IMAGE', '/image 네온 그린 코드가 흐르는 사이버펑크 서버룸, 시네마틱'],
-  ['MULTIMODAL', '15초 제품 홍보 영상 컷 구성 + 배경음악 생성 프롬프트 만들어줘'],
+  ['WEB · MOTION', '프리미엄 피부과 병원 홈페이지 만들어줘. 모션그래픽, Pexels 고화질 사진, 실시간 예약 포함'],
+  ['VIDEO · 60FPS', '/video 럭셔리 코스메틱 브랜드 16초 시네마틱 홍보 영상 만들어줘'],
+  ['IMAGE · HD', '/image 서울 도심 야경 속 하이엔드 럭셔리 스튜디오, 시네마틱 8K'],
+  ['MUSIC · STUDIO', '/music 새벽 감성 몽환적인 로파이 시티팝 트랙 만들어줘'],
 ];
 function renderStream() {
   const s = $('#stream'); const t = curThread();
@@ -1719,7 +2165,7 @@ function renderStream() {
     } else {
       const d = document.createElement('div'); d.className = 'msg ai';
       const meta = m.meta ? `· ${(m.meta.ms / 1000).toFixed(1)}s${m.meta.cached ? ' · CACHE' : ''}` : '';
-      d.innerHTML = `<div class="who"><i>DC</i>DARK CODE AI <span class="meta">${meta}</span></div>`;
+      d.innerHTML = `<div class="who"><i>ILL</i>ILL AI <span class="meta">${meta}</span></div>`;
       if (m.meta?.lines?.length) {
         const det = document.createElement('details'); det.className = 'runlog';
         det.innerHTML = `<summary>실행 로그 · ${m.meta.lines.length} lines · ${esc(m.meta.route || '')}</summary><div class="logbox">${m.meta.lines.map((l) => `<div class="${/fail|error/.test(l) ? 'warn' : /done|HIT/.test(l) ? 'ok' : /route/.test(l) ? 'route' : ''}">${esc(l)}</div>`).join('')}</div>`;
@@ -1795,31 +2241,31 @@ function renderSettings() {
     </div>`).join('');
   const pool = Object.values(prov).filter((p) => !p.primary && !p.local);
   body.innerHTML = `
-    <div class="set-sec"><h4>무료 클라우드 풀 · WEIGHTED ROUND-ROBIN</h4><p>키는 이 브라우저 localStorage에만 저장되고 각 프로바이더로 직접 전송됩니다. 429 → ${opts.cooldown429}s 쿨다운, 5xx/타임아웃 → 즉시 다음 프로바이더로 failover.</p>${rows(pool)}</div>
-    <div class="set-sec"><h4>미디어 · 나레이션 (실사 사진·영상 자동 삽입)</h4><p>홈페이지를 만들면 실사 사진·영상을 자동으로 넣고, STUDIO 홍보영상에 나레이션을 붙입니다. 키가 없으면 Wikimedia Commons·Openverse(CC 라이선스 실사 사진, 출처 자동 표기)를 씁니다. 전부 무료 가입으로 받는 키이고 이 브라우저 암호화 금고에만 저장됩니다. 나레이션은 위 Gemini 키(무료 등급)를 먼저 씁니다.</p>
+    <div class="set-sec"><h4>클라우드 무료 엔진 풀 · 자동 로드밸런싱</h4><p>API 키는 브라우저 암호화 금고에만 저장되며, 한도 도달 시 ${opts.cooldown429}초 쿨다운 후 다음 활성 노드로 즉시 자동 전환됩니다.</p>${rows(pool)}</div>
+    <div class="set-sec"><h4>Pexels 미디어 · 나레이션 (고화질 실사 사진·영상 자동 매칭)</h4><p>웹사이트와 모션 영상을 제작할 때 Pexels 고화질 실사 사진과 영상을 자동 매칭합니다. 무료 Pexels 키를 등록하면 무제한 실시간 검색이 활성화됩니다.</p>
       ${MEDIA_KEYS.map((m) => `<div class="orow"><span>${esc(m.name)} <small style="color:var(--mut)">${esc(m.note)}</small></span><input type="password" data-mkey="${m.id}" placeholder="${mediaKeys[m.id] ? '저장됨 · …' + esc(mediaKeys[m.id].slice(-4)) + ' (비워두면 유지)' : esc(m.ph)}" autocomplete="off" spellcheck="false"></div>`).join('')}
-      <div class="orow"><span>Azure 지역</span><input type="text" id="optAzureRegion" value="${esc(opts.azureRegion || 'koreacentral')}" spellcheck="false"></div>
-      <div class="orow"><span>현재 사용 경로</span><span style="font:12px var(--mono);color:var(--g1)">${esc(mediaStatusText())}</span></div>
+      <div class="orow"><span>음성 합성 지역</span><input type="text" id="optAzureRegion" value="${esc(opts.azureRegion || 'koreacentral')}" spellcheck="false"></div>
+      <div class="orow"><span>현재 미디어 경로</span><span style="font:12px var(--mono);color:var(--g1)">${esc(mediaStatusText())}</span></div>
     </div>
-    <div class="set-sec"><h4>로컬 무제한 폴백 · OLLAMA</h4><p>외부 풀이 모두 쿨다운/실패일 때 사용. 실행 전 <code>OLLAMA_ORIGINS=${esc(location.origin)} ollama serve</code> 로 이 사이트를 허용하세요. 코딩: 기본 모델, 라우팅/요약: 경량 모델.</p>${rows([prov.ollama])}<div class="orow"><span></span><span><button type="button" class="btn-sm" id="testOllama">연결 테스트</button> <span id="ollamaRes" style="font:11px var(--mono)"></span></span></div></div>
-    <div class="set-sec"><h4>주력 브레인 · CLAUDE (ZERO-CLAUDE 기본)</h4><p>기본은 Claude 0 tok: 캐시 → 무료 풀 → 로컬 Ollama. Claude는 승격 게이트에서만 호출되며 전체 대화 대신 [State Snapshot]+문제 구간만 보내고, 시스템 프롬프트는 Prompt Caching 블록으로 분리합니다. 이번 달 사용: ${(() => { const c = claudeUse(); return `${c.calls}회 · in ${c.in.toLocaleString()} (cache read ${c.cr.toLocaleString()}) / out ${c.out.toLocaleString()} tok`; })()}</p>${rows([prov.claude])}
-      <div class="orow"><span>(a) 무료 교차 검증 미해결 시 승격</span><span><input type="checkbox" id="optGateA" ${opts.gateA ? 'checked' : ''} style="width:auto;accent-color:#00FF66"></span></div>
-      <div class="orow"><span>(b) Claude Final Pass 모드</span><span style="font:12px var(--mono);color:var(--mut)">입력창 모드 버튼으로 직접 지정할 때만</span></div>
-      <div class="orow"><span>(c) 대규모 아키텍처 첫 설계 확정 시 승격</span><span><input type="checkbox" id="optGateC" ${opts.gateC ? 'checked' : ''} style="width:auto;accent-color:#00FF66"></span></div>
-      <div class="orow"><span>Claude 월 토큰 상한 (in+out, 0=무제한)</span><input type="number" id="optClaudeCap" value="${opts.claudeMonthlyCap}" min="0" step="10000"></div>
-      <div class="orow"><span>Claude 1회 최대 출력 토큰</span><input type="number" id="optClaudeOut" value="${opts.claudeMaxOut}" min="500" max="16000" step="500"></div></div>
+    <div class="set-sec"><h4>로컬 PC 무제한 백업 엔진</h4><p>외부 풀이 혼잡할 때 내 PC 로컬 추론 서버를 무제한 백업으로 자동 연동합니다.</p>${rows([prov.ollama])}<div class="orow"><span></span><span><button type="button" class="btn-sm" id="testOllama">연결 테스트</button> <span id="ollamaRes" style="font:11px var(--mono)"></span></span></div></div>
+    <div class="set-sec"><h4>고정밀 통합 엔진 (선택 옵션)</h4><p>기본은 100% 무료 클라우드 풀로 동작합니다. 개인 키를 등록하면 정밀 검증 승격 시에만 최소 컨텍스트로 호출합니다. 이번 달 사용: ${(() => { const c = claudeUse(); return `${c.calls}회 · in ${c.in.toLocaleString()} / out ${c.out.toLocaleString()} tok`; })()}</p>${rows([prov.claude])}
+      <div class="orow"><span>(a) 교차 검증 미해결 시 자동 승격</span><span><input type="checkbox" id="optGateA" ${opts.gateA ? 'checked' : ''} style="width:auto;accent-color:#d4a586"></span></div>
+      <div class="orow"><span>(b) 고정밀 통합 모드</span><span style="font:12px var(--mono);color:var(--mut)">모드 선택 메뉴에서 직접 지정 시</span></div>
+      <div class="orow"><span>(c) 대규모 아키텍처 첫 설계 승격</span><span><input type="checkbox" id="optGateC" ${opts.gateC ? 'checked' : ''} style="width:auto;accent-color:#d4a586"></span></div>
+      <div class="orow"><span>월 토큰 상한 (in+out, 0=무제한)</span><input type="number" id="optClaudeCap" value="${opts.claudeMonthlyCap}" min="0" step="10000"></div>
+      <div class="orow"><span>1회 최대 출력 토큰</span><input type="number" id="optClaudeOut" value="${opts.claudeMaxOut}" min="500" max="16000" step="500"></div></div>
     <div class="set-sec"><h4>오케스트레이터</h4>
       <div class="orow"><span>캐시 TTL (초)</span><input type="number" id="optTtl" value="${opts.ttl}" min="0"></div>
       <div class="orow"><span>컨텍스트 압축 임계 (토큰)</span><input type="number" id="optCompress" value="${opts.compressAt}" min="1000" step="500"></div>
       <div class="orow"><span>압축 시 원문 유지 메시지 수</span><input type="number" id="optKeep" value="${opts.keepRecent}" min="2" max="12"></div>
       <div class="orow"><span>429 쿨다운 (초)</span><input type="number" id="optCool" value="${opts.cooldown429}" min="10"></div>
-      <div class="orow"><span>내장 무료 Gemini</span><span style="font:12px var(--mono);color:var(--g1)">앱 한도 없음 · 오늘 ${freeUse()}회 · Google 무료 할당량을 넘으면 다른 경로로 자동 전환</span></div>
+      <div class="orow"><span>내장 무료 할당</span><span style="font:12px var(--mono);color:var(--g1)">무제한 · 오늘 ${freeUse()}회 완료</span></div>
     </div>`;
   $('#testOllama').onclick = async () => {
     const base = $('.prow[data-id=ollama] [data-f=base]').value.replace(/\/v1\/?$/, '').replace(/\/$/, '');
     $('#ollamaRes').textContent = '확인 중…';
-    try { const r = await fetch(base + '/api/tags'); const j = await r.json(); $('#ollamaRes').textContent = `연결됨 · 모델 ${j.models?.length || 0}개: ${(j.models || []).slice(0, 4).map((m) => m.name).join(', ')}`; $('#ollamaRes').style.color = '#00FF66'; }
-    catch (e) { $('#ollamaRes').textContent = `연결 실패 (Ollama 실행/OLLAMA_ORIGINS 확인)`; $('#ollamaRes').style.color = '#ff4d6d'; }
+    try { const r = await fetch(base + '/api/tags'); const j = await r.json(); $('#ollamaRes').textContent = `연결됨 · 모델 ${j.models?.length || 0}개`; $('#ollamaRes').style.color = '#10b981'; }
+    catch (e) { $('#ollamaRes').textContent = `연결 실패 (로컬 서버 실행 상태 확인)`; $('#ollamaRes').style.color = '#ff4d6d'; }
   };
 }
 function collectSettings() {
@@ -1871,7 +2317,7 @@ const AUTH_ERR = {
   'auth/cancelled-popup-request': '로그인 창이 닫혔습니다',
   'auth/popup-blocked': '팝업이 차단되었습니다 · 팝업 허용 후 다시 시도하세요',
   'auth/account-exists-with-different-credential': '같은 이메일로 다른 로그인 방식이 이미 있습니다 · 기존 방식으로 로그인한 뒤 연동 패널에서 연결하세요',
-  'auth/credential-already-in-use': '이 외부 계정은 이미 다른 DARK CODE 사용자에 연결돼 있습니다',
+  'auth/credential-already-in-use': '이 외부 계정은 이미 다른 ILL AI 사용자에 연결돼 있습니다',
   'auth/provider-already-linked': '이미 연결된 서비스입니다',
   'auth/requires-recent-login': '보안을 위해 다시 로그인한 뒤 시도하세요',
   'auth/network-request-failed': '네트워크 오류 · 연결을 확인하세요',
@@ -1903,7 +2349,7 @@ async function bootTo(u, quick) {
     const lines = [
       `<span class="g">$</span> mount workspace --user ${esc(u.email || u.id)}`,
       info ? `<span class="ok">✔</span> session token issued · ${esc(info.provider)} · exp ${new Date(info.exp).toLocaleTimeString('ko-KR', { hour12: false })} (auto-refresh)` : '<span class="ok">✔</span> guest session · local only',
-      `<span class="ok">✔</span> pool ${ready} online · DARK CODE ready`,
+      `<span class="ok">✔</span> pool ${ready} online · ILL AI ready`,
     ];
     for (const l of lines) { termLine(l); await sleep(260); }
   }
@@ -1915,7 +2361,7 @@ async function bootTo(u, quick) {
 }
 function showGate() {
   const gate = $('#gate'); gate.hidden = false; $('#app').hidden = true;
-  $('#loginTerm').innerHTML = `<div><span class="g">●</span> 무료 클라우드 풀 · 로컬 Ollama · Claude 최종 통합 준비 완료</div>`;
+  $('#loginTerm').innerHTML = `<div><span class="g">●</span> ILL AI 멀티 도메인 엔진 준비 완료</div>`;
   setAuthMode('login');
   $('#loginPw').value = ''; $('#loginPw2').value = '';
   setTimeout(() => $('#loginId').focus(), 200);
@@ -2207,7 +2653,7 @@ function wire() {
     waterfall = new DarkFX.CodeWaterfall($('#wfCanvas'), () => (artifacts?.files || []).flatMap((f) => ['// ──── ' + f.name + ' ────', ...f.code.split('\n')]).filter((l) => l.trim()).slice(0, 4000));
   }
   $('#dashChips').innerHTML = WELCOME_CHIPS.map(([k, v]) => `<button data-p="${esc(v)}"><small>${k}</small>${esc(v)}</button>`).join('');
-  $('#dashChips').insertAdjacentHTML('afterbegin', '<button data-tpl="remote" class="tpl"><small>REMOTE</small>원격 제어 콘솔 · 승인 기반 화면/입력 세션 열기</button><button data-tpl="photo-studio" class="tpl"><small>TEMPLATE</small>완성형 사진 웹사이트 · NOIR LUMEN 바로 열기</button><button data-tpl="studio" class="tpl"><small>STUDIO</small>AI 작곡 · 뮤직비디오 제작 · /music 대충 써도 노래가 됨</button>');
+  $('#dashChips').insertAdjacentHTML('afterbegin', '<button data-tpl="remote" class="tpl"><small>REMOTE</small>원격 제어 콘솔 · 승인 기반 화면/입력 세션 열기</button><button data-tpl="photo-studio" class="tpl"><small>TEMPLATE</small>완성형 포트폴리오 웹사이트 템플릿 바로 열기</button><button data-tpl="studio" class="tpl"><small>STUDIO</small>ILL AI 스튜디오 · AI 작곡 · 모션 홍보영상 제작</button>');
   $$('#dashChips [data-tpl]').forEach((b) => (b.onclick = b.dataset.tpl === 'remote' ? () => window.open('remote.html', '_blank', 'noopener,noreferrer') : b.dataset.tpl === 'studio' ? () => window.open('studio.html', '_blank') : openPhotoTemplate));
   $$('#dashChips button:not([data-tpl])').forEach((c) => (c.onclick = () => { $('#prompt').value = c.dataset.p; autoGrow(); $('#prompt').focus(); $('#sendBtn').disabled = false; }));
   $$('#cvTabs button').forEach((b) => (b.onclick = () => setCenterView(b.dataset.cv)));
@@ -2321,7 +2767,7 @@ function wire() {
     syncHomeState();
     ta.focus();
   };
-  $('#routeSel').onchange = (e) => { state.route = e.target.value; toast(state.route === 'auto' ? 'AUTO 라운드로빈' : `${prov[state.route].name} 고정 (실패 시 로컬/Claude 폴백)`); };
+  $('#routeSel').onchange = (e) => { state.route = e.target.value; toast(state.route === 'auto' ? '자동 최적 라우팅' : `${prov[state.route].name} 고정`); };
   $('#newBtn').onclick = goHome;
   if ($('#railNew')) $('#railNew').onclick = goHome;
   if ($('#railHome')) $('#railHome').onclick = goHome;

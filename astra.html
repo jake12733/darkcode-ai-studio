@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DARK CODE AI · Astra Live Execution Console</title>
-  <link rel="icon" href="assets/logo-clean.svg" type="image/svg+xml" />
+  <title>ILL AI · Live Execution Console</title>
+  <link rel="icon" href="assets/ill-favicon.png" type="image/png" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
@@ -95,12 +95,15 @@
 <body>
   <div class="wrap">
     <header>
-      <div>
-        <h1>DARK CODE · Astra Live Execution Console</h1>
-        <div class="sub">Live LLM (Ollama · OpenAI 호환) · Local Runner (/run · 127.0.0.1:8797) · Self-Healing Loop · Truth Gate</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <img src="assets/ill-logo.png" alt="ILL AI" style="width:32px;height:32px;border-radius:9px;object-fit:cover;border:1px solid rgba(212,165,134,.35)" />
+        <div>
+          <h1>ILL AI · Live Execution Console</h1>
+          <div class="sub">Local Runner (/run · 127.0.0.1:8797) · Self-Healing Loop · Truth Gate</div>
+        </div>
       </div>
       <div class="row">
-        <a class="badge" href="./" title="DARK CODE 메인으로 (EXEC 모드와 원장 공유)" style="text-decoration:none;color:var(--accent)">DARK CODE</a>
+        <a class="badge" href="./" title="ILL AI 메인으로" style="text-decoration:none;color:var(--accent)">ILL AI</a>
         <div class="badge" id="runnerStatus">RUNNER: CHECKING...</div>
         <div class="badge" id="lockStatus">LOCK: IDLE</div>
       </div>

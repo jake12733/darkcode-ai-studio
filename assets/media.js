@@ -1,71 +1,76 @@
-/* DARK CODE · 프리미엄 미디어 엔진 v2.0 (window.DCMedia)
- * - 위키미디어/오픈버스 무관 사진(인도 행사 등) 완전 제거
- * - Pexels / Unsplash 키가 있으면 우선 검색, 없으면 검증된 업종별 고화질 에디토리얼 Unsplash 큐레이션 풀 사용
- * - 인물 사진은 Pollinations AI 한국인 실사 + 고화질 폴백 보장
+/* ILL AI · Pexels-First 고퀄리티 미디어 엔진 v3.0 (window.DCMedia)
+ * - 사진·동영상 1순위: Pexels (API 키가 있으면 실시간 검색, 키가 없어도 검증된 고해상도 Pexels CDN 에디토리얼 큐레이션 풀 자동 배정)
+ * - 2순위: Unsplash API / AI 고해상도 이미지 생성 (Pollinations Flux + Pexels 고화질 자동 폴백)
+ * - 깨진 이미지·저화질·무관 영상 원천 차단
  */
 (function () {
   'use strict';
   const KEYS = { pexels: '', unsplash: '', pixabay: '', pollinations: '', gemini: '', azure: '', azureRegion: 'koreacentral' };
   const mem = new Map();
-  const BLOCK = /(north[\s_-]?korea|pyongyang|dprk|\bwar\b|protest|funeral|military|soldier|navy|naval|\barmy\b|weapon|\bgun\b|nude|naked|blood|injur|accident|riot|propaganda)/i;
+  const BLOCK = /(north[\s_-]?korea|pyongyang|dprk|\bwar\b|protest|funeral|military|soldier|weapon|\bgun\b|nude|naked|blood|injur|accident|riot|propaganda)/i;
   const PEOPLE = /\b(people|person|man|men|woman|women|girl|boy|doctor|dentist|nurse|patient|staff|team|family|couple|child|student|teacher|customer|client|worker|surgeon|therapist|physician|receptionist|chef|barista|trainer|portrait|smiling|face|employee)\b/i;
   const NATION = /\b(korean|asian|japanese|chinese|american|european|african|indian|caucasian|black|white|latino|hispanic|western|arab)\b/i;
   const STYLE = /(anime|illustration|cartoon|watercolor|vector|flat design|3d render|pixel art|sketch|line art|clay|일러스트|애니|만화|그림체|수채화|픽셀|캐릭터)/i;
 
-  // 검증된 업종별 고화질 에디토리얼 사진 컬렉션 (중복 없이 순환 배정)
-  const CURATED_GALLERY = {
+  // 검증된 Pexels 고화질 에디토리얼 사진 풀 (images.pexels.com, 빠른 글로벌 CDN)
+  const PEXELS_CURATED = {
     dental: [
-      'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1629909615184-74f495363b67?auto=format&fit=crop&w=1400&q=85',
+      'https://images.pexels.com/photos/3845810/pexels-photo-3845810.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3845766/pexels-photo-3845766.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3779705/pexels-photo-3779705.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/6812561/pexels-photo-6812561.jpeg?auto=compress&cs=tinysrgb&w=1600',
     ],
     clinic: [
-      'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=1400&q=85',
+      'https://images.pexels.com/photos/247786/pexels-photo-247786.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/236380/pexels-photo-236380.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3845810/pexels-photo-3845810.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg?auto=compress&cs=tinysrgb&w=1600',
     ],
     doctor: [
-      'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=900&q=85',
-      'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=900&q=85',
-      'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=900&q=85',
-      'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=900&q=85',
+      'https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&w=1000',
+      'https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg?auto=compress&cs=tinysrgb&w=1000',
+      'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=1000',
+      'https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=1000',
     ],
     beauty: [
-      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=1400&q=85',
+      'https://images.pexels.com/photos/3757942/pexels-photo-3757942.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3997989/pexels-photo-3997989.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3985329/pexels-photo-3985329.jpeg?auto=compress&cs=tinysrgb&w=1600',
     ],
     cafe: [
-      'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1400&q=85',
+      'https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1813466/pexels-photo-1813466.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/2074130/pexels-photo-2074130.jpeg?auto=compress&cs=tinysrgb&w=1600',
     ],
     hotel: [
-      'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1400&q=85',
+      'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&w=1600',
     ],
     food: [
-      'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1400&q=85',
+      'https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1600',
     ],
     business: [
-      'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1400&q=85',
+      'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&w=1600',
     ],
     tech: [
-      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=85',
+      'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=1600',
+    ],
+    architecture: [
+      'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=1600',
     ],
     default: [
-      'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1400&q=85',
+      'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1600',
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1600',
     ],
   };
 
@@ -81,8 +86,9 @@
     else if (/hotel|resort|stay|room|호텔|리조트|숙소/.test(s)) cat = 'hotel';
     else if (/food|restaurant|chef|dining|식당|레스토랑|요리/.test(s)) cat = 'food';
     else if (/tech|saas|app|dashboard|code|ai|소프트웨어|앱/.test(s)) cat = 'tech';
+    else if (/arch|interior|building|studio|인테리어|건축|스튜디오/.test(s)) cat = 'architecture';
     else if (/business|office|corporate|agency|회사|오피스|기업/.test(s)) cat = 'business';
-    const arr = CURATED_GALLERY[cat] || CURATED_GALLERY.default;
+    const arr = PEXELS_CURATED[cat] || PEXELS_CURATED.default;
     for (let i = 0; i < arr.length; i++) {
       const url = arr[(pickCursor + i) % arr.length];
       if (!used || !used.has(url)) {
@@ -94,35 +100,22 @@
     return arr[pickCursor++ % arr.length];
   }
 
-  const FALLBACK_PHOTOS = {
-    doctor: CURATED_GALLERY.doctor[0],
-    clinic: CURATED_GALLERY.clinic[0],
-    dental: CURATED_GALLERY.dental[0],
-    business: CURATED_GALLERY.business[0],
-    cafe: CURATED_GALLERY.cafe[0],
-    beauty: CURATED_GALLERY.beauty[0],
-    tech: CURATED_GALLERY.tech[0],
-    default: CURATED_GALLERY.default[0],
-  };
-
-  function getFallbackPhotoUrl(q) {
-    return pickCurated(q);
-  }
+  function getFallbackPhotoUrl(q) { return pickCurated(q); }
 
   const setKeys = (k) => { Object.keys(k || {}).forEach((n) => { if (n in KEYS && typeof k[n] === 'string') KEYS[n] = k[n].trim(); }); };
   const has = (n) => Boolean(KEYS[n]);
   const status = () => ({
-    photo: ['pexels', 'unsplash'].filter(has).concat('curated'),
-    video: ['pexels', 'pixabay'].filter(has),
-    ai: has('pollinations') ? 'pollinations' : 'classic',
+    photo: ['pexels', 'unsplash'].filter(has).concat('pexels-hd'),
+    video: ['pexels', 'pixabay'].filter(has).concat('motion-hd'),
+    ai: has('pollinations') ? 'studio-hd' : 'hd',
     tts: ['gemini', 'azure'].filter(has),
   });
 
   const koreanize = (q) => { const s = String(q || '').trim(); return PEOPLE.test(s) && !NATION.test(s) ? 'korean ' + s : s; };
-  const photorealPrompt = (p) => { const s = koreanize(p); return STYLE.test(s) ? s : `${s}, photorealistic editorial photography, natural soft lighting, architectural clarity, high detail, no text, no watermark`; };
+  const photorealPrompt = (p) => { const s = koreanize(p); return STYLE.test(s) ? s : `${s}, ultra high quality editorial photography, natural cinematic lighting, sharp focus, 8k resolution, architectural composition, no text, no watermark`; };
   const sig = (ms, signal) => { const list = [AbortSignal.timeout(ms)]; if (signal) list.push(signal); return AbortSignal.any ? AbortSignal.any(list) : list[0]; };
   async function getJSON(url, init, ms) {
-    const r = await fetch(url, { ...(init || {}), signal: sig(ms || 15000, init && init.signal) });
+    const r = await fetch(url, { ...(init || {}), signal: sig(ms || 12000, init && init.signal) });
     if (!r.ok) { const e = new Error(`HTTP ${r.status}`); e.status = r.status; throw e; }
     return r.json();
   }
@@ -141,7 +134,7 @@
   }
   async function unsplashPhotos(q, o, signal) {
     const j = await getJSON(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(q)}&per_page=15&orientation=${ORI[o].unsplash}&content_filter=high`, { headers: { Authorization: `Client-ID ${KEYS.unsplash}` }, signal });
-    return (j.results || []).filter((p) => okText(p.alt_description)).map((p) => ({ id: 'unsplash:' + p.id, url: `${p.urls.raw}&w=1600&q=85&fm=jpg&fit=crop`, small: p.urls.regular, w: p.width, h: p.height, alt: p.alt_description || q, credit: { source: 'Unsplash', author: (p.user && p.user.name) || '', link: p.links.html, license: 'Unsplash License' } }));
+    return (j.results || []).filter((p) => okText(p.alt_description)).map((p) => ({ id: 'unsplash:' + p.id, url: `${p.urls.raw}&w=1600&q=85&fm=jpg&fit=crop`, small: p.urls.regular, w: p.width, h: p.height, alt: p.alt_description || q, credit: { source: 'Stock HD', author: (p.user && p.user.name) || '', link: p.links.html, license: 'License' } }));
   }
   function variants(q) {
     const base = String(q || '').replace(/^(photo|ai|video)\s*:\s*/i, '').trim();
@@ -164,7 +157,7 @@
       }
     }
     const curatedUrl = pickCurated(query, used);
-    return { id: 'curated:' + curatedUrl, url: curatedUrl, small: curatedUrl, w: 1400, h: 900, alt: query, credit: { source: 'Unsplash Editorial', author: 'Curated', link: curatedUrl, license: 'Unsplash License' } };
+    return { id: 'pexels-hd:' + curatedUrl, url: curatedUrl, small: curatedUrl, w: 1600, h: 1000, alt: query, credit: { source: 'Pexels HD', author: 'Pexels', link: 'https://www.pexels.com', license: 'Pexels License' } };
   }
 
   function pickPexelsFile(files) {
@@ -177,7 +170,7 @@
   }
   async function pixabayVideos(q, o, signal) {
     const j = await getJSON(`https://pixabay.com/api/videos/?key=${encodeURIComponent(KEYS.pixabay)}&q=${encodeURIComponent(q)}&per_page=10&safesearch=true`, { signal });
-    return (j.hits || []).filter((h) => okText(h.tags)).map((h) => { const v = (h.videos && (h.videos.medium && h.videos.medium.url ? h.videos.medium : h.videos.small)) || null; return v && { id: 'pixabay-v:' + h.id, url: v.url, w: v.width, h: v.height, poster: v.thumbnail || '', dur: h.duration, credit: { source: 'Pixabay', author: h.user || '', link: h.pageURL, license: 'Pixabay' } }; }).filter(Boolean);
+    return (j.hits || []).filter((h) => okText(h.tags)).map((h) => { const v = (h.videos && (h.videos.medium && h.videos.medium.url ? h.videos.medium : h.videos.small)) || null; return v && { id: 'pixabay-v:' + h.id, url: v.url, w: v.width, h: v.height, poster: v.thumbnail || '', dur: h.duration, credit: { source: 'HD Video', author: h.user || '', link: h.pageURL, license: 'License' } }; }).filter(Boolean);
   }
   async function findVideo(query, { orientation = 'landscape', used = new Set(), signal } = {}) {
     const o = ORI[orientation] ? orientation : 'landscape';
@@ -211,22 +204,22 @@
     const matched = [];
     for (const [re, eng] of KO_EN_MAP) if (re.test(s)) matched.push(eng);
     if (matched.length) return matched.join(', ') + ', photorealistic editorial photography, natural light, 8k';
-    return 'modern minimalist architectural photography, clean lighting, high quality';
+    return 'modern minimalist architectural photography, clean lighting, ultra high resolution';
   }
 
-  async function aiPhoto(prompt, { width = 1280, height = 768, signal } = {}) {
+  async function aiPhoto(prompt, { width = 1440, height = 900, signal } = {}) {
     const engPrompt = toEnglishVisualPrompt(prompt);
     const p = photorealPrompt(engPrompt);
     const seed = Math.floor(Math.random() * 1e6);
     if (has('pollinations')) {
-      const r = await fetch(`https://gen.pollinations.ai/image/${encodeURIComponent(p)}?model=flux&width=${width}&height=${height}&nologo=true&seed=${seed}`, { headers: { Authorization: `Bearer ${KEYS.pollinations}` }, signal: sig(60000, signal) });
+      const r = await fetch(`https://gen.pollinations.ai/image/${encodeURIComponent(p)}?model=flux&width=${width}&height=${height}&enhance=true&nologo=true&seed=${seed}`, { headers: { Authorization: `Bearer ${KEYS.pollinations}` }, signal: sig(60000, signal) });
       const ct = r.headers.get('content-type') || '';
-      if (!r.ok || !ct.startsWith('image/')) throw new Error(`AI 이미지 실패 (HTTP ${r.status})`);
+      if (!r.ok || !ct.startsWith('image/')) throw new Error(`이미지 생성 실패 (HTTP ${r.status})`);
       const blob = await r.blob();
-      return { url: null, dataUrl: await blobToDataUrl(blob), blob, prompt: p, source: 'Pollinations', credit: { source: 'AI (Pollinations)', author: '', link: '', license: '' } };
+      return { url: null, dataUrl: await blobToDataUrl(blob), blob, prompt: p, source: 'ILL Vision HD', credit: { source: 'ILL Vision HD', author: '', link: '', license: '' } };
     }
-    const classicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?width=${width}&height=${height}&nologo=true&seed=${seed}`;
-    return { url: classicUrl, dataUrl: classicUrl, prompt: p, source: 'Pollinations Classic', credit: { source: 'AI (Pollinations)', author: '', link: '', license: '' } };
+    const classicUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?width=${width}&height=${height}&enhance=true&nologo=true&seed=${seed}`;
+    return { url: classicUrl, dataUrl: classicUrl, prompt: p, source: 'ILL Vision HD', credit: { source: 'ILL Vision HD', author: '', link: '', license: '' } };
   }
 
   function orientOf(el, kind) {
@@ -259,19 +252,19 @@
         const fbUrl = pickCurated(q, used);
         const isPerson = PEOPLE.test(q) || /(korean|asian|한국|의사|원장|의료진|모델|대표)/i.test(q);
         let finalUrl = fbUrl;
-        if (/^ai\s*:/i.test(q) || isPerson) {
-          try {
-            const clean = q.replace(/^ai\s*:/i, '').trim();
-            const orient = orientOf(el, 'img');
-            const dims = orient === 'portrait' ? { width: 768, height: 960 } : { width: 1280, height: 768 };
-            const a = await aiPhoto(clean, { width: dims.width, height: dims.height, signal });
-            finalUrl = a.url || a.dataUrl || fbUrl;
-            stats.ai++;
-          } catch { finalUrl = fbUrl; }
-        } else if (has('pexels') || has('unsplash')) {
+        if (has('pexels')) {
           try {
             const found = await findPhoto(q, { orientation: orientOf(el, 'img'), used, signal });
             if (found?.url) finalUrl = found.url;
+          } catch { finalUrl = fbUrl; }
+        } else if (/^ai\s*:/i.test(q) || isPerson) {
+          try {
+            const clean = q.replace(/^ai\s*:/i, '').trim();
+            const orient = orientOf(el, 'img');
+            const dims = orient === 'portrait' ? { width: 896, height: 1152 } : { width: 1440, height: 900 };
+            const a = await aiPhoto(clean, { width: dims.width, height: dims.height, signal });
+            finalUrl = a.url || a.dataUrl || fbUrl;
+            stats.ai++;
           } catch { finalUrl = fbUrl; }
         }
         el.setAttribute('src', finalUrl);
@@ -283,7 +276,7 @@
       });
     });
 
-    // Replace any broken/wikimedia videos with crisp editorial hero imagery (NEVER Indian conference webms)
+    // Video tags: use Pexels Videos API if key is set, else render a smooth Ken Burns motion Pexels HD hero image
     doc.querySelectorAll('video[data-dc-video], video[src*="wikimedia.org"]').forEach((el) => {
       tasks.push(async () => {
         const q = el.getAttribute('data-dc-video') || 'modern architecture interior';
@@ -298,12 +291,11 @@
           stats.videos++;
           return;
         }
-        // Convert cleanly into a crisp editorial hero <img> with subtle cover styling
         const img = doc.createElement('img');
         img.setAttribute('src', pickCurated(q, used));
         img.setAttribute('alt', q);
         if (el.className) img.className = el.className;
-        img.setAttribute('style', `${el.getAttribute('style') || ''};width:100%;height:100%;object-fit:cover;display:block`.replace(/^;/, ''));
+        img.setAttribute('style', `${el.getAttribute('style') || ''};width:100%;height:100%;object-fit:cover;display:block;animation:illKenBurns 18s ease-in-out infinite alternate`.replace(/^;/, ''));
         el.replaceWith(img);
         stats.photos++;
       });
@@ -321,7 +313,6 @@
     doc.querySelectorAll('img').forEach((img) => {
       const src = (img.getAttribute('src') || '').trim();
       const alt = img.getAttribute('alt') || '';
-      // Replace dead Wikimedia URLs or broken relative placeholder paths (e.g., card1.jpg, doctor.png)
       if (!src || !/^(https?:|data:image\/|blob:)/i.test(src) || /upload\.wikimedia\.org|1594824813627/i.test(src)) {
         img.setAttribute('src', pickCurated(alt || src || html.slice(0, 300), used));
       }
@@ -334,8 +325,15 @@
       }
     });
 
+    // Ensure Ken Burns keyframes exist if we added motion fallback
+    if (doc.head && !doc.head.innerHTML.includes('illKenBurns')) {
+      const st = doc.createElement('style');
+      st.textContent = '@keyframes illKenBurns{0%{transform:scale(1)}100%{transform:scale(1.08)}}';
+      doc.head.appendChild(st);
+    }
+
     await pool(tasks, 4);
-    log(`에디토리얼 미디어 ${stats.photos + stats.bgs + stats.videos}개 매칭 완료`, 'ok');
+    log(`Pexels 고화질 미디어 ${stats.photos + stats.bgs + stats.videos}개 매칭 완료`, 'ok');
     const hadDoctype = /^\s*<!doctype/i.test(html);
     return { html: `${hadDoctype ? '<!doctype html>\n' : ''}${doc.documentElement.outerHTML}`, stats, credits: [] };
   }
@@ -351,10 +349,10 @@
       const ctxText = (alt + ' ' + (parent ? parent.textContent : '')).slice(0, 400);
       const isPerson = /(대표원장|원장|의사|치과의사|의료진|스태프|doctor|dentist|surgeon)/i.test(ctxText);
       if (isPerson && !/korean/i.test(src)) {
-        const isFemale = /(여의사|여성|여자|female)/i.test(ctxText);
+        const isFemale = /(여성|여의사|여자|female)/i.test(ctxText);
         const prompt = isFemale ? 'korean female doctor in bright modern clinic, gentle smile, white coat, editorial 8k photo' : 'korean male chief doctor in late 30s, trustworthy smile, white coat, bright modern clinic, 8k photo';
-        img.setAttribute('src', `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=768&height=960&nologo=true`);
-        img.setAttribute('onerror', `this.onerror=null;this.src='${FALLBACK_PHOTOS.doctor}';`);
+        img.setAttribute('src', `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=896&height=1152&enhance=true&nologo=true`);
+        img.setAttribute('onerror', `this.onerror=null;this.src='${PEXELS_CURATED.doctor[0]}';`);
         patched = true;
       }
     });
@@ -362,5 +360,5 @@
     return patched ? `${hadDoctype ? '<!doctype html>\n' : ''}${doc.documentElement.outerHTML}` : html;
   }
 
-  window.DCMedia = { version: '2.0', setKeys, has, status, koreanize, photorealPrompt, toEnglishVisualPrompt, patchKoreanPhotos, findPhoto, findVideo, aiPhoto, screenImage: async () => ({ ok: true }), resolveHtml, creditsHtml };
+  window.DCMedia = { version: '3.0', setKeys, has, status, koreanize, photorealPrompt, toEnglishVisualPrompt, patchKoreanPhotos, findPhoto, findVideo, aiPhoto, screenImage: async () => ({ ok: true }), resolveHtml, creditsHtml, pickCurated };
 })();

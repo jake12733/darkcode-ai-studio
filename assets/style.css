@@ -38,25 +38,25 @@ button{cursor:pointer}
 .sr-only,.sr-seg{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 [hidden]{display:none!important}
 
-/* ===== AMBIENT VIDEO BACKGROUND ===== */
+/* ===== VIVID AMBIENT VIDEO BACKGROUND ===== */
 .bg-stage{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:#0a0b0f}
 .bg-hero-video{
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  opacity:.46;filter:saturate(1.08) brightness(.75) contrast(1.05);
-  transition:opacity .6s ease,filter .6s ease;
+  opacity:.92;filter:saturate(1.12) brightness(1.0) contrast(1.06);
+  transition:opacity .55s ease,filter .55s ease;
 }
 .bg-hero-veil{
   position:absolute;inset:0;
-  background:radial-gradient(ellipse 68% 64% at 50% 48%, rgba(11,12,18,.38) 0%, rgba(10,11,16,.78) 65%, rgba(9,10,14,.94) 100%);
+  background:radial-gradient(ellipse 75% 70% at 50% 48%, rgba(8,9,14,.10) 0%, rgba(8,9,14,.26) 65%, rgba(6,7,11,.48) 100%);
 }
 .bg-hero-aura{
   position:absolute;inset:0;
-  background:radial-gradient(ellipse 42% 34% at 50% 50%, rgba(47,76,184,.28), rgba(37,62,158,.12) 48%, transparent 74%);
-  transition:opacity .6s ease;
+  background:radial-gradient(ellipse 46% 36% at 50% 50%, rgba(196,154,118,.12), rgba(59,130,246,.08) 48%, transparent 74%);
+  transition:opacity .55s ease;
 }
-/* Dim video slightly when in active chat/Stitch canvas so workspace stays razor-sharp */
-body.in-work .bg-hero-video{opacity:.14;filter:saturate(.85) brightness(.45) blur(4px)}
-body.in-work .bg-hero-aura{opacity:.35}
+/* Dim gently when in active workspace so video remains subtly alive without hurting legibility */
+body.in-work .bg-hero-video{opacity:.24;filter:saturate(.95) brightness(.55) blur(3px)}
+body.in-work .bg-hero-aura{opacity:.25}
 
 /* ===== LOGIN MODAL GATE (on-demand) ===== */
 .gate{
@@ -135,10 +135,12 @@ body.in-work .bg-hero-aura{opacity:.35}
   border-right:1px solid rgba(255,255,255,.05);
 }
 .rail-brand{
-  width:38px;height:38px;border:0;border-radius:12px;background:transparent;
-  display:grid;place-items:center;margin-bottom:14px;transition:.15s;
+  width:38px;height:38px;border:1px solid rgba(212,165,134,.28);border-radius:11px;background:#111216;
+  display:grid;place-items:center;margin-bottom:14px;padding:0;overflow:hidden;transition:.18s;
+  box-shadow:0 4px 14px rgba(0,0,0,.45);
 }
-.rail-brand:hover{background:rgba(255,255,255,.07)}
+.rail-brand:hover{border-color:rgba(212,165,134,.65);transform:scale(1.05)}
+.rail-logo-img{width:100%;height:100%;object-fit:cover;display:block}
 .rail-group{display:flex;flex-direction:column;align-items:center;gap:6px}
 .rail-bottom{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:6px}
 .rail-btn{

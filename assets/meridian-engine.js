@@ -725,6 +725,240 @@
       },
     },
 
+    corporate: {
+      re: /(기업\s*홈페이지|기업소개|회사소개|그룹|지주|제조|중공업|로보틱스|모빌리티|물류|에너지|바이오\s*기업|공식\s*홈페이지|B2B|채용|ESG|corporate|enterprise|company)/i,
+      archetype: 'corporate',
+      label: '한국형 대기업 · B2B 공식 기업 사이트',
+      palette: { paper: '#ffffff', paper2: '#f5f7fa', ink: '#0f172a', ink2: '#334155', mute: '#64748b', brand: '#0b1220', brand2: '#162847', accent: '#3b82f6', dark: '#0b1220' },
+      benchmarks: ['DBCut·GDWEB 기업 수상작(한화비전·HD현대중공업·두산로보틱스)의 풀블리드 시네마틱 기업 히어로 슬라이더 + KR/EN 전환', '4단 풀하이트 호버 확장 사업영역 쇼케이스 + ESG·글로벌 핵심 지표 벤토 그리드', '보도자료·공지·IR 탭 뉴스룸 + 제휴 문의 + 패밀리 사이트 푸터'],
+      fallback: {
+        brand: 'NEXA GROUP', brandSub: 'GLOBAL INDUSTRIAL & AI TECH', est: '1988, Seoul',
+        practice1: 'Robotics · Mobility', practice2: 'Clean Energy · AI Cloud',
+        status: '2026 글로벌 기술 혁신 및 ESG 지속가능경영 보고서 발간',
+        heroLines: ['기술의 경계를 넘어', '산업의 다음 기준을', '만듭니다.'], heroLightWord: '산업의 다음 기준을',
+        heroDesc: '대한민국 제조·로보틱스·친환경 에너지의 미래를 선도하는 글로벌 테크 그룹. 혁신적인 R&D 역량과 책임 있는 ESG 경영으로 지속 가능한 내일을 설계합니다.',
+        ctaPrimary: '핵심 사업영역 보기', ctaSecondary: 'IR · 제휴 문의',
+        heroMotionTag: 'GLOBAL INNOVATION · SEOUL',
+        heroPrompt: 'dark corporate futuristic global network',
+        marqueeLabel: 'Global Certified Partners',
+        marquee: ['ISO 14001', 'RE100 이니셔티브', '글로벌 28개 거점', 'AAA 신용등급'],
+        revealPrompt: 'corporate headquarters architecture',
+        revealStats: [['Global', '28 Countries'], ['Patents', '1,420+ Tech Patents'], ['ESG', 'Grade A+']],
+        beliefEyebrow: '02 · SUSTAINABILITY',
+        beliefTitle: '기술 혁신과 지속 가능성의 균형을 지킵니다.',
+        founderName: '김현철 대표이사', founderRole: 'CEO & Chairman',
+        founderPrompt: 'executive portrait',
+        statementText: '단기 수익을 넘어 2040 탄소중립 로드맵과 협력사 동반성장 생태계를 통해 전 세계 고객이 신뢰하는 글로벌 기업으로 도약합니다.',
+        statementHighlight: '2040 탄소중립 로드맵',
+        principles: [
+          ['01 · 초격차 R&D', '매출의 9.4%를 차세대 로보틱스·AI 자율제조 연구개발에 지속 투자합니다.'],
+          ['02 · RE100 친환경 전환', '국내외 전 사업장 재생에너지 100% 전환 및 저탄소 공정 혁신을 실행합니다.'],
+          ['03 · 투명한 지배구조', '이사회 독립성 강화와 글로벌 기준의 윤리·준법 경영을 실천합니다.'],
+        ],
+        servicesTitle: '네 개의 핵심 성장 엔진.',
+        services: [
+          { code: 'BIZ 01', name: '스마트 로보틱스 · 자동화', summary: '협동로봇과 AI 비전 검사 시스템으로 차세대 무인 스마트 팩토리를 구축합니다.', tags: ['로보틱스', '스마트팩토리'], imgPrompt: 'robotics' },
+          { code: 'BIZ 02', name: '친환경 에너지 · ESS', summary: '차세대 고효율 에너지 저장장치와 수소 연료전지 인프라를 글로벌 공급합니다.', tags: ['클린에너지', 'ESS'], imgPrompt: 'clean energy' },
+          { code: 'BIZ 03', name: '자율 모빌리티 · 전장', summary: '소프트웨어 중심 차량(SDV) 통합 제어기와 고신뢰성 전장 솔루션을 개발합니다.', tags: ['모빌리티', 'SDV'], imgPrompt: 'mobility' },
+          { code: 'BIZ 04', name: '산업용 AI · 클라우드', summary: '제조 공정 예지보전과 글로벌 공급망 최적화를 위한 엔터프라이즈 AI 플랫폼.', tags: ['Industrial AI', 'DX'], imgPrompt: 'industrial ai' },
+        ],
+        kpis: [['6.4', '조', '연간 연결 매출액'], ['28', '개국', '글로벌 사업 네트워크'], ['1,420', '+', '보유 핵심 기술 특허'], ['A+', '', 'ESG 통합 평가 등급']],
+        processTitle: '글로벌 혁신 로드맵.',
+        process: [
+          { step: '01', time: 'R&D', title: '원천 기술 연구', desc: '글로벌 4대 연구소 공동 R&D.', tags: ['R&D'], imgPrompt: 'lab' },
+          { step: '02', time: 'TEST', title: '필드 실증 검증', desc: '극한 환경 신뢰성 테스트 통과.', tags: ['QA'], imgPrompt: 'test' },
+          { step: '03', time: 'SCALE', title: '글로벌 양산 공급', desc: '유럽·북미·아시아 적기 공급망.', tags: ['Global'], imgPrompt: 'factory' },
+          { step: '04', time: 'ESG', title: '순환 자원 관리', desc: '제품 생애주기 탄소 저감 관리.', tags: ['ESG'], imgPrompt: 'esg' },
+        ],
+        casesTitle: '글로벌 레퍼런스.',
+        casesSubtitle: 'GLOBAL IMPACT',
+        cases: [
+          { code: 'G/01', cat: 'EUROPE', year: '2026', title: '독일 친환경 스마트 팩토리 턴키 구축', desc: '협동로봇 320대 도입으로 생산 효율 41% 향상.', k1: ['+41', '%', '생산성'], k2: ['320', '대', '로봇 공급'], imgPrompt: 'eu' },
+          { code: 'G/02', cat: 'NORTH AMERICA', year: '2026', title: '북미 대형 ESS 그리드 프로젝트 수주', desc: '1.2GWh 규모 계통연계 에너지 저장 시스템 공급.', k1: ['1.2', 'GWh', '공급 규모'], k2: ['15', '년', '성능 보증'], imgPrompt: 'na' },
+          { code: 'G/03', cat: 'ASIA', year: '2025', title: '글로벌 물류 허브 자율주행 AMR 통합', desc: '24시간 무인 피킹 및 AI 경로 최적화 실현.', k1: ['-36', '%', '물류 비용'], k2: ['99.9', '%', '정시 출고'], imgPrompt: 'asia' },
+          { code: 'G/04', cat: 'KOREA', year: '2026', title: '국가 핵심 인프라 산업용 AI 예지보전', desc: '설비 고장 72시간 전 사전 감지로 다운타임 최소화.', k1: ['-82', '%', '비계획 정지'], k2: ['24/7', '', '모니터링'], imgPrompt: 'kr' },
+        ],
+        teamTitle: '경영진.',
+        team: [
+          { code: 'C/01', name: '김현철', role: '대표이사 CEO', bio: '그룹 경영 총괄 및 글로벌 전략 지휘', imgPrompt: 'ceo' },
+          { code: 'C/02', name: '박성민', role: 'CTO 연구소장', bio: '로보틱스·산업용 AI 핵심 기술 총괄', imgPrompt: 'cto' },
+          { code: 'C/03', name: '이정아', role: 'CFO 재무총괄', bio: '글로벌 IR 및 재무 건전성 관리', imgPrompt: 'cfo' },
+          { code: 'C/04', name: '최우석', role: 'CSO ESG총괄', bio: '탄소중립·지속가능경영 전략 수립', imgPrompt: 'cso' },
+        ],
+        insightsTitle: '보도자료 & IR 공시.',
+        insights: [
+          { tag: 'Report', date: '2026.08', title: '차세대 AI 자율제조 로보틱스 신모델 글로벌 동시 출시', desc: '유럽·북미 주요 제조사와 4,200억 원 규모 공급 계약을 체결했습니다.', imgPrompt: 'news1' },
+          { tag: 'Report', date: '2026.07', title: '2026 지속가능경영보고서 발간 — 사업장 재생에너지 전환율 74% 달성', desc: 'RE100 목표 조기 달성을 위한 친환경 공정 로드맵을 공개했습니다.', imgPrompt: 'news2' },
+          { tag: 'IR', date: '2026.06', title: '2026년 상반기 기업설명회(NDR) 발표 자료 및 실적 하이라이트', desc: '전년 동기 대비 영업이익 28.4% 증가 및 R&D 투자 확대 현황.', imgPrompt: 'news3' },
+        ],
+        faqs: [
+          ['B2B 파트너십·납품 문의는 어떻게 하나요?', '하단 제휴 문의 폼을 통해 접수하시면 담당 사업부에서 2영업일 내 회신드립니다.'],
+          ['IR 실적 자료는 어디서 확인할 수 있나요?', '뉴스룸의 IR·공시 탭에서 분기별 실적 자료를 상시 확인하실 수 있습니다.'],
+          ['수시 채용 및 인재 등록이 가능한가요?', '패밀리 사이트의 Careers 포털을 통해 직무별 상시 채용을 진행 중입니다.'],
+          ['글로벌 지사 연락처를 알 수 있나요?', '서울 본사 대표번호 또는 공식 이메일로 문의 시 해당 지역 법인으로 연결해 드립니다.'],
+        ],
+        contactTitle: '글로벌 비즈니스 파트너십을', contactSub: '지금 시작하세요.',
+        contactChips: ['B2B 사업 제휴', '제품·솔루션 도입', 'IR 투자 문의', '언론·홍보'],
+        address: '서울특별시 영등포구 여의대로 108, 24F', phone: '02-780-9000', email: 'ir@nexagroup.co.kr', hours: '평일 09:00—18:00',
+      },
+    },
+
+    commerce: {
+      re: /(쇼핑몰|스토어|브랜드몰|커머스|온라인\s*몰|장바구니|화장품\s*몰|건강식품|영양제|반려동물|펫\s*쇼핑|리빙몰|굿즈|판매\s*사이트|shop|store|mall|ecommerce|e-commerce)/i,
+      archetype: 'commerce',
+      label: '한국형 D2C 브랜드 쇼핑몰 · 커머스',
+      palette: { paper: '#ffffff', paper2: '#f7f5f2', ink: '#151413', ink2: '#44403c', mute: '#716d68', brand: '#151413', brand2: '#292524', accent: '#d93829', dark: '#111111' },
+      benchmarks: ['DBCut 쇼핑몰(코오롱몰·힌스) + Imweb 쇼케이스의 상단 쿠폰 프로모션 바 + 3단 룩북 스플릿 히어로', '원형 퀵 카테고리 아이콘 스트립 + 클릭 즉시 발급되는 10%/15%/20% 쿠폰팩 + 4열 상품 스와치 카드', '실제 작동하는 슬라이드 장바구니 드로어(수량 조절·5만원 무료배송 게이지·쿠폰 자동할인) + 카카오톡 채널 독'],
+      fallback: {
+        brand: 'MAISON OBJECT', brandSub: 'OFFICIAL BRAND STORE', est: '2022, Seongsu Seoul',
+        practice1: 'Daily Ritual · Living', practice2: 'Signature Care · Gift',
+        status: '신규 회원 최대 20% 웰컴 쿠폰팩 & 당일 출고',
+        heroLines: ['일상의 감도를 높이는', '시그니처 오브제.'], heroLightWord: '시그니처',
+        heroDesc: '자연 유래 성분과 미니멀한 디자인이 만나 매일의 루틴을 특별한 리추얼로 바꿉니다. 공식 온라인 스토어만의 한정 기프트 패키지를 만나보세요.',
+        ctaPrimary: '베스트 상품 보기', ctaSecondary: '쿠폰팩 받기',
+        heroMotionTag: 'OFFICIAL D2C STORE',
+        heroPrompt: 'minimalist aesthetic beauty living product photography',
+        marqueeLabel: 'Official Store Benefits',
+        marquee: ['당일 오후 3시 출고', '5만원 이상 무료배송', '시그니처 선물 포장', '첫 구매 20% 쿠폰'],
+        revealPrompt: 'minimalist store interior',
+        revealStats: [['Reviews', '24,800+ ★4.9'], ['Repurchase', '78% 재구매율'], ['Shipping', '당일 출고']],
+        beliefEyebrow: 'BRAND STORY',
+        beliefTitle: '매일 손이 가는 단 하나의 기준.',
+        founderName: '박지연', founderRole: 'Brand Director',
+        founderPrompt: 'director',
+        statementText: '불필요한 성분을 덜어내고 본질적인 향과 사용감에 집중해 일상에 오래 남는 제품을 만듭니다.',
+        statementHighlight: '본질적인 향과 사용감',
+        principles: [
+          ['01 · 저자극 클린 포뮬러', '피부 자극 테스트 0.00 무자극 판정을 받은 안전한 원료만 담았습니다.'],
+          ['02 · 리필 가능한 오브제 디자인', '욕실과 공간 어디에 두어도 인테리어가 되는 절제된 용기를 설계합니다.'],
+          ['03 · 공식몰 전용 기프트 포장', '모든 선물 주문에 시그니처 코튼 리본과 메시지 카드를 무료 제공합니다.'],
+        ],
+        servicesTitle: '베스트셀러 컬렉션.',
+        services: [
+          { code: 'BEST', name: '히노끼 시더 핸드 & 바디 워시 500ml', summary: '깊은 숲의 잔향이 오래 남는 약산성 클린 데일리 워시.', tags: ['BEST'], imgPrompt: 'body wash' },
+          { code: 'NEW', name: '시어버터 세라마이드 인텐스 핸드크림', summary: '끈적임 없이 산뜻하게 스며드는 고보습 장벽 케어.', tags: ['NEW'], imgPrompt: 'hand cream' },
+          { code: 'SET', name: '시그니처 리추얼 듀오 기프트 세트', summary: '베스트 워시 + 로션 + 리넨 파우치 선물 포장 패키지.', tags: ['SET'], imgPrompt: 'gift set' },
+          { code: 'GIFT', name: '아틀리에 룸 & 패브릭 스프레이 200ml', summary: '공간에 고요한 우디 머스크 향을 채우는 패브릭 퍼퓸.', tags: ['GIFT'], imgPrompt: 'room spray' },
+        ],
+        kpis: [['4.9', '★', '실구매 고객 평점'], ['78', '%', '3개월 내 재구매율'], ['24k', '+', '누적 포토 리뷰'], ['15', '시', '평일 당일 출고 마감']],
+        processTitle: '배송 안내.',
+        process: [
+          { step: '01', time: 'ORDER', title: '간편 주문', desc: '쿠폰 자동 적용 결제.', tags: ['결제'], imgPrompt: 'order' },
+          { step: '02', time: 'PACK', title: '친환경 포장', desc: '완충 종이·선물 리본 패킹.', tags: ['포장'], imgPrompt: 'pack' },
+          { step: '03', time: 'SHIP', title: '당일 발송', desc: '오후 3시 이전 주문 당일 출고.', tags: ['배송'], imgPrompt: 'ship' },
+          { step: '04', time: 'CARE', title: '안심 교환', desc: '7일 내 무료 반품·교환 보장.', tags: ['CS'], imgPrompt: 'care' },
+        ],
+        casesTitle: '추천 기프트 에디션.',
+        casesSubtitle: 'CURATED EDIT',
+        cases: [
+          { code: 'BEST', cat: 'BEST', year: '2026', title: '베르가못 & 엠버 디퓨저 250ml', desc: '천연 발효 주정 베이스로 은은하게 발향되는 프리미엄 디퓨저.', k1: ['4.9', '★', '평점'], k2: ['BEST', '', '인기'], imgPrompt: 'diffuser' },
+          { code: 'NEW', cat: 'NEW', year: '2026', title: '로즈우드 립 트리트먼트 밤', desc: '식물성 스쿠알란으로 건조한 입술에 윤기를 채워줍니다.', k1: ['NEW', '', '신상'], k2: ['비건', '', '인증'], imgPrompt: 'lip balm' },
+          { code: 'SET', cat: 'SET', year: '2026', title: '트래블 에센셜 미니 4종 키트', desc: '기내 반입 가능한 여행용 올인원 어메니티 세트.', k1: ['SET', '', '기획'], k2: ['파우치', '', '증정'], imgPrompt: 'travel kit' },
+          { code: 'GIFT', cat: 'GIFT', year: '2026', title: '세라믹 인센스 홀더 & 스틱 기프트', desc: '수작업 백자 홀더와 천연 백단향 인센스 스틱 세트.', k1: ['GIFT', '', '선물'], k2: ['리본', '', '포장'], imgPrompt: 'incense' },
+        ],
+        teamTitle: '브랜드 팀.',
+        team: [
+          { code: 'T/01', name: '박지연', role: '브랜드 디렉터', bio: '조향 및 제품 기획 총괄', imgPrompt: 't1' },
+          { code: 'T/02', name: '김도원', role: '포뮬레이터', bio: '클린 코스메틱 R&D 12년', imgPrompt: 't2' },
+          { code: 'T/03', name: '이수민', role: '패키지 디자이너', bio: '친환경 오브제 패키지 설계', imgPrompt: 't3' },
+          { code: 'T/04', name: '정현아', role: 'CX 리드', bio: '공식몰 고객 케어 및 VIP 멤버십', imgPrompt: 't4' },
+        ],
+        insightsTitle: '고객 포토 리뷰.',
+        insights: [
+          { tag: 'REVIEW', date: '2026.08', title: '집들이 선물로 보냈는데 향이랑 패키지 칭찬만 들었어요!', desc: '리본 포장까지 완벽해서 따로 쇼핑백 살 필요가 없었고, 히노끼 잔향이 호텔 욕실 같아요.', imgPrompt: 'r1' },
+          { tag: 'REVIEW', date: '2026.07', title: '벌써 3통째 재구매입니다. 건조한 손에 딱이에요.', desc: '바르자마자 끈적임 없이 흡수되어 키보드 칠 때도 부담이 전혀 없습니다.', imgPrompt: 'r2' },
+          { tag: 'REVIEW', date: '2026.06', title: '5만원 무료배송 채우려고 듀오 세트 샀는데 대만족!', desc: '쿠폰 15% 바로 써서 합리적으로 구매했고 다음날 바로 도착했어요.', imgPrompt: 'r3' },
+        ],
+        faqs: [
+          ['배송은 얼마나 걸리나요?', '평일 오후 3시 이전 결제 완료 건은 당일 출고되며 평균 1~2일 내 수령 가능합니다.'],
+          ['선물 포장 신청은 어떻게 하나요?', '기프트 세트 및 3만원 이상 주문 시 무료 선물 포장이 기본 제공됩니다.'],
+          ['교환·반품이 가능한가요?', '수령 후 7일 이내 미개봉 상품에 한해 간편 반품 신청이 가능합니다.'],
+          ['대량 기업 답례품 주문도 되나요?', '카카오톡 채널로 문의하시면 수량별 할인 및 로고 각인 견적을 안내해 드립니다.'],
+        ],
+        contactTitle: '공식몰 혜택을', contactSub: '지금 만나보세요.',
+        contactChips: ['베스트 상품', '선물 세트', '기업 답례품'],
+        address: '서울특별시 성동구 성수이로 78, 2F', phone: '1661-4820', email: 'cs@maisonobject.kr', hours: '평일 10:00—17:00 (점심 12:30—13:30)',
+      },
+    },
+
+    landing: {
+      re: /(상세페이지|랜딩페이지|랜딩|프로모션|이벤트\s*페이지|전환율|와디즈|펀딩|크라우드펀딩|강의|클래스|부트캠프|세미나|웨비나|세일즈\s*페이지|홍보\s*페이지|landing|detail\s*page|promo\s*page)/i,
+      archetype: 'landing',
+      label: '고전환 프로모션 랜딩 · 상세페이지 (CRO)',
+      palette: { paper: '#faf8f5', paper2: '#efeae3', ink: '#141312', ink2: '#44403c', mute: '#67625c', brand: '#121110', brand2: '#292524', accent: '#ea580c', dark: '#121110' },
+      benchmarks: ['Notefolio 인기 상세페이지·랜딩의 3초 후킹 질문 히어로 + 사회적 증거 리본(★4.9 · 누적 12만)', 'Pain Point → Solution 이중 대비 블록 + 직접 드래그해 비교하는 인터랙티브 Before/After 슬라이더', '실시간 카운트다운 희소성 배너 + 투명한 3단 패키지 비교 + 30일 환불 보장 + 하단 고정 Sticky 전환 CTA 바'],
+      fallback: {
+        brand: 'PURE LAB', brandSub: 'HIGH-CONVERSION EDITION', est: '2026 Limited Edition',
+        practice1: 'Verified Clinical Data', practice2: '30-Day Money-Back Guarantee',
+        status: '얼리버드 38% 특가 마감 임박',
+        heroLines: ['단 14일 만에', '눈으로 확인하는', '확실한 변화.'], heroLightWord: '눈으로 확인하는',
+        heroDesc: '수많은 시행착오 끝에 완성한 특허 솔루션. 복잡한 과정 없이 하루 3분 투자로 압도적인 차이를 직접 경험하세요.',
+        ctaPrimary: '38% 특가 혜택 받기', ctaSecondary: '실제 변화 확인하기',
+        heroMotionTag: 'HIGH-CONVERTING LANDING',
+        heroPrompt: 'clean editorial product hero studio photography',
+        marqueeLabel: 'Verified Customer Proof',
+        marquee: ['누적 124,000+ 선택', '만족도 ★4.9/5.0', '특허 성분 인증', '30일 전액 환불 보장'],
+        revealPrompt: 'product comparison',
+        revealStats: [['Users', '124,000+'], ['Rating', '4.9 / 5.0'], ['Guarantee', '30 Days 100%']],
+        beliefEyebrow: 'WHY DIFFERENT',
+        beliefTitle: '효과는 숫자로 증명되어야 합니다.',
+        founderName: '김민수 디렉터', founderRole: 'Product Lead',
+        founderPrompt: 'founder',
+        statementText: '과장된 마케팅 문구 대신 14일 인체 적용 테스트 데이터와 12만 명의 실제 후기로 결과를 증명합니다.',
+        statementHighlight: '14일 인체 적용 테스트 데이터',
+        principles: [
+          ['임상 시험 94.2% 개선 입증', '공인 기관 14일 테스트에서 참가자 94.2%가 즉각적인 변화를 체감했습니다.'],
+          ['거품 뺀 D2C 직거래 특가', '불필요한 중간 유통 마진을 없애고 핵심 원료 함량만 3배 높였습니다.'],
+          ['30일 100% 책임 환불 보장', '직접 써보시고 만족하지 않으시면 이유를 묻지 않고 전액 환불합니다.'],
+        ],
+        servicesTitle: '핵심 설계 포인트.',
+        services: [
+          { code: '01', name: '고농축 특허 포뮬러', summary: '핵심 유효 성분을 손실 없이 깊숙이 전달하는 리포좀 공법.', tags: ['특허 공법'], imgPrompt: 'formula' },
+          { code: '02', name: '하루 3분 제로 프릭션', summary: '바쁜 일상에서도 꾸준히 실천할 수 있는 직관적 사용 경험.', tags: ['간편 루틴'], imgPrompt: 'routine' },
+          { code: '03', name: '안전성 무자극 0.00', summary: '민감한 환경에서도 안심하고 쓸 수 있는 클린 인증 완료.', tags: ['무자극'], imgPrompt: 'clean' },
+          { code: '04', name: '1:1 전담 컨시어지', summary: '구매 후에도 효과를 극대화하는 맞춤 활용 가이드를 제공합니다.', tags: ['전담 케어'], imgPrompt: 'care' },
+        ],
+        kpis: [['124,000', '+', '누적 고객 선택'], ['4.9', '★', '실사용자 평균 평점'], ['94.2', '%', '14일 체감 개선율'], ['30', '일', '100% 책임 환불 보장']],
+        processTitle: '변화의 타임라인.',
+        process: [
+          { step: '01', time: 'DAY 1', title: '즉각적인 첫 체감', desc: '첫 사용부터 느껴지는 가벼움과 차이.', tags: ['첫 체감'], imgPrompt: 'd1' },
+          { step: '02', time: 'DAY 7', title: '루틴 안정화', desc: '일상 속 확연한 컨디션 변화가 시작됩니다.', tags: ['1주차'], imgPrompt: 'd7' },
+          { step: '03', time: 'DAY 14', title: '눈으로 보이는 결과', desc: '주변에서 먼저 알아보는 확실한 비포·애프터.', tags: ['2주차'], imgPrompt: 'd14' },
+          { step: '04', time: 'DAY 30', title: '지속되는 습관', desc: '재구매율 81%가 증명하는 장기 만족.', tags: ['1개월'], imgPrompt: 'd30' },
+        ],
+        casesTitle: '실제 고객 후기.',
+        casesSubtitle: 'REAL REVIEWS',
+        cases: [
+          { code: 'R/01', cat: '30대 직장인', year: '2026', title: '반신반의했는데 2주 만에 정착했습니다', desc: '환불 보장 보고 시작했는데 오히려 주변에 추천하고 있어요.', k1: ['★5.0', '', '만족도'], k2: ['3회', '', '재구매'], imgPrompt: 'r1' },
+          { code: 'R/02', cat: '40대 워킹맘', year: '2026', title: '하루 3분이라 바쁜 아침에도 꾸준히 씁니다', desc: '복잡하지 않고 결과까지 확실해서 올인원 세트 추가 주문했습니다.', k1: ['★5.0', '', '만족도'], k2: ['14일', '', '체감'], imgPrompt: 'r2' },
+          { code: 'R/03', cat: '20대 디자이너', year: '2026', title: '디자인까지 예뻐서 선물용으로 최고예요', desc: '효과는 물론이고 패키지 완성도까지 기대 이상입니다.', k1: ['★4.9', '', '만족도'], k2: ['선물', '', '추천'], imgPrompt: 'r3' },
+          { code: 'R/04', cat: '50대 대표', year: '2026', title: '불필요한 거품 없이 본질에 충실한 제품', desc: '데이터와 테스트 결과가 정직해서 신뢰가 갑니다.', k1: ['★5.0', '', '만족도'], k2: ['VIP', '', '패키지'], imgPrompt: 'r4' },
+        ],
+        teamTitle: '개발 연구진.',
+        team: [
+          { code: 'L/01', name: '김민수', role: '제품 디렉터', bio: '임상 데이터 기반 제품 개발 총괄', imgPrompt: 'l1' },
+          { code: 'L/02', name: '윤지혜', role: '수석 연구원', bio: '특허 포뮬러 R&D', imgPrompt: 'l2' },
+          { code: 'L/03', name: '박성준', role: 'UX 디렉터', bio: '고객 경험 설계', imgPrompt: 'l3' },
+          { code: 'L/04', name: '최유나', role: '품질 책임자', bio: '전수 안전성 검수', imgPrompt: 'l4' },
+        ],
+        insightsTitle: '자주 묻는 질문.',
+        insights: [
+          { tag: 'FAQ', date: '2026.08', title: '언제부터 효과를 체감할 수 있나요?', desc: '평균 7~14일 이내 눈에 띄는 변화를 체감하십니다.', imgPrompt: 'f1' },
+          { tag: 'FAQ', date: '2026.07', title: '환불 보장은 어떻게 적용되나요?', desc: '구매 후 30일 이내 고객센터 접수 시 전액 환불해 드립니다.', imgPrompt: 'f2' },
+          { tag: 'FAQ', date: '2026.06', title: '얼리버드 특가는 언제 종료되나요?', desc: '상단 카운트다운 종료 또는 준비 수량 소진 시 정상가로 복원됩니다.', imgPrompt: 'f3' },
+        ],
+        faqs: [
+          ['30일 환불 보장은 정말 조건 없이 가능한가요?', '네, 사용 후 불만족 시 30일 이내 접수하시면 전액 환불해 드립니다.'],
+          ['배송은 얼마나 걸리나요?', '오후 2시 이전 주문 시 당일 무료 출고됩니다.'],
+          ['어떤 패키지가 가장 인기가 많나요?', '38% 할인과 사은품이 포함된 시그니처 올인원 구성을 72%가 선택하십니다.'],
+          ['할부 결제가 가능한가요?', '주요 카드사 최대 6개월 무이자 할부를 지원합니다.'],
+        ],
+        contactTitle: '지금 가장 좋은 조건으로', contactSub: '시작하세요.',
+        contactChips: ['시그니처 올인원', '베이직 구성', '프리미엄 더블팩'],
+        address: '서울특별시 강남구 역삼로 168', phone: '1588-7420', email: 'hello@purelab.kr', hours: '평일 09:30—18:00',
+      },
+    },
+
     default: {
       re: /.*/,
       archetype: 'meridian',
@@ -805,7 +1039,7 @@
   };
 
   function detectSpecialty(prompt) {
-    for (const key of ['plastic', 'derma', 'dental', 'hospital', 'fashion', 'architecture', 'luxury', 'cafe', 'tech']) {
+    for (const key of ['landing', 'commerce', 'plastic', 'derma', 'dental', 'hospital', 'fashion', 'architecture', 'luxury', 'cafe', 'tech', 'corporate']) {
       if (SPECIALTIES[key].re.test(prompt)) return { key, ...SPECIALTIES[key] };
     }
     return { key: 'default', ...SPECIALTIES.default };
@@ -1362,6 +1596,13 @@ footer{background:var(--dark);color:rgba(255,255,255,.65);padding-top:26px;overf
 .crm-k b{font-size:22px;color:var(--accent)}
 .crm-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
 .crm-row select{background:#1b1d22;color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:6px 10px;font-size:12px}
+/* Korean Zero-Friction Floating Quick Consult Dock (DBCut · Imweb standard) */
+.kr-dock{position:fixed;right:18px;bottom:22px;z-index:880;display:flex;flex-direction:column;gap:8px}
+.kr-dock a,.kr-dock button{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;box-shadow:0 12px 26px rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.14);transition:transform .25s var(--ease)}
+.kr-dock a:hover,.kr-dock button:hover{transform:translateY(-3px)}
+.kr-dock .dk-kakao{background:#fee500;color:#191919;border-color:#fee500;font-size:13px}
+.kr-dock .dk-book{background:var(--brand);color:var(--accent)}
+.kr-dock .dk-top{background:var(--dark);color:#fff;font-family:var(--mono);font-size:9.5px}
 </style>
 </head>
 <body>
@@ -1638,6 +1879,11 @@ footer{background:var(--dark);color:rgba(255,255,255,.65);padding-top:26px;overf
 </footer>
 
 <div class="float-img" id="floatImg"><img alt=""></div>
+<div class="kr-dock" aria-label="빠른 상담">
+  <button type="button" class="dk-kakao" title="카카오톡 1:1 상담" onclick="alert('${esc(bp.brand)} 카카오톡 1:1 실시간 상담으로 연결됩니다.')">Ch</button>
+  <a href="#contact" class="dk-book" title="실시간 예약">예약</a>
+  <a href="#top" class="dk-top" title="맨 위로">TOP</a>
+</div>
 
 <!-- Booking Confirmation Modal -->
 <div class="modal-bg" id="bookModal">
@@ -2004,7 +2250,10 @@ crmDrawer.onclick=e=>{if(e.target===crmDrawer)crmDrawer.classList.remove('open')
       luxury: '녹터널 럭셔리 (옵시디언 골드 · 시네마틱 히어로 · 실시간 요금 예약)',
       cafe: '오가닉 다이닝 (필름 프레임 · 신선도 배지 · 가격표 메뉴 보드)',
       saas: '테크니컬 SaaS (다크 네이비 · 라이브 프로덕션 콘솔 · SDK · 요금 토글)',
-      meridian: '스위스 에디토리얼 모션 (13-밴드 스크롤 코레오그래피 · 실시간 CRM)',
+      corporate: '한국형 기업·B2B (DBCut·GDWEB 풀블리드 슬라이더 · 4단 호버 사업영역 · 뉴스룸/IR)',
+      commerce: '한국형 D2C 쇼핑몰 (Imweb·DBCut 3단 룩북 · 클릭 쿠폰팩 · 슬라이드 장바구니 · 무료배송 게이지)',
+      landing: '고전환 랜딩·상세페이지 (Notefolio 카운트다운 · 드래그 Before/After 슬라이더 · Sticky CTA)',
+      meridian: '스위스 에디토리얼 모션 (13-밴드 스크롤 코레오그래피 · 실시간 CRM · 플로팅 상담 독)',
     };
     run.stage('VISUALS');
     run.log(`visual 아키타입 [${archNames[arch]}] 전용 비주얼·60fps 모션 캔버스 직접 합성`, 'ok');
@@ -2018,6 +2267,9 @@ crmDrawer.onclick=e=>{if(e.target===crmDrawer)crmDrawer.classList.remove('open')
     else if (arch === 'luxury' && A.renderLuxury) html = A.renderLuxury(bp);
     else if (arch === 'cafe' && A.renderCafe) html = A.renderCafe(bp);
     else if (arch === 'saas' && A.renderSaaS) html = A.renderSaaS(bp);
+    else if (arch === 'corporate' && A.renderCorporate) html = A.renderCorporate(bp);
+    else if (arch === 'commerce' && A.renderCommerce) html = A.renderCommerce(bp);
+    else if (arch === 'landing' && A.renderLanding) html = A.renderLanding(bp);
     else html = renderMeridianSite(bp, spec.key);
     run.calls.push({ label: 'editorial-engine', provider: 'ILL Multi-Archetype Engine', short: arch.toUpperCase(), pid: 'media', model: 'v3' });
 

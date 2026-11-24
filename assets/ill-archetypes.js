@@ -1035,5 +1035,621 @@ setInterval(()=>{
 </html>`;
   }
 
-  window.ILLArchetypes = { renderAtelier, renderArchitecture, renderLuxury, renderCafe, renderSaaS };
+  /* =========================================================================
+   * ARCHETYPE 6: KOREAN CORPORATE & ENTERPRISE (DBCut · GDWEB Winner Style)
+   * Full-bleed kinetic corporate slider (01/03), KR/EN toggle, 4-panel Hover-Expand
+   * Business Showcase, ESG Bento, Tabbed Newsroom/IR, Family-Site Corporate Footer
+   * ========================================================================= */
+  function renderCorporate(bp) {
+    const cfg = JSON.stringify({ brand: bp.brand, sub: bp.brandSub, pal: { a: '#0b1220', b: '#162847', c: '#070b12', hi: '#3b82f6' } }).replace(/<\/script/gi, '<\\/script');
+    const news = bp.insights.concat([{ tag: 'IR', date: '2026.08', title: `${bp.brand} 2026년 2분기 실적 및 글로벌 수주 현황 공시`, desc: '핵심 신사업 매출 34% 성장 및 글로벌 R&D 투자 확대 계획을 발표했습니다.' }]);
+    return `<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(bp.brand)} — ${esc(bp.brandSub)}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--sf:#f5f7fa;--dark:#0b1220;--ink:#0f172a;--mut:#64748b;--ac:#1d4ed8;--ac2:#3b82f6;--line:rgba(15,23,42,.1);--ease:cubic-bezier(.16,1,.3,1);--sans:'Pretendard Variable',sans-serif;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+a{color:inherit;text-decoration:none}
+html{scroll-behavior:smooth;background:var(--bg);color:var(--ink)}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);overflow-x:hidden;word-break:keep-all;line-height:1.6}
+.wrap{max-width:1320px;margin:0 auto;padding:0 clamp(20px,4vw,52px)}
+.mono{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase}
+header{position:fixed;top:0;left:0;right:0;z-index:850;height:74px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,4vw,52px);color:#fff;transition:.35s}
+header.solid{background:rgba(255,255,255,.92);backdrop-filter:blur(16px);color:var(--ink);border-bottom:1px solid var(--line)}
+.logo{font-weight:800;font-size:19px;letter-spacing:.04em}
+nav{display:flex;gap:30px;font-size:14.5px;font-weight:600}
+nav a{opacity:.82;transition:.2s}nav a:hover{opacity:1;color:var(--ac2)}
+.h-util{display:flex;align-items:center;gap:12px}
+.lang{display:inline-flex;border:1px solid currentColor;border-radius:999px;overflow:hidden;font-family:var(--mono);font-size:11px}
+.lang button{padding:5px 10px;border:0;background:transparent;color:inherit;cursor:pointer}
+.lang button.on{background:currentColor;color:var(--dark)}
+header.solid .lang button.on{color:#fff}
+@media(max-width:860px){nav{display:none}}
+
+/* Full-Bleed Corporate Hero Slider */
+.hero{position:relative;min-height:94vh;display:flex;align-items:center;background:var(--dark);color:#fff;overflow:hidden;padding:110px 0 72px}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%}
+.hero-shade{position:absolute;inset:0;background:radial-gradient(circle at 75% 40%,rgba(59,130,246,.22),transparent 55%),linear-gradient(180deg,rgba(11,18,32,.4),rgba(11,18,32,.86))}
+.hero-in{position:relative;z-index:2;width:100%;display:grid;gap:24px}
+.hero h1{font-size:clamp(2.5rem,5.8vw,4.9rem);font-weight:800;letter-spacing:-.04em;line-height:1.12;max-width:900px}
+.hero p{max-width:600px;font-size:17px;color:rgba(255,255,255,.8);line-height:1.72}
+.h-acts{display:flex;gap:12px;flex-wrap:wrap}
+.btn-p{padding:13px 26px;border-radius:999px;background:#fff;color:var(--dark);font-weight:700;font-size:14px;border:0;cursor:pointer}
+.btn-g{padding:13px 26px;border-radius:999px;border:1px solid rgba(255,255,255,.4);color:#fff;font-weight:600;font-size:14px}
+.s-ctl{display:flex;align-items:center;gap:14px;margin-top:28px;max-width:420px}
+.s-bar{flex:1;height:2px;background:rgba(255,255,255,.2);overflow:hidden}
+.s-bar i{display:block;height:100%;width:33%;background:#60a5fa;transition:width .5s var(--ease)}
+.s-ctl button{width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.3);color:#fff;background:transparent;cursor:pointer}
+
+/* GDWEB Signature: 4-Panel Hover-Expand Business Areas */
+.sec{padding:clamp(76px,9vw,124px) 0}
+.sec.alt{background:var(--sf)}
+.sh{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:40px}
+.sh h2{font-size:clamp(1.9rem,3.6vw,3.1rem);font-weight:800;letter-spacing:-.035em;margin-top:8px}
+.biz-row{display:flex;gap:14px;height:480px}
+.biz-col{position:relative;flex:1;border-radius:18px;overflow:hidden;cursor:pointer;transition:flex .6s var(--ease);display:flex;flex-direction:column;justify-content:flex-end;padding:28px;color:#fff;background:var(--dark)}
+.biz-col:hover,.biz-col.on{flex:2.2}
+.biz-col img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.75;transition:transform .7s var(--ease),opacity .4s}
+.biz-col:hover img,.biz-col.on img{transform:scale(1.06);opacity:.92}
+.biz-col::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,18,32,.15),rgba(11,18,32,.86))}
+.biz-b{position:relative;z-index:2;display:grid;gap:8px}
+.biz-b h3{font-size:clamp(1.2rem,2vw,1.7rem);font-weight:700}
+.biz-b p{font-size:13.8px;color:rgba(255,255,255,.82);max-height:0;overflow:hidden;opacity:0;transition:.45s var(--ease)}
+.biz-col:hover .biz-b p,.biz-col.on .biz-b p{max-height:110px;opacity:1}
+@media(max-width:860px){.biz-row{flex-direction:column;height:auto}.biz-col{min-height:220px;flex:none!important}.biz-b p{max-height:none;opacity:1}}
+
+/* ESG & Global Bento */
+.esg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.ecard{background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px;display:grid;gap:10px}
+.ecard b{font-size:clamp(2.2rem,4vw,3.3rem);font-weight:800;letter-spacing:-.04em;color:var(--ac)}
+.ecard span{font-size:14px;color:var(--mut)}
+@media(max-width:860px){.esg-grid{grid-template-columns:1fr 1fr}}
+
+/* Tabbed Newsroom & IR */
+.ntabs{display:flex;gap:8px;flex-wrap:wrap}
+.ntabs button{padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.ntabs button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+.nlist{border-top:2px solid var(--ink)}
+.nrow{display:grid;grid-template-columns:100px 1fr 110px;gap:16px;align-items:center;padding:22px 8px;border-bottom:1px solid var(--line);transition:background .2s}
+.nrow:hover{background:rgba(29,78,216,.04)}
+.ntag{padding:4px 10px;border-radius:6px;background:rgba(29,78,216,.09);color:var(--ac);font-size:12px;font-weight:700;text-align:center}
+.nrow b{font-size:16.5px}
+.nrow small{color:var(--mut);font-family:var(--mono);font-size:12px;text-align:right}
+@media(max-width:680px){.nrow{grid-template-columns:80px 1fr}.nrow small{display:none}}
+
+/* Corporate Contact & Family Site Footer */
+.ir-box{background:var(--dark);color:#fff;border-radius:24px;padding:clamp(32px,5vw,60px);display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}
+.ir-box form{display:grid;gap:12px}
+.ir-box input,.ir-box textarea{padding:12px 15px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;font:14px var(--sans)}
+footer{background:#090d16;color:rgba(255,255,255,.65);padding:48px 0;font-size:13px}
+.ft-in{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px}
+.fam{padding:10px 14px;border-radius:8px;background:#131c2e;color:#fff;border:1px solid rgba(255,255,255,.15);font:13px var(--sans)}
+@media(max-width:860px){.ir-box{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header id="hdr">
+  <a href="#top" class="logo">${esc(bp.brand)}</a>
+  <nav><a href="#business">사업영역</a><a href="#esg">ESG · 역량</a><a href="#news">뉴스룸 · IR</a><a href="#contact">제휴 · 문의</a></nav>
+  <div class="h-util">
+    <div class="lang" id="langTog"><button class="on" data-l="KR">KR</button><button data-l="EN">EN</button></div>
+    <a href="#contact" class="btn-p" style="padding:8px 16px;font-size:12.5px">기업 문의</a>
+  </div>
+</header>
+
+<section id="top" class="hero" data-stitch-screen="글로벌 기업 히어로">
+  <canvas id="corpCanvas" width="1440" height="900"></canvas>
+  <div class="hero-shade"></div>
+  <div class="wrap hero-in">
+    <span class="mono" style="color:#60a5fa">${esc(bp.brandSub)} · ${esc(bp.est)}</span>
+    <h1 id="heroSlideTitle">${esc(bp.heroLines.join(' '))}</h1>
+    <p id="heroSlideDesc">${esc(bp.heroDesc)}</p>
+    <div class="h-acts"><a href="#business" class="btn-p">${esc(bp.ctaPrimary)} →</a><a href="#contact" class="btn-g">${esc(bp.ctaSecondary)}</a></div>
+    <div class="s-ctl">
+      <span class="mono" id="sNum">01 / 03</span>
+      <div class="s-bar"><i id="sBar"></i></div>
+      <button type="button" id="sPrev">‹</button><button type="button" id="sNext">›</button>
+    </div>
+  </div>
+</section>
+
+<section id="business" class="sec" data-stitch-screen="핵심 사업영역">
+  <div class="wrap">
+    <div class="sh"><div><span class="mono" style="color:var(--ac)">01 · BUSINESS AREAS</span><h2>${esc(bp.servicesTitle)}</h2></div><span class="mono" style="color:var(--mut)">HOVER TO EXPAND</span></div>
+    <div class="biz-row">
+      ${bp.services.map((s, i) => `<article class="biz-col${i === 0 ? ' on' : ''}"><img data-ill-art="${esc(s.name)}" alt="${esc(s.name)}"><div class="biz-b"><span class="mono" style="color:#93c5fd">${esc(s.code)}</span><h3>${esc(s.name)}</h3><p>${esc(s.summary)}</p></div></article>`).join('')}
+    </div>
+  </div>
+</section>
+
+<section id="esg" class="sec alt" data-stitch-screen="ESG · 글로벌 지표">
+  <div class="wrap">
+    <div class="sh"><div><span class="mono" style="color:var(--ac)">02 · SUSTAINABILITY & SCALE</span><h2>${esc(bp.beliefTitle)}</h2></div></div>
+    <div class="esg-grid">
+      ${bp.kpis.map(([n, u, l]) => `<div class="ecard"><b>${esc(n)}${esc(u)}</b><span>${esc(l)}</span></div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<section id="news" class="sec" data-stitch-screen="뉴스룸 · IR">
+  <div class="wrap">
+    <div class="sh">
+      <div><span class="mono" style="color:var(--ac)">03 · NEWSROOM & IR</span><h2>${esc(bp.insightsTitle)}</h2></div>
+      <div class="ntabs" id="nTabs"><button class="on" data-t="전체">전체</button><button data-t="Report">보도자료</button><button data-t="IR">IR · 공시</button></div>
+    </div>
+    <div class="nlist" id="nList">
+      ${news.map((n) => `<div class="nrow" data-tag="${esc(n.tag)}"><span class="ntag">${esc(n.tag)}</span><div><b>${esc(n.title)}</b><div style="font-size:13.5px;color:var(--mut);margin-top:4px">${esc(n.desc)}</div></div><small>${esc(n.date)}</small></div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="sec alt" data-stitch-screen="B2B 제휴 · 채용">
+  <div class="wrap">
+    <div class="ir-box">
+      <div>
+        <span class="mono" style="color:#60a5fa">04 · GLOBAL PARTNERSHIP</span>
+        <h2 style="font-size:clamp(1.9rem,3.4vw,2.8rem);margin:10px 0 14px">${esc(bp.contactTitle)} ${esc(bp.contactSub)}</h2>
+        <p style="color:rgba(255,255,255,.72);margin-bottom:18px">${esc(bp.address)} · ${esc(bp.phone)}</p>
+        <div class="mono" style="color:#93c5fd">${esc(bp.email)}</div>
+      </div>
+      <form id="corpForm">
+        <input required placeholder="기업명 / 담당자 성함">
+        <input required type="email" placeholder="비즈니스 이메일">
+        <textarea rows="3" placeholder="사업 제휴, B2B 도입 또는 IR 문의 내용을 남겨주세요."></textarea>
+        <button type="submit" class="btn-p">기업 제휴 · IR 문의 접수 →</button>
+        <div id="corpMsg" class="mono" style="color:#60a5fa"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap ft-in">
+    <div><b style="color:#fff;font-size:16px">${esc(bp.brand)}</b><p style="margin-top:8px">${esc(bp.address)} · 대표전화 ${esc(bp.phone)} · 사업자등록번호 104-81-59201</p><p style="margin-top:4px">© 2026 ${esc(bp.brand)} Corp. All rights reserved.</p></div>
+    <select class="fam" onchange="if(this.value)alert(this.value+' 페이지로 이동합니다.')"><option value="">Family Site</option><option>${esc(bp.brand)} R&D Center</option><option>${esc(bp.brand)} Global IR</option><option>${esc(bp.brand)} Careers</option></select>
+  </div>
+</footer>
+<script>
+const CFG=${cfg};
+${ART_SYNTH_JS}
+document.querySelectorAll('img[data-ill-art]').forEach((im,i)=>{im.src=illArt(im.dataset.illArt,i,CFG.pal,'luxury');});
+window.addEventListener('scroll',()=>{document.getElementById('hdr').classList.toggle('solid',scrollY>60);},{passive:true});
+const SLIDES=[
+  {t:${JSON.stringify(bp.heroLines.join(' '))},d:${JSON.stringify(bp.heroDesc)}},
+  {t:${JSON.stringify(bp.beliefTitle)},d:${JSON.stringify(bp.statementText)}},
+  {t:${JSON.stringify(bp.servicesTitle)},d:'글로벌 기준의 기술 혁신과 ESG 책임 경영으로 산업의 다음 기준을 만듭니다.'}
+];
+let si=0;
+function showSlide(n){
+  si=(n+SLIDES.length)%SLIDES.length;
+  document.getElementById('heroSlideTitle').textContent=SLIDES[si].t;
+  document.getElementById('heroSlideDesc').textContent=SLIDES[si].d;
+  document.getElementById('sNum').textContent='0'+(si+1)+' / 0'+SLIDES.length;
+  document.getElementById('sBar').style.width=((si+1)/SLIDES.length*100)+'%';
+}
+document.getElementById('sPrev').onclick=()=>showSlide(si-1);
+document.getElementById('sNext').onclick=()=>showSlide(si+1);
+setInterval(()=>showSlide(si+1),5500);
+document.querySelectorAll('.biz-col').forEach(c=>c.addEventListener('mouseenter',()=>{document.querySelectorAll('.biz-col').forEach(x=>x.classList.remove('on'));c.classList.add('on');}));
+document.querySelectorAll('#nTabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#nTabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  const t=b.dataset.t; document.querySelectorAll('#nList .nrow').forEach(r=>{r.style.display=(t==='전체'||r.dataset.tag===t|| (t==='Report'&&r.dataset.tag!=='IR'))?'':'none';});
+});
+document.querySelectorAll('#langTog button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#langTog button').forEach(x=>x.classList.remove('on'));b.classList.add('on');});
+document.getElementById('corpForm').onsubmit=(e)=>{e.preventDefault();document.getElementById('corpMsg').textContent='✓ 담당 부서에 정상 접수되었습니다.';e.target.reset();};
+(function(){
+  const cv=document.getElementById('corpCanvas'),x=cv.getContext('2d'); let t=0;
+  function draw(){
+    requestAnimationFrame(draw); t+=0.008;
+    const w=cv.width,h=cv.height;
+    x.fillStyle='#0b1220'; x.fillRect(0,0,w,h);
+    const cx=w*.74,cy=h*.48;
+    for(let k=0;k<7;k++){
+      x.beginPath(); x.ellipse(cx,cy,180+k*38,85+k*20,t*.25+k*.2,0,Math.PI*2);
+      x.strokeStyle=k%2?'rgba(96,165,250,0.22)':'rgba(255,255,255,0.08)'; x.lineWidth=1.3; x.stroke();
+    }
+  }
+  draw();
+})();
+</script>
+</body>
+</html>`;
+  }
+
+  /* =========================================================================
+   * ARCHETYPE 7: KOREAN D2C COMMERCE & BRAND MALL (Imweb · DBCut Mall Style)
+   * Sticky top promo strip, 3-panel lookbook split hero, circular quick-category strip,
+   * clickable 10%/15%/20% coupons, 4-col product cards + WORKING SLIDE-OUT CART DRAWER
+   * ========================================================================= */
+  function renderCommerce(bp) {
+    const prods = bp.services.concat(bp.cases).slice(0, 8).map((p, i) => {
+      const orig = [48000, 62000, 39000, 84000, 52000, 76000, 44000, 98000][i % 8];
+      const disc = [20, 15, 10, 25, 15, 20, 10, 30][i % 8];
+      const sale = Math.round((orig * (100 - disc)) / 100 / 100) * 100;
+      return {
+        id: 'P0' + (i + 1),
+        cat: ['BEST', 'NEW', 'SET', 'GIFT'][i % 4],
+        name: p.name || p.title,
+        desc: p.summary || p.desc,
+        orig, sale, disc,
+        rating: (4.8 + (i % 2) * 0.1).toFixed(1),
+        reviews: 142 + i * 67,
+        swatches: [['#1e1b18', '#e6dfd3', '#8a6f4d'], ['#d8b49c', '#2c1c21', '#f5f1eb'], ['#1d3a2c', '#d8e86c', '#111111']][i % 3],
+      };
+    });
+    const cfg = JSON.stringify({ brand: bp.brand, sub: bp.brandSub, pal: { a: '#e7e1d7', b: '#c7b8a3', c: '#231f1c', hi: '#c94a38' }, prods }).replace(/<\/script/gi, '<\\/script');
+    return `<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(bp.brand)} — 공식 브랜드 스토어</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--bg:#ffffff;--sf:#f7f5f2;--ink:#151413;--mut:#716d68;--red:#d93829;--gold:#8a6b48;--line:rgba(21,20,19,.1);--sans:'Pretendard Variable',sans-serif;--ease:cubic-bezier(.16,1,.3,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+a{color:inherit;text-decoration:none}
+html{scroll-behavior:smooth;background:var(--bg);color:var(--ink)}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);overflow-x:hidden;word-break:keep-all;line-height:1.55}
+.wrap{max-width:1320px;margin:0 auto;padding:0 clamp(16px,3.5vw,44px)}
+/* Imweb Sticky Top Promo Strip */
+.promo-bar{background:#111;color:#fff;font-size:12.5px;padding:10px 18px;display:flex;align-items:center;justify-content:center;gap:12px;position:relative}
+.promo-bar b{padding:2px 8px;border-radius:4px;background:var(--red);font-size:11px}
+.promo-bar button{position:absolute;right:16px;border:0;background:none;color:rgba(255,255,255,.65);cursor:pointer;font-size:14px}
+header{position:sticky;top:0;z-index:800;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.hdr-in{display:flex;align-items:center;justify-content:space-between;height:66px;gap:16px}
+.logo{font-weight:800;font-size:20px;letter-spacing:.08em}
+nav{display:flex;gap:24px;font-size:14px;font-weight:600}
+.cart-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:13px;font-weight:700;border:0;cursor:pointer}
+.cart-btn i{font-style:normal;padding:1px 7px;border-radius:999px;background:var(--red);font-size:11px}
+@media(max-width:760px){nav{display:none}}
+
+/* DBCut KolonMall 3-Panel Editorial Split Hero */
+.hero3{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:#111;min-height:500px}
+.hpanel{position:relative;overflow:hidden;min-height:500px;display:flex;align-items:flex-end;padding:30px;color:#fff}
+.hpanel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
+.hpanel:hover img{transform:scale(1.06)}
+.hpanel::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 35%,rgba(0,0,0,.78) 100%)}
+.hp-b{position:relative;z-index:2;display:grid;gap:6px}
+.hp-b small{font-size:11px;letter-spacing:.14em;opacity:.82}
+.hp-b h2{font-size:clamp(1.3rem,2.2vw,1.9rem);font-weight:700;line-height:1.25}
+@media(max-width:860px){.hero3{grid-template-columns:1fr}.hpanel{min-height:300px}}
+
+/* Circular Quick-Category Strip (KolonMall + Hince) */
+.qstrip{display:flex;justify-content:center;gap:clamp(14px,3vw,34px);flex-wrap:wrap;padding:28px 0;border-bottom:1px solid var(--line)}
+.qitem{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12.5px;font-weight:600;cursor:pointer}
+.qitem i{width:58px;height:58px;border-radius:50%;background:var(--sf);border:1px solid var(--line);display:grid;place-items:center;font-style:normal;font-size:15px;font-weight:800;transition:.25s}
+.qitem:hover i{background:var(--ink);color:#fff;transform:translateY(-3px)}
+.qitem.kakao i{background:#fee500;color:#191919;border-color:#fee500}
+
+/* Imweb Clickable Tiered Coupon Band */
+.coupons{background:#121214;color:#fff;border-radius:20px;padding:28px;margin:34px 0;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.c-cards{display:flex;gap:12px;flex-wrap:wrap}
+.cc{padding:14px 20px;border-radius:12px;background:var(--red);color:#fff;border:0;cursor:pointer;text-align:left;min-width:128px;transition:.2s}
+.cc b{display:block;font-size:24px;line-height:1}
+.cc span{font-size:11.5px;opacity:.9}
+.cc.got{background:#27272a;color:#a1a1aa}
+
+/* Merchandising Grid */
+.sec{padding:44px 0}
+.sh{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:24px}
+.sh h2{font-size:clamp(1.5rem,2.8vw,2.2rem);font-weight:800;letter-spacing:-.03em}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tabs button{padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.prod{display:flex;flex-direction:column;gap:10px}
+.pimg{position:relative;aspect-ratio:4/5;border-radius:14px;overflow:hidden;background:var(--sf)}
+.pimg img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
+.prod:hover .pimg img{transform:scale(1.06)}
+.pbadge{position:absolute;top:10px;left:10px;padding:4px 9px;border-radius:6px;background:var(--ink);color:#fff;font-size:11px;font-weight:700}
+.sws{display:flex;gap:6px}.sws i{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,.18)}
+.prod h3{font-size:15px;font-weight:700}
+.pprice{display:flex;align-items:baseline;gap:7px;font-size:15.5px}
+.pprice .d{color:var(--red);font-weight:800}.pprice b{font-weight:800}.pprice s{font-size:12.5px;color:var(--mut)}
+.pmeta{font-size:12px;color:var(--mut)}
+.add-btn{padding:10px;border-radius:10px;border:1px solid var(--ink);background:#fff;font-weight:700;font-size:13px;cursor:pointer;transition:.2s}
+.add-btn:hover{background:var(--ink);color:#fff}
+@media(max-width:960px){.pgrid{grid-template-columns:1fr 1fr}}
+
+/* Photo Reviews */
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.rcard{background:var(--sf);border-radius:16px;padding:20px;display:grid;gap:10px}
+.stars{color:#f59e0b;font-size:13px}
+@media(max-width:820px){.rgrid{grid-template-columns:1fr}}
+
+/* Slide-Out Shopping Cart Drawer */
+.cbg{position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.55);display:none;justify-content:flex-end}
+.cbg.open{display:flex}
+.cdraw{width:min(100%,420px);height:100%;background:#fff;padding:24px;display:flex;flex-direction:column;gap:16px}
+.ship-bar{background:var(--sf);border-radius:12px;padding:12px 14px;font-size:12.5px}
+.ship-bar .trk{height:6px;border-radius:99px;background:#e4e4e7;margin-top:8px;overflow:hidden}
+.ship-bar .trk i{display:block;height:100%;width:0;background:var(--ink);transition:width .35s}
+.citems{flex:1;overflow:auto;display:grid;gap:12px;align-content:start}
+.ci{display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px;border:1px solid var(--line);border-radius:12px}
+.qty{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:2px 8px}
+.qty button{border:0;background:none;cursor:pointer;font-weight:700;font-size:15px}
+.dock-k{position:fixed;right:20px;bottom:22px;z-index:850;width:54px;height:54px;border-radius:50%;background:#fee500;color:#191919;font-weight:900;font-size:15px;display:grid;place-items:center;box-shadow:0 12px 28px rgba(0,0,0,.22);border:0;cursor:pointer}
+footer{background:var(--sf);border-top:1px solid var(--line);padding:42px 0;margin-top:44px;font-size:12.5px;color:var(--mut);line-height:1.8}
+</style>
+</head>
+<body>
+<div class="promo-bar" id="promoBar"><b>COUPON</b><span>공식몰 신규 가입 시 최대 20% 웰컴 쿠폰 + 5만 원 이상 무료배송</span><button type="button" onclick="this.parentElement.remove()">✕</button></div>
+<header>
+  <div class="wrap hdr-in">
+    <a href="#top" class="logo">${esc(bp.brand)}</a>
+    <nav><a href="#shop">BEST</a><a href="#shop">NEW</a><a href="#coupons">EVENT</a><a href="#reviews">REVIEW</a></nav>
+    <button type="button" class="cart-btn" id="openCart">CART <i id="cartN">0</i></button>
+  </div>
+</header>
+
+<section id="top" class="hero3" data-stitch-screen="3단 룩북 스토어 히어로">
+  ${prods.slice(0, 3).map((p, i) => `<a href="#shop" class="hpanel"><img data-ill-art="${esc(p.name)}" alt="${esc(p.name)}"><div class="hp-b"><small>LOOKBOOK 0${i + 1} · ${esc(p.cat)}</small><h2>${esc(p.name)}</h2><span>₩${p.sale.toLocaleString()} · ${p.disc}% OFF →</span></div></a>`).join('')}
+</section>
+
+<main class="wrap">
+  <div class="qstrip">
+    <div class="qitem" data-f="BEST"><i>BEST</i><span>베스트</span></div>
+    <div class="qitem" data-f="NEW"><i>NEW</i><span>신상품</span></div>
+    <div class="qitem" data-f="SET"><i>SET</i><span>기획세트</span></div>
+    <div class="qitem" data-f="GIFT"><i>GIFT</i><span>선물하기</span></div>
+    <a href="#coupons" class="qitem"><i>%</i><span>쿠폰존</span></a>
+    <button type="button" class="qitem kakao" onclick="alert('${esc(bp.brand)} 카카오톡 채널 상담으로 연결됩니다.')"><i>Ch</i><span>카톡상담</span></button>
+  </div>
+
+  <section id="coupons" class="coupons" data-stitch-screen="등급별 쿠폰 · 혜택">
+    <div>
+      <div style="font-size:12px;color:#f87171;font-weight:700;letter-spacing:.1em">MEMBER BENEFIT</div>
+      <h2 style="font-size:clamp(1.35rem,2.4vw,1.9rem);margin-top:4px">지금 바로 쓸 수 있는 공식몰 쿠폰팩</h2>
+      <p style="font-size:13.5px;color:#a1a1aa;margin-top:4px">클릭 한 번으로 발급되고 장바구니에서 자동 할인 적용됩니다.</p>
+    </div>
+    <div class="c-cards">
+      <button type="button" class="cc" data-d="10"><b>10%</b><span>전 품목 쿠폰 받기 ↓</span></button>
+      <button type="button" class="cc" data-d="15"><b>15%</b><span>5만 원 이상 쿠폰 ↓</span></button>
+      <button type="button" class="cc" data-d="20"><b>20%</b><span>첫 구매 VIP 쿠폰 ↓</span></button>
+    </div>
+  </section>
+
+  <section id="shop" class="sec" data-stitch-screen="상품 큐레이션 · 장바구니">
+    <div class="sh">
+      <h2>CURATED COLLECTION</h2>
+      <div class="tabs" id="sTabs"><button class="on" data-c="전체">전체</button><button data-c="BEST">BEST</button><button data-c="NEW">NEW</button><button data-c="SET">SET</button><button data-c="GIFT">GIFT</button></div>
+    </div>
+    <div class="pgrid" id="pGrid">
+      ${prods.map((p) => `<article class="prod" data-cat="${esc(p.cat)}"><div class="pimg"><span class="pbadge">${esc(p.cat)} · ${p.disc}%</span><img data-ill-art="${esc(p.name)}" alt="${esc(p.name)}"></div><div class="sws">${p.swatches.map((c) => `<i style="background:${c}"></i>`).join('')}</div><h3>${esc(p.name)}</h3><div class="pprice"><span class="d">${p.disc}%</span><b>₩${p.sale.toLocaleString()}</b><s>₩${p.orig.toLocaleString()}</s></div><div class="pmeta">★ ${p.rating} · 리뷰 ${p.reviews}</div><button type="button" class="add-btn" data-add="${p.id}">장바구니 담기</button></article>`).join('')}
+    </div>
+  </section>
+
+  <section id="reviews" class="sec" data-stitch-screen="포토 리뷰">
+    <div class="sh"><h2>실구매 고객 포토 리뷰 ★ 4.9</h2></div>
+    <div class="rgrid">
+      ${bp.insights.map((r, i) => `<div class="rcard"><div class="stars">★★★★★ 5.0</div><b>${esc(r.title)}</b><p style="font-size:13.5px;color:var(--mut)">${esc(r.desc)}</p><span style="font-size:12px;color:var(--gold)">네이버페이 실구매 인증 · ${['김*지', '이*훈', '박*연'][i % 3]}</span></div>`).join('')}
+    </div>
+  </section>
+</main>
+
+<div class="cbg" id="cartBg">
+  <div class="cdraw">
+    <div style="display:flex;justify-content:space-between;align-items:center"><b>장바구니</b><button type="button" id="closeCart" style="border:0;background:none;font-size:16px;cursor:pointer">✕</button></div>
+    <div class="ship-bar"><div id="shipTxt">50,000원 이상 구매 시 무료배송</div><div class="trk"><i id="shipFill"></i></div></div>
+    <div class="citems" id="cartList"></div>
+    <div style="border-top:1px solid var(--line);padding-top:14px;display:grid;gap:10px">
+      <div style="display:flex;justify-content:space-between;font-size:14px"><span>적용 쿠폰 할인</span><b id="cDisc" style="color:var(--red)">-₩0</b></div>
+      <div style="display:flex;justify-content:space-between;font-size:18px"><b>결제 예정 금액</b><b id="cTot">₩0</b></div>
+      <button type="button" class="cart-btn" style="justify-content:center;padding:14px" id="checkoutBtn">네이버페이 · 간편결제 주문하기</button>
+    </div>
+  </div>
+</div>
+<button type="button" class="dock-k" onclick="alert('카카오톡 1:1 실시간 상담을 시작합니다.')">Ch</button>
+<footer>
+  <div class="wrap">
+    <b style="color:var(--ink);font-size:15px">${esc(bp.brand)} 공식 온라인 스토어</b><br>
+    상호명: 주식회사 ${esc(bp.brand)} · 대표이사: ${esc(bp.founderName)} · 사업자등록번호: 211-88-40192 · 통신판매업신고: 제2026-서울강남-0412호<br>
+    주소: ${esc(bp.address)} · 고객센터: ${esc(bp.phone)} (${esc(bp.hours)}) · 이메일: ${esc(bp.email)}
+  </div>
+</footer>
+<script>
+const CFG=${cfg};
+${ART_SYNTH_JS}
+document.querySelectorAll('img[data-ill-art]').forEach((im,i)=>{im.src=illArt(im.dataset.illArt,i,CFG.pal,'atelier');});
+const cart=[]; let couponPct=0;
+function renderCart(){
+  const n=cart.reduce((a,x)=>a+x.q,0); document.getElementById('cartN').textContent=n;
+  const sub=cart.reduce((a,x)=>a+x.sale*x.q,0), disc=Math.round(sub*couponPct/100), tot=Math.max(0,sub-disc);
+  document.getElementById('cDisc').textContent='-₩'+disc.toLocaleString()+(couponPct?' ('+couponPct+'%)':'');
+  document.getElementById('cTot').textContent='₩'+tot.toLocaleString();
+  const pct=Math.min(100,Math.round(sub/50000*100));
+  document.getElementById('shipFill').style.width=pct+'%';
+  document.getElementById('shipTxt').textContent=sub>=50000?'✓ 무료배송 조건을 달성했습니다!':'₩'+(50000-sub).toLocaleString()+' 더 담으면 무료배송';
+  document.getElementById('cartList').innerHTML=cart.length?cart.map((c,i)=>'<div class="ci"><div><b style="font-size:14px">'+c.name+'</b><div style="font-size:13px;color:#716d68;margin-top:4px">₩'+(c.sale*c.q).toLocaleString()+'</div></div><div class="qty"><button onclick="chgQ('+i+',-1)">-</button><span>'+c.q+'</span><button onclick="chgQ('+i+',1)">+</button></div></div>').join(''):'<p style="color:#716d68;font-size:13.5px;text-align:center;padding:36px 0">장바구니가 비어 있습니다.</p>';
+}
+window.chgQ=(i,d)=>{cart[i].q+=d;if(cart[i].q<=0)cart.splice(i,1);renderCart();};
+document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{
+  const p=CFG.prods.find(x=>x.id===b.dataset.add); if(!p)return;
+  const ex=cart.find(x=>x.id===p.id); if(ex)ex.q++; else cart.push({...p,q:1});
+  renderCart(); document.getElementById('cartBg').classList.add('open');
+});
+document.querySelectorAll('.cc').forEach(b=>b.onclick=()=>{
+  couponPct=Math.max(couponPct,Number(b.dataset.d));
+  b.classList.add('got'); b.querySelector('span').textContent='발급 완료 ✓ 자동 적용'; renderCart();
+});
+document.getElementById('openCart').onclick=()=>{renderCart();document.getElementById('cartBg').classList.add('open');};
+document.getElementById('closeCart').onclick=()=>document.getElementById('cartBg').classList.remove('open');
+document.getElementById('cartBg').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};
+document.getElementById('checkoutBtn').onclick=()=>{if(!cart.length){alert('상품을 먼저 담아주세요.');return;}alert('주문이 정상 접수되었습니다! (결제 금액: '+document.getElementById('cTot').textContent+')');cart.length=0;renderCart();document.getElementById('cartBg').classList.remove('open');};
+function filterShop(cat){
+  document.querySelectorAll('#sTabs button').forEach(x=>x.classList.toggle('on',x.dataset.c===cat));
+  document.querySelectorAll('#pGrid .prod').forEach(p=>{p.style.display=(cat==='전체'||p.dataset.cat===cat)?'':'none';});
+}
+document.querySelectorAll('#sTabs button').forEach(b=>b.onclick=()=>filterShop(b.dataset.c));
+document.querySelectorAll('.qitem[data-f]').forEach(q=>q.onclick=()=>{filterShop(q.dataset.f);document.getElementById('shop').scrollIntoView({behavior:'smooth'});});
+renderCart();
+</script>
+</body>
+</html>`;
+  }
+
+  /* =========================================================================
+   * ARCHETYPE 8: HIGH-CONVERTING LANDING & DETAIL PAGE (Notefolio CRO Style)
+   * Live countdown bar, Hook Question Hero, Pain->Solution contrast, Interactive
+   * Draggable Before/After Comparison Slider, Reviews, Guarantee, Sticky Bottom CTA
+   * ========================================================================= */
+  function renderLanding(bp) {
+    const cfg = JSON.stringify({ brand: bp.brand, sub: bp.brandSub, pal: { a: '#1b1917', b: '#3d2c20', c: '#0c0b0a', hi: '#f97316' } }).replace(/<\/script/gi, '<\\/script');
+    return `<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(bp.brand)} — ${esc(bp.brandSub)}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#faf8f5;--ink:#141312;--mut:#67625c;--ac:#ea580c;--ac2:#fb923c;--dark:#121110;--line:rgba(20,19,18,.1);--sans:'Pretendard Variable',sans-serif;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+a{color:inherit;text-decoration:none}
+html{scroll-behavior:smooth;background:var(--bg);color:var(--ink)}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);overflow-x:hidden;word-break:keep-all;line-height:1.65;padding-bottom:84px}
+.wrap{max-width:960px;margin:0 auto;padding:0 clamp(18px,4vw,32px)}
+/* Live Scarcity Countdown Bar */
+.cdbar{position:sticky;top:0;z-index:850;background:var(--dark);color:#fff;padding:11px 16px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;font-size:13px}
+.cdbar b{padding:3px 9px;border-radius:999px;background:var(--ac);font-size:11px}
+.cdbar code{font-family:var(--mono);font-size:14px;color:#fdba74;font-weight:700}
+
+/* Hook Question Hero */
+.hero{padding:64px 0 56px;text-align:center;display:grid;gap:20px;justify-items:center}
+.proof-pill{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.04)}
+.hero h1{font-size:clamp(2.2rem,5.4vw,3.9rem);font-weight:800;letter-spacing:-.04em;line-height:1.18}
+.hero h1 em{font-style:normal;color:var(--ac)}
+.hero p{max-width:620px;font-size:17px;color:var(--mut)}
+.hero-vis{width:100%;aspect-ratio:16/9;border-radius:22px;overflow:hidden;box-shadow:0 28px 70px rgba(0,0,0,.14);margin-top:10px}
+.hero-vis img{width:100%;height:100%;object-fit:cover}
+.cta-big{display:inline-flex;align-items:center;gap:10px;padding:16px 32px;border-radius:999px;background:var(--ac);color:#fff;font-size:16px;font-weight:800;border:0;cursor:pointer;box-shadow:0 14px 34px rgba(234,88,12,.34)}
+
+/* Pain -> Solution Dual-Weight Contrast */
+.sec{padding:64px 0;border-top:1px solid var(--line)}
+.sec-h{text-align:center;margin-bottom:36px}
+.sec-h small{font-family:var(--mono);font-size:11.5px;color:var(--ac);letter-spacing:.12em;font-weight:700}
+.sec-h h2{font-size:clamp(1.7rem,3.6vw,2.7rem);font-weight:800;letter-spacing:-.035em;margin-top:8px;line-height:1.25}
+.pain-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.pbox{border-radius:20px;padding:28px;display:grid;gap:12px}
+.pbox.bad{background:#efeae3;border:1px solid rgba(20,19,18,.1)}
+.pbox.good{background:var(--dark);color:#fff}
+.pbox ul{list-style:none;display:grid;gap:10px;font-size:15px}
+.pbox.bad li::before{content:'✕ ';color:#dc2626;font-weight:800}
+.pbox.good li::before{content:'✓ ';color:#fb923c;font-weight:800}
+@media(max-width:740px){.pain-grid{grid-template-columns:1fr}}
+
+/* Interactive Draggable Before/After Comparison Slider */
+.ba-wrap{position:relative;width:100%;aspect-ratio:16/9;border-radius:22px;overflow:hidden;user-select:none;box-shadow:0 24px 60px rgba(0,0,0,.14);cursor:ew-resize}
+.ba-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.ba-after{position:absolute;inset:0;clip-path:inset(0 0 0 50%)}
+.ba-line{position:absolute;top:0;bottom:0;left:50%;width:3px;background:#fff;box-shadow:0 0 18px rgba(0,0,0,.5);pointer-events:none}
+.ba-knob{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;background:var(--ac);color:#fff;font-weight:800;display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.35);pointer-events:none}
+.ba-tag{position:absolute;top:16px;padding:6px 12px;border-radius:999px;background:rgba(18,17,16,.75);color:#fff;font-size:12px;font-weight:700}
+
+/* Benefit Bento & Packages */
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;display:grid;gap:10px}
+.card.pop{border:2px solid var(--ac);position:relative}
+.card .pr{font-size:28px;font-weight:800;letter-spacing:-.03em}
+.guar{background:#fff7ed;border:1.5px solid #fdba74;border-radius:18px;padding:24px;text-align:center;margin-top:26px}
+@media(max-width:760px){.g3{grid-template-columns:1fr}}
+
+/* Fixed Bottom Sticky CTA Bar */
+.sticky-cta{position:fixed;left:0;right:0;bottom:0;z-index:900;background:rgba(18,17,16,.94);backdrop-filter:blur(12px);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.12)}
+.mbg{position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.65);display:none;place-items:center;padding:20px}
+.mbg.open{display:grid}
+.mbox{width:min(100%,460px);background:#fff;border-radius:22px;padding:28px;display:grid;gap:14px}
+.mbox input{padding:12px 14px;border-radius:10px;border:1px solid var(--line);font:14px var(--sans)}
+</style>
+</head>
+<body>
+<div class="cdbar"><b>마감 임박</b><span>얼리버드 최대 38% 특가 종료까지</span><code id="cdClock">00일 04:59:52</code></div>
+
+<main class="wrap">
+  <section class="hero" data-stitch-screen="후킹 히어로">
+    <span class="proof-pill">★ 4.9 / 5.0 · 누적 신청 ${esc(bp.kpis[0][0])}${esc(bp.kpis[0][1])} 돌파</span>
+    <h1>아직도 <em>복잡하고 비효율적인</em><br>방식을 쓰고 계신가요?<br>${esc(bp.heroLines.join(' '))}</h1>
+    <p>${esc(bp.heroDesc)}</p>
+    <button type="button" class="cta-big" onclick="openLead()">지금 38% 특가 혜택 받기 →</button>
+    <div class="hero-vis"><img data-ill-art="${esc(bp.brand + ' · HERO')}" alt="${esc(bp.brand)}"></div>
+  </section>
+
+  <section class="sec" data-stitch-screen="문제 제기 · 솔루션">
+    <div class="sec-h"><small>PAIN POINT → SOLUTION</small><h2>왜 기존 방식은 실패할까요?<br>${esc(bp.brand)}만의 결정적 차이</h2></div>
+    <div class="pain-grid">
+      <div class="pbox bad"><h3>기존 방식의 한계</h3><ul><li>시간과 비용은 계속 드는데 체감 효과가 미미함</li><li>복잡한 절차와 불투명한 추가 비용 부담</li><li>사후 관리 부재로 금방 원래 상태로 돌아감</li></ul></div>
+      <div class="pbox good"><h3>${esc(bp.brand)}의 완벽한 솔루션</h3><ul>${bp.principles.map(([t]) => `<li>${esc(t)} — 검증된 데이터 기반 설계</li>`).join('')}</ul></div>
+    </div>
+  </section>
+
+  <section class="sec" data-stitch-screen="Before & After 비교">
+    <div class="sec-h"><small>INTERACTIVE PROOF</small><h2>직접 드래그해서 변화를 확인하세요</h2></div>
+    <div class="ba-wrap" id="baBox">
+      <img data-ill-art="BEFORE · 기존 상태" alt="Before">
+      <div class="ba-after" id="baAfter"><img data-ill-art="AFTER · ${esc(bp.brand)} 적용 후" alt="After"></div>
+      <span class="ba-tag" style="left:16px">BEFORE</span>
+      <span class="ba-tag" style="right:16px;background:var(--ac)">AFTER · +94% 개선</span>
+      <div class="ba-line" id="baLine"></div>
+      <div class="ba-knob" id="baKnob">⇄</div>
+    </div>
+  </section>
+
+  <section class="sec" data-stitch-screen="패키지 · 환불 보장">
+    <div class="sec-h"><small>SPECIAL OFFER</small><h2>투명한 얼리버드 패키지</h2></div>
+    <div class="g3">
+      <div class="card"><small style="color:var(--mut)">STARTER</small><h3>베이직 구성</h3><div class="pr">₩39,000</div><p style="font-size:13.5px;color:var(--mut)">입문자용 핵심 스타터 패키지 · 무료배송</p><button type="button" class="cta-big" style="padding:11px;font-size:14px;justify-content:center;background:#141312" onclick="openLead('베이직 구성')">선택하기</button></div>
+      <div class="card pop"><small style="color:var(--ac);font-weight:800">BEST · 38% OFF</small><h3>시그니처 올인원</h3><div class="pr">₩69,000</div><p style="font-size:13.5px;color:var(--mut)">가장 많이 선택하는 풀 패키지 + 전용 사은품</p><button type="button" class="cta-big" style="padding:11px;font-size:14px;justify-content:center" onclick="openLead('시그니처 올인원')">특가로 신청하기 →</button></div>
+      <div class="card"><small style="color:var(--mut)">VIP SET</small><h3>프리미엄 더블팩</h3><div class="pr">₩119,000</div><p style="font-size:13.5px;color:var(--mut)">1:1 전담 케어 포함 · 최대 할인 구성</p><button type="button" class="cta-big" style="padding:11px;font-size:14px;justify-content:center;background:#141312" onclick="openLead('프리미엄 더블팩')">선택하기</button></div>
+    </div>
+    <div class="guar"><b style="color:var(--ac);font-size:16px">✓ 100% 30일 불만족 시 전액 환불 보장</b><p style="font-size:13.5px;color:var(--mut);margin-top:6px">직접 경험해 보시고 만족하지 않으시면 묻지도 따지지도 않고 100% 환불해 드립니다.</p></div>
+  </section>
+</main>
+
+<div class="sticky-cta">
+  <span><b>${esc(bp.brand)}</b> 얼리버드 최대 <b>38% 할인</b> · 무료배송</span>
+  <button type="button" class="cta-big" style="padding:11px 22px;font-size:14px" onclick="openLead()">지금 바로 신청하기 →</button>
+</div>
+
+<div class="mbg" id="leadBg">
+  <div class="mbox">
+    <div style="display:flex;justify-content:space-between;align-items:center"><b id="leadTitle">특가 혜택 신청</b><button type="button" onclick="document.getElementById('leadBg').classList.remove('open')" style="border:0;background:none;font-size:18px;cursor:pointer">✕</button></div>
+    <form id="leadForm" style="display:grid;gap:12px">
+      <input required placeholder="성함">
+      <input required placeholder="연락처 (010-0000-0000)">
+      <button type="submit" class="cta-big" style="justify-content:center;padding:13px">신청 완료하고 혜택 받기 →</button>
+      <div id="leadMsg" style="font-size:13px;font-weight:700;color:var(--ac)"></div>
+    </form>
+  </div>
+</div>
+<script>
+const CFG=${cfg};
+${ART_SYNTH_JS}
+document.querySelectorAll('img[data-ill-art]').forEach((im,i)=>{im.src=illArt(im.dataset.illArt,i,i===1?{a:'#3b3530',b:'#574e47',c:'#211e1c',hi:'#9ca3af'}:CFG.pal,'arch');});
+/* Live countdown */
+let secLeft=4*3600+59*60+52;
+setInterval(()=>{secLeft=Math.max(0,secLeft-1);const h=Math.floor(secLeft/3600),m=Math.floor((secLeft%3600)/60),s=secLeft%60;document.getElementById('cdClock').textContent='00일 '+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');},1000);
+/* Draggable Before/After slider */
+const ba=document.getElementById('baBox');
+function setBA(clientX){
+  const r=ba.getBoundingClientRect(), pct=Math.max(5,Math.min(95,(clientX-r.left)/r.width*100));
+  document.getElementById('baAfter').style.clipPath='inset(0 0 0 '+pct+'%)';
+  document.getElementById('baLine').style.left=pct+'%';
+  document.getElementById('baKnob').style.left=pct+'%';
+}
+let drag=false;
+ba.addEventListener('pointerdown',e=>{drag=true;setBA(e.clientX);});
+window.addEventListener('pointerup',()=>drag=false);
+window.addEventListener('pointermove',e=>{if(drag)setBA(e.clientX);});
+window.openLead=(pkg)=>{document.getElementById('leadTitle').textContent=pkg?pkg+' 특가 신청':'38% 얼리버드 혜택 신청';document.getElementById('leadBg').classList.add('open');};
+document.getElementById('leadForm').onsubmit=(e)=>{e.preventDefault();document.getElementById('leadMsg').textContent='✓ 특가 신청이 완료되었습니다! 알림톡으로 상세 안내를 보내드렸습니다.';e.target.reset();};
+</script>
+</body>
+</html>`;
+  }
+
+  window.ILLArchetypes = { renderAtelier, renderArchitecture, renderLuxury, renderCafe, renderSaaS, renderCorporate, renderCommerce, renderLanding };
 })();
